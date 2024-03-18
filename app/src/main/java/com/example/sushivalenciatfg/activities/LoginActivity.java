@@ -3,6 +3,7 @@ package com.example.sushivalenciatfg.activities;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.widget.TextView;
@@ -24,7 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvIrARegistro;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-
+    private String tipoUsuario;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //método obtener referencia a los elementos de la vista
-    private void obtenerReferencias() {
+    public void obtenerReferencias() {
         txtLoginNombreOCorreo = findViewById(R.id.txtInputLoginNombreOEmail);
         txtLoginContraseña = findViewById(R.id.txtInputLoginContraseña);
         btnLogin = findViewById(R.id.btnLogin);
@@ -63,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
 
     //Cuando un usuario intenta iniciar sesión, primero buscamos el documento con el nombre de usuario ingresado,
     // obtenemos el correo electrónico de ese documento y luego usar ese correo electrónico para iniciar sesión con Firebase Authentication.
-    private void login(String nombreUsuarioOEmail, String contraseña) {
+    public void login(String nombreUsuarioOEmail, String contraseña) {
         db.collection("usuario")
                 .whereEqualTo("nombreUsuario", nombreUsuarioOEmail)
                 .get()
@@ -78,10 +79,16 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-   private void signInWithFirebase(String email, String password) {
+   public void signInWithFirebase(String email, String password) {
     mAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this, task -> {
                 if (task.isSuccessful()) {
+                    // Guardar el tipo de usuario en SharedPreferences
+                    SharedPreferences sharedPreferences = getSharedPreferences("usuario", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("tipoUsuario", tipoUsuario); // Aquí tipoUsuario es el valor que quiero guardar ("CLIENTE" o "RESTAURANTE")
+                    editor.apply();
+
                     Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
                     // Si el inicio de sesión es exitoso, se inicia la actividad principal
                     Intent intent = new Intent(this, MainActivity.class);

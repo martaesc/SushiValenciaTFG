@@ -68,7 +68,7 @@ public class RegistroActivity extends AppCompatActivity {
 
 
     //método obtener referencia a los elementos de la vista
-    private void obtenerReferencias() {
+    public void obtenerReferencias() {
         txtRegistroUsuario = findViewById(R.id.textInputLayoutNombre);
         txtRegistroCorreo = findViewById(R.id.textInputLayoutCorreo);
         txtLoginContraseña = findViewById(R.id.textInputLayoutContraseña);
@@ -79,7 +79,7 @@ public class RegistroActivity extends AppCompatActivity {
     }
 
     //método para registrar un usuario en Firebase
-    private void registerUser(String nombreUsuario, String correo, String contraseña, String tipoUsuario) {
+    public void registerUser(String nombreUsuario, String correo, String contraseña, String tipoUsuario) {
         mAuth.createUserWithEmailAndPassword(correo, contraseña)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {

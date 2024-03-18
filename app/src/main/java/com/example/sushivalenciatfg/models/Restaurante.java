@@ -9,26 +9,44 @@ public class Restaurante {
     private String direccion;
     private String telefono;
     private String horario;
+
+    private String linkRestaurante;
     private double puntuacion;
     private String imagenRestaurante;
     private List<String> comentarios;
     private String idUsuarioRestaurante;
 
-    public Restaurante(String idRestaurante, String nombre, String descripcion, String direccion, String telefono, String horario, double puntuacion, String imagenRestaurante, List<String> comentarios, String idUsuarioRestaurante) {
+    public Restaurante(String idRestaurante, String nombre, String descripcion, String direccion, String telefono, String horario, String linkRestaurante, double puntuacion, String imagenRestaurante, List<String> comentarios, String idUsuarioRestaurante) {
         this.idRestaurante = idRestaurante;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.direccion = direccion;
         this.telefono = telefono;
         this.horario = horario;
+        this.linkRestaurante = linkRestaurante;
         this.puntuacion = puntuacion;
         this.imagenRestaurante = imagenRestaurante;
         this.comentarios = comentarios;
         this.idUsuarioRestaurante = idUsuarioRestaurante;
     }
 
+
+
     public Restaurante() {
     }
+
+    //Constructor para crear un nuevo restaurante(aún no tiene comentarios ni puntuaicones)
+    public Restaurante(String nombreRestaurante, String descripcionRestaurante, String direccion, String telefono, String horario, String linkRestaurante, String imagenBase64, String idUsuario) {
+        this.nombre = nombreRestaurante;
+        this.descripcion = descripcionRestaurante;
+        this.direccion = direccion;
+        this.telefono = telefono;
+        this.horario = horario;
+        this.linkRestaurante = linkRestaurante;
+        this.imagenRestaurante = imagenBase64;
+        this.idUsuarioRestaurante = idUsuario;
+    }
+
 
     public String getIdRestaurante() {
         return idRestaurante;
@@ -110,6 +128,14 @@ public class Restaurante {
         this.idUsuarioRestaurante = idUsuarioRestaurante;
     }
 
+    public String getLinkRestaurante() {
+        return linkRestaurante;
+    }
+
+    public void setLinkRestaurante(String linkRestaurante) {
+        this.linkRestaurante = linkRestaurante;
+    }
+
     public String toString() {
         return "Restaurante{" +
                 "idRestaurante='" + getIdRestaurante() + '\'' +
@@ -118,6 +144,7 @@ public class Restaurante {
                 ", direccion='" + getDireccion() + '\'' +
                 ", telefono='" + getTelefono() + '\'' +
                 ", horario='" + getHorario() + '\'' +
+                ", link web='" + getLinkRestaurante() + '\'' +
                 ", puntuacion='" + getPuntuacion() + '\'' +
                 ", imagenRestaurante='" + getImagenRestaurante() + '\'' +
                 ", comentarios=" + getComentarios() +

@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/fondo_info"
-    tools:context=".activities.InfoRestauranteActivity">
-
+    tools:context=".activities.NuevoRestauranteActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -19,8 +18,19 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <TextView
+                android:id="@+id/logo_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/arima_madurai"
+                android:text="AÑADE LA INFORMACIÓN"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                android:layout_gravity="center_horizontal"
+                android:textStyle="bold" />
+
             <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/restaurantImage"
+                android:id="@+id/iv_imagenNuevoRestaurante"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:scaleType="centerCrop"
@@ -29,74 +39,79 @@
                 app:strokeColor="@color/white"
                 app:strokeWidth="2dp" />
 
-            <TextView
-                android:id="@+id/restaurantTitle"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/et_nombreNuevoRestaurante"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:fontFamily="@font/arima_madurai"
-                android:text="Título del restaurante"
+                android:hint="Nombre del restaurante"
                 android:textColor="@color/black"
                 android:textSize="30sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColorHint="@color/red"/>
 
 
-            <TextView
-                android:id="@+id/restaurantLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:drawableStart="@drawable/estrella"
-                android:fontFamily="@font/arima_madurai"
-                android:text="5.2"
-                android:gravity="center_vertical"
-                android:textColor="@color/green"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/titleDescription"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/arima_madurai"
-                android:text="Descripción"
-                android:textColor="@color/pink"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/restaurantDescription"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/et_descripcionNuevoRestaurante"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/arima_madurai"
                 android:inputType="textMultiLine"
                 android:maxLines="20"
-                android:text="Breve descripción del restaurante
-hskjdhkhajshkhsjdkasjdhkhjakhdhaskjhjdhhdkajshdkks
-ashdhakdhksdkadh
-dhakshdaksdhj
-hdsakdk
-hdsakkadhsjhdkj
-kgkgkjgkgk
-gkgkhgkg
-ggkgkgkgjgkgkgk
-gkhgkgkjhhgkgkj
-gkkghggkkghghgkhkgggkggkggkgkggkgkkggkkkgkkggkkgg
-
-"
+                android:hint="Breve descripción del restaurante"
                 android:textColor="@color/black"
-                android:textSize="15sp" />
+                android:textSize="15sp"
+                android:textColorHint="@color/red"/>
+            <EditText
+                android:id="@+id/et_horarioNuevoRestaurante"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/arima_madurai"
+                android:inputType="textMultiLine"
+                android:maxLines="20"
+                android:hint="Horario del restaurante"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textColorHint="@color/red"/>
 
-            <TextView
-                android:id="@+id/restaurantMenuLink"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/et_telefonoNuevoRestaurante"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/arima_madurai"
+                android:inputType="textMultiLine"
+                android:maxLines="20"
+                android:hint="Número de teléfono"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textColorHint="@color/red"/>
+
+            <EditText
+                android:id="@+id/et_ubicacionNuevoRestaurante"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/arima_madurai"
+                android:inputType="textMultiLine"
+                android:maxLines="20"
+                android:hint="Dirección"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textColorHint="@color/red"/>
+
+            <EditText
+                android:id="@+id/et_linkNuevoRestaurante"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Link al menú"
+                android:hint="Link al menú"
                 android:textColor="@android:color/holo_blue_dark"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textColorHint="@color/red"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -106,24 +121,26 @@ gkkghggkkghghgkhkgggkggkggkgkggkgkkggkkkgkkggkkgg
                 android:weightSum="2">
 
                 <Button
-                    android:id="@+id/btnGuardar"
+                    android:id="@+id/btnGuardarNuevoRestaurante"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_margin="6dp"
                     android:backgroundTint="@color/pink"
                     android:fontFamily="@font/arima_madurai"
-                    android:text="Comentarios"
+                    android:text="Guardar"
                     android:textColor="@color/white"
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/btnVolver"
+                    android:id="@+id/btnVolverMenu"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:backgroundTint="@color/pink"
+                    android:layout_margin="6dp"
                     android:fontFamily="@font/arima_madurai"
-                    android:text="Más información"
+                    android:text="Volver"
                     android:textColor="@color/white"
                     android:textStyle="bold" />
             </LinearLayout>
