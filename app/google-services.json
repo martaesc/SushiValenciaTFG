@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "795821612740",
+    "project_id": "sushivalencia-tfg",
+    "storage_bucket": "sushivalencia-tfg.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:795821612740:android:26375682fd4c6b5f967391",
+        "android_client_info": {
+          "package_name": "com.example.sushivalenciatfg"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiFTQ7_Up81Fjw-jJU68qTSRBfzBkraNo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
