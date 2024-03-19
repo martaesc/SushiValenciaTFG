@@ -1,11 +1,13 @@
 package com.example.sushivalenciatfg.activities;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Patterns;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +17,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginActivity extends AppCompatActivity {
@@ -79,32 +83,26 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-   public void signInWithFirebase(String email, String password) {
-    mAuth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this, task -> {
-                if (task.isSuccessful()) {
-                    // Guardar el tipo de usuario en SharedPreferences
-                    SharedPreferences sharedPreferences = getSharedPreferences("usuario", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("tipoUsuario", tipoUsuario); // Aquí tipoUsuario es el valor que quiero guardar ("CLIENTE" o "RESTAURANTE")
-                    editor.apply();
-
-                    Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-                    // Si el inicio de sesión es exitoso, se inicia la actividad principal
-                    Intent intent = new Intent(this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    if (task.getException() instanceof FirebaseAuthInvalidUserException) {
-                        Toast.makeText(LoginActivity.this, "No existe una cuenta con este nombre de usuario/correo electrónico", Toast.LENGTH_SHORT).show();
-                    } else if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                        Toast.makeText(LoginActivity.this, "Nombre de usuario/correo o contraseña incorrectos", Toast.LENGTH_SHORT).show();
+    public void signInWithFirebase(String email, String password) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                        // Si el inicio de sesión es exitoso, se inicia la actividad principal
+                        Intent intent = new Intent(this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
                     } else {
-                        Toast.makeText(LoginActivity.this, "Error al iniciar sesión: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        if (task.getException() instanceof FirebaseAuthInvalidUserException) {
+                            Toast.makeText(LoginActivity.this, "No existe una cuenta con este nombre de usuario/correo electrónico", Toast.LENGTH_SHORT).show();
+                        } else if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                            Toast.makeText(LoginActivity.this, "Nombre de usuario/correo o contraseña incorrectos", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Error al iniciar sesión: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
-            });
-}
+                });
+    }
 
 
 }

@@ -46,6 +46,8 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> mGalleryResultLauncher;
     private ActivityResultLauncher<Intent> mCameraResultLauncher;
 
+    private String errorMessage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +64,9 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
 
         // Llamar al método para guardar un restaurante cuando se haga clic en el botón correspondiente
         btnGuardarRestaurante.setOnClickListener(v -> obtencionDatosCampos());
+
+        // Llamar al método para volver al menú principal cuando se haga clic en el botón correspondiente
+        btnVolerMenu.setOnClickListener(v -> volverMenu());
 
 
     }
@@ -145,7 +150,7 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
     }
 
     // Método para subir la imagen a Firebase Storage y obtener la URL
-    private void subirImagenFirebaseStorage(Bitmap imagenRestaurante, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion) {
+    public void subirImagenFirebaseStorage(Bitmap imagenRestaurante, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion) {
         // Crear una referencia única para la imagen en Firebase Storage
         StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("imagenes_restaurante/" + UUID.randomUUID().toString() + ".jpg");
 
@@ -161,27 +166,27 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
                     obtenerURLImagenFirebaseStorage(storageRef, nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion);
                 })
                 .addOnFailureListener(exception -> {
-                    // Error al subir la imagen a Firebase Storage
-                    Toast.makeText(NuevoRestauranteActivity.this, "Error al subir la imagen", Toast.LENGTH_SHORT).show();
+                    errorMessage = "Error al subir la imagen a Firebase Storage: " + exception.getMessage();
+                    Toast.makeText(NuevoRestauranteActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                 });
     }
 
     // Método para obtener la URL de la imagen de Firebase Storage
-    private void obtenerURLImagenFirebaseStorage(StorageReference storageRef, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion) {
+    public void obtenerURLImagenFirebaseStorage(StorageReference storageRef, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion) {
         storageRef.getDownloadUrl()
                 .addOnSuccessListener(uri -> {
                     // URL de la imagen obtenida con éxito, guardar el restaurante en Firestore
                     String urlImagen = uri.toString();
-                    guardarRestauranteEnFirestore(nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion, urlImagen);
+                    guardarRestaurante(nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion, urlImagen);
                 })
                 .addOnFailureListener(exception -> {
-                    // Error al obtener la URL de la imagen
-                    Toast.makeText(NuevoRestauranteActivity.this, "Error al obtener la URL de la imagen", Toast.LENGTH_SHORT).show();
+                    errorMessage = "Error al obtener la URL de la imagen: " + exception.getMessage();
+                    Toast.makeText(NuevoRestauranteActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                 });
     }
 
     // Método para guardar el restaurante en Firestore con la URL de la imagen
-    private void guardarRestauranteEnFirestore(String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion, String urlImagen) {
+    public void guardarRestaurante(String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion, String urlImagen) {
         // Obtener el ID del usuario que está creando el nuevo restaurante
         String idUsuario = mAuth.getCurrentUser().getUid();
 
@@ -189,7 +194,7 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         Restaurante restaurante = new Restaurante(nombreRestaurante, descripcionRestaurante, direccion, telefono, horario, linkRestaurante, urlImagen, idUsuario);
 
         // Guardar el restaurante en Firestore
-        db.collection("restaurantes")
+        db.collection("restaurante")
                 .add(restaurante)
                 .addOnSuccessListener(documentReference -> {
                     // Éxito al guardar el restaurante
@@ -200,7 +205,8 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     // Error al guardar el restaurante
-                    Toast.makeText(NuevoRestauranteActivity.this, "Error al guardar el restaurante", Toast.LENGTH_SHORT).show();
+                    errorMessage = "Error al guardar el restaurante: " + e.getMessage();
+                    Toast.makeText(NuevoRestauranteActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -215,6 +221,13 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         etDireccionRestaurante.setText("");
     }
 
+    // Método para volver al menú principal
+    public void volverMenu() {
+
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+
+    }
 
 
 }

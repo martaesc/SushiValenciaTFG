@@ -1,5 +1,7 @@
 package com.example.sushivalenciatfg.activities;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,6 +21,8 @@ import com.example.sushivalenciatfg.adapters.RestauranteAdapter;
 import com.example.sushivalenciatfg.models.Restaurante;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private RestauranteAdapter adapter;
     private List<Restaurante> restaurantes;
     private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +50,14 @@ public class MainActivity extends AppCompatActivity {
         //inicializar instancia de Firebase
         db = FirebaseFirestore.getInstance();
 
+        mAuth = FirebaseAuth.getInstance();
+
         //obtener referencia a los elementos de la vista
         obtenerReferencias();
 
         //obtener restaurantes
         obtenerRestaurantes();
 
-        //visibilidad botón añadir restaurante
         visibilidadBotonAñadirRestaurante();
 
 
@@ -67,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     public void obtenerReferencias() {
         btnPerfil = findViewById(R.id.btnPerfil);
         btnSalir = findViewById(R.id.btnSalir);
@@ -76,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void obtenerRestaurantes() {
-        db.collection("restaurantes")
+        db.collection("restaurante")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -99,17 +106,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void visibilidadBotonAñadirRestaurante() {
-        SharedPreferences sharedPreferences = getSharedPreferences("usuario", MODE_PRIVATE);
-        String tipoUsuario = sharedPreferences.getString("tipoUsuario", "");
-
-        if (tipoUsuario.equals("RESTAURANTE")) {
-            // Si el tipo de usuario es RESTAURANTE, mostrar el botón de añadir restaurante
-            btnAñadirRestaurante.setVisibility(View.VISIBLE);
-        } else {
-            // Si no es RESTAURANTE, ocultar el botón de añadir restaurante
-            btnAñadirRestaurante.setVisibility(View.GONE);
-        }
+    FirebaseUser currentUser = mAuth.getCurrentUser();
+    if (currentUser != null) {
+        // Si el usuario ha iniciado sesión, obtener su ID de usuario
+        String userId = currentUser.getUid();
+        // Buscar en la colección "usuario" un documento donde el campo "uid" coincide con el ID del usuario
+        db.collection("usuario")
+                .whereEqualTo("uid", userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        // Obtener el tipo de usuario del documento
+                        String tipoUsuario = task.getResult().getDocuments().get(0).getString("tipoUsuario");
+                        // Mostrar u ocultar el botón de añadir restaurante según el tipo de usuario
+                        if ("Restaurante".equals(tipoUsuario)) {
+                            btnAñadirRestaurante.setVisibility(View.VISIBLE);
+                        } else {
+                            btnAñadirRestaurante.setVisibility(View.GONE);
+                        }
+                    } else {
+                        Log.d("MainActivity", "No se encontró un documento de usuario con el uid: " + userId);
+                    }
+                }).addOnFailureListener(e -> {
+                    Log.e("MainActivity", "Error obteniendo el tipo de usuario", e);
+                });
+    } else {
+        Log.d("MainActivity", "El usuario actual es nulo");
     }
+}
 
 
 }
