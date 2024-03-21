@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -25,6 +26,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class NuevoRestauranteActivity extends AppCompatActivity {
@@ -47,6 +50,8 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> mCameraResultLauncher;
 
     private String errorMessage;
+
+    Restaurante restaurante;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,17 +141,42 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         String telefono = etTelefonoRestaurante.getText().toString();
         String direccion = etDireccionRestaurante.getText().toString();
 
-        //Obtenemos la imagen seleccionada como un bitmap
+        // Comprobar si el ImageView tiene una imagen establecida
+        if (ivImagenRestaurante.getDrawable() == null) {
+            Toast.makeText(this, "Por favor, seleccione una imagen", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Obtener la imagen seleccionada como un bitmap
         BitmapDrawable drawable = (BitmapDrawable) ivImagenRestaurante.getDrawable();
         Bitmap imagenRestaurante = drawable.getBitmap();
 
-        // Comprobar que los campos no estén vacíos
-        if (nombreRestaurante.isEmpty() || descripcionRestaurante.isEmpty() || linkRestaurante.isEmpty() || horario.isEmpty() || telefono.isEmpty() || direccion.isEmpty() || imagenRestaurante == null) {
+        // Comprobar si los campos de texto están vacíos
+        if (nombreRestaurante.isEmpty() || descripcionRestaurante.isEmpty() || linkRestaurante.isEmpty() || horario.isEmpty() || telefono.isEmpty() || direccion.isEmpty()) {
             Toast.makeText(this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
-        } else {
-            // Subir la imagen a Firebase Storage y obtener la URL de la imagen
-            subirImagenFirebaseStorage(imagenRestaurante, nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion);
+            return;
         }
+
+        // Comprobar si la descripción tiene más de 20 líneas
+        if (descripcionRestaurante.split("\n").length > 20) {
+            Toast.makeText(this, "La descripción no puede tener más de 20 líneas", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Comprobar si el número de teléfono es válido
+        if (!telefono.matches("(\\+34|0034)?[6-9][0-9]{8}")) {
+            Toast.makeText(this, "Por favor, introduzca un número de teléfono válido", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Comprobar si el enlace es válido
+        if (!Patterns.WEB_URL.matcher(linkRestaurante).matches()) {
+            Toast.makeText(this, "Por favor, introduzca un enlace válido", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Si todas las comprobaciones son correctas, subir la imagen a Firebase Storage y obtener la URL de la imagen
+        subirImagenFirebaseStorage(imagenRestaurante, nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion);
     }
 
     // Método para subir la imagen a Firebase Storage y obtener la URL
@@ -185,23 +215,42 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
                 });
     }
 
+
     // Método para guardar el restaurante en Firestore con la URL de la imagen
     public void guardarRestaurante(String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion, String urlImagen) {
         // Obtener el ID del usuario que está creando el nuevo restaurante
         String idUsuario = mAuth.getCurrentUser().getUid();
 
         // Crear un nuevo objeto Restaurante con los valores recolectados
-        Restaurante restaurante = new Restaurante(nombreRestaurante, descripcionRestaurante, direccion, telefono, horario, linkRestaurante, urlImagen, idUsuario);
+        restaurante = new Restaurante(nombreRestaurante, descripcionRestaurante, direccion, telefono, horario, linkRestaurante, urlImagen, idUsuario);
+
+        // Crear un nuevo objeto Map para guardar los campos del restaurante
+        Map<String, Object> restauranteMap = new HashMap<>();
+
+        // Añadir cada campo del restaurante al Map solo si no es null para evitar problemas al guardar en Firestore
+        if (nombreRestaurante != null) restauranteMap.put("nombre", nombreRestaurante);
+        if (descripcionRestaurante != null)
+            restauranteMap.put("descripcion", descripcionRestaurante);
+        if (direccion != null) restauranteMap.put("direccion", direccion);
+        if (telefono != null) restauranteMap.put("telefono", telefono);
+        if (horario != null) restauranteMap.put("horario", horario);
+        if (linkRestaurante != null) restauranteMap.put("linkRestaurante", linkRestaurante);
+        if (urlImagen != null) restauranteMap.put("imagenRestaurante", urlImagen);
+        if (idUsuario != null) restauranteMap.put("idUsuarioRestaurante", idUsuario);
 
         // Guardar el restaurante en Firestore
         db.collection("restaurante")
-                .add(restaurante)
+                .add(restauranteMap)
                 .addOnSuccessListener(documentReference -> {
                     // Éxito al guardar el restaurante
                     String idRestaurante = documentReference.getId(); // ID del restaurante
-                    restaurante.setIdRestaurante(idRestaurante);
+                    documentReference.update("idRestaurante", idRestaurante); // Actualizar el campo idRestaurante en Firestore
                     Toast.makeText(NuevoRestauranteActivity.this, "Restaurante guardado con éxito", Toast.LENGTH_SHORT).show();
                     limpiarCampos();
+                    // Navegar de nuevo a MainActivity
+                    Intent intent = new Intent(NuevoRestauranteActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
                 })
                 .addOnFailureListener(e -> {
                     // Error al guardar el restaurante

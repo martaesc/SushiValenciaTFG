@@ -19,15 +19,15 @@
 
         <TextView
             android:id="@+id/logo_text"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:fontFamily="@font/arima_madurai"
             android:text="¿Dónde te apetece comer hoy?"
             android:textColor="@android:color/black"
-            android:layout_marginRight="50dp"
-            android:layout_marginLeft="10dp"
             android:textSize="20sp"
             android:textStyle="bold" />
+
         <ImageButton
             android:id="@+id/btnPerfil"
             android:layout_width="wrap_content"
@@ -44,7 +44,6 @@
             android:src="@drawable/icono_btnsalir" />
 
     </LinearLayout>
-
     <SearchView
         android:id="@+id/searchView"
         android:layout_width="match_parent"

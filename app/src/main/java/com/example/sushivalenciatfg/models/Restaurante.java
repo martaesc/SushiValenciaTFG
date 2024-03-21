@@ -36,14 +36,14 @@ public class Restaurante {
     }
 
     //Constructor para crear un nuevo restaurante(aún no tiene comentarios ni puntuaicones)
-    public Restaurante(String nombreRestaurante, String descripcionRestaurante, String direccion, String telefono, String horario, String linkRestaurante, String imagenBase64, String idUsuario) {
+    public Restaurante(String nombreRestaurante, String descripcionRestaurante, String direccion, String telefono, String horario, String linkRestaurante, String imagenRestaurante, String idUsuario) {
         this.nombre = nombreRestaurante;
         this.descripcion = descripcionRestaurante;
         this.direccion = direccion;
         this.telefono = telefono;
         this.horario = horario;
         this.linkRestaurante = linkRestaurante;
-        this.imagenRestaurante = imagenBase64;
+        this.imagenRestaurante = imagenRestaurante;
         this.idUsuarioRestaurante = idUsuario;
     }
 

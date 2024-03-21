@@ -7,11 +7,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.sushivalenciatfg.R;
+import com.example.sushivalenciatfg.activities.InfoRestauranteActivity;
+import com.example.sushivalenciatfg.activities.MainActivity;
 import com.example.sushivalenciatfg.models.Restaurante;
 
 import java.util.List;
@@ -39,9 +44,32 @@ public class RestauranteAdapter extends RecyclerView.Adapter<RestauranteAdapter.
         holder.ratingBar.setRating((float) restaurante.getPuntuacion());
         holder.tvDescripcion.setText(restaurante.getDescripcion());
 
-        String imageName = restaurante.getImagenRestaurante();
-        int imageResId = context.getResources().getIdentifier(imageName, "drawable", context.getPackageName());
-        holder.ivImagen.setImageResource(imageResId);
+        String imageUrl = restaurante.getImagenRestaurante();
+
+        // Cargar la imagen en el ImageView con Glide
+        Glide.with(context)
+                .load(imageUrl)
+                .into(holder.ivImagen);
+
+        // listener para el evento de pulsar durante unos segundos sobre el item del RecyclerView para eliminar el restaurante
+        holder.itemView.setOnLongClickListener(v -> {
+            new AlertDialog.Builder(v.getContext())
+                    .setTitle("Eliminar Restaurante")
+                    .setMessage("¿Estás seguro de que deseas eliminar este restaurante?")
+                    .setPositiveButton("Sí", (dialog, which) -> {
+                        ((MainActivity) v.getContext()).eliminarRestaurante(restaurante.getIdRestaurante());
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+            return true;
+        });
+
+        // listener para el evento de clic en el item del RecyclerView para mostrar los datos del restaurante
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, InfoRestauranteActivity.class);
+            intent.putExtra("idRestaurante", restaurante.getIdRestaurante());
+            context.startActivity(intent);
+        });
     }
 
     @Override
