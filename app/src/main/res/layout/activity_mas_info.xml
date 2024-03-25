@@ -8,27 +8,31 @@
     android:padding="16dp"
     tools:context=".activities.MasInfoActivity">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/arima_madurai"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="MÁS INFORMACIÓN"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_marginTop="30dp">
+        android:layout_marginTop="90dp">
 
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:fontFamily="@font/arima_madurai"
-            android:gravity="center"
-            android:padding="10dp"
-            android:text="MÁS INFORMACIÓN"
-            android:textAllCaps="false"
-            android:textColor="@color/black"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+    <LinearLayout
+        android:id="@+id/LinearLayoutInfo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/LinearLayoutTelefono"
@@ -54,20 +58,32 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/etTelefono"
+            <TextView
+                android:id="@+id/tvTelefono"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@null"
-                android:enabled="false"
                 android:fontFamily="@font/arima_madurai"
                 android:gravity="center"
                 android:text="562452454"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
 
-        </LinearLayout>
+            <EditText
+                android:id="@+id/etTelefono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:fontFamily="@font/arima_madurai"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text="562452454"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
 
+
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/LinearLayoutHorario"
@@ -93,17 +109,29 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/etHorario"
+            <TextView
+                android:id="@+id/tvHorario"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@null"
-                android:enabled="false"
                 android:fontFamily="@font/arima_madurai"
                 android:gravity="center"
                 android:text="L-V 12:00-16:00 S-D 12:00-17:00"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/etHorario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:fontFamily="@font/arima_madurai"
+                android:gravity="center"
+                android:text="L-V 12:00-16:00 S-D 12:00-17:00"
+                android:textColor="@color/black"
+                android:visibility="gone"
+                android:textSize="18sp" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -130,20 +158,61 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/etDireccion"
+            <TextView
+                android:id="@+id/tvDireccion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@null"
-                android:enabled="false"
                 android:fontFamily="@font/arima_madurai"
                 android:gravity="center"
                 android:text="Calle de la piruleta, 5"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
+
+
+            <EditText
+                android:id="@+id/etDireccion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:fontFamily="@font/arima_madurai"
+                android:gravity="center"
+                android:text="Calle de la piruleta, 5"
+                android:textColor="@color/black"
+                android:visibility="gone"
+                android:textSize="18sp"
+                />
+
         </LinearLayout>
+        <Button
+            android:id="@+id/btnVolverInfoActivity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="89dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:backgroundTint="@color/pink"
+            android:fontFamily="@font/arima_madurai"
+            android:text="Volver"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnEditarInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:backgroundTint="@color/pink"
+            android:fontFamily="@font/arima_madurai"
+            android:text="Editar"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
 
 
     </LinearLayout>
+
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

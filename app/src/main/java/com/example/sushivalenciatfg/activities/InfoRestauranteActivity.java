@@ -42,17 +42,18 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     private ImageView ivImagenRestaurante;
     private EditText etNombreRestaurante;
     private EditText etDescripcionRestaurante;
-    private TextView tvPuntuacionRestaurante;
     private EditText etLinkRestaurante;
+
+    private TextView tvPuntuacionRestaurante;
 
     private Button btnVolver;
     private Button btnComentarios;
     private Button btnMasInfo;
 
     private ImageButton btnEditar;
+
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
-
     private FirebaseUser currentUser;
 
     private String restauranteId;
@@ -65,8 +66,6 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     // Declaración de los ActivityResultLauncher
     private ActivityResultLauncher<Intent> mGalleryResultLauncher;
     private ActivityResultLauncher<Intent> mCameraResultLauncher;
-
-    Restaurante restaurante;
 
 
     @Override
@@ -94,22 +93,9 @@ public class InfoRestauranteActivity extends AppCompatActivity {
 
         inicializarActivityResultLaunchers();
 
-        btnEditar.setOnClickListener(v -> {
-            if (!isEditing) {
-                habilitarEdicionEditText();
-            } else {
-                comprobacionCamposYGuardar();
-                // Deshabilitar la edición de los EditText
-                etNombreRestaurante.setEnabled(false);
-                etDescripcionRestaurante.setEnabled(false);
-                etLinkRestaurante.setEnabled(false);
-                // Cambiar el estado de edición
-                isEditing = false;
-                // Cambiar el icono del botón de editar de nuevo al icono de editar
-                btnEditar.setImageResource(R.drawable.icono_editar);
+        btnEditar.setOnClickListener(v -> edicion());
 
-            }
-        });
+        etLinkRestaurante.setOnClickListener(v -> clickLinkRestaurante());
 
         btnVolver.setOnClickListener(v -> volverMenu());
         btnMasInfo.setOnClickListener(v -> irAMasInfo());
@@ -161,47 +147,47 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     }
 
     public void habilitarBotonEditar() {
-    currentUser = mAuth.getCurrentUser();
-    if (currentUser != null) {
-        // ID de usuario actual
-        String userId = currentUser.getUid();
-        // Buscar en la colección "usuario" un documento donde el campo "uid" coincide con el ID del usuario
-        db.collection("usuario")
-                .whereEqualTo("uid", userId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        // Obtener el tipo de usuario del documento
-                        String tipoUsuario = task.getResult().getDocuments().get(0).getString("tipoUsuario");
-                        // Si el tipo de usuario es "Restaurante", entonces comprobar si es el creador del restaurante
-                        if ("Restaurante".equals(tipoUsuario)) {
-                            // Buscar en la colección "restaurante" un documento donde el campo "creador" coincide con el ID del usuario
-                            db.collection("restaurante")
-                                    .whereEqualTo("idUsuarioRestaurante", userId)
-                                    .get()
-                                    .addOnCompleteListener(task2 -> {
-                                        if (task2.isSuccessful() && !task2.getResult().isEmpty()) {
-                                            // Si el usuario es el creador del restaurante, mostrar el botón de editar
-                                            btnEditar.setVisibility(View.VISIBLE);
-                                        } else {
-                                            // Si el usuario no es el creador del restaurante, ocultar el botón de editar
-                                            btnEditar.setVisibility(View.GONE);
-                                        }
-                                    });
+        currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            // ID de usuario actual
+            String userId = currentUser.getUid();
+            // Buscar en la colección "usuario" un documento donde el campo "uid" coincide con el ID del usuario
+            db.collection("usuario")
+                    .whereEqualTo("uid", userId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            // Obtener el tipo de usuario del documento
+                            String tipoUsuario = task.getResult().getDocuments().get(0).getString("tipoUsuario");
+                            // Si el tipo de usuario es "Restaurante", entonces comprobar si es el creador del restaurante
+                            if ("Restaurante".equals(tipoUsuario)) {
+                                // Buscar en la colección "restaurante" un documento donde el campo "creador" coincide con el ID del usuario
+                                db.collection("restaurante")
+                                        .whereEqualTo("idUsuarioRestaurante", userId)
+                                        .get()
+                                        .addOnCompleteListener(task2 -> {
+                                            if (task2.isSuccessful() && !task2.getResult().isEmpty()) {
+                                                // Si el usuario es el creador del restaurante, mostrar el botón de editar
+                                                btnEditar.setVisibility(View.VISIBLE);
+                                            } else {
+                                                // Si el usuario no es el creador del restaurante, ocultar el botón de editar
+                                                btnEditar.setVisibility(View.GONE);
+                                            }
+                                        });
+                            } else {
+                                // Si el tipo de usuario no es "Restaurante", ocultar el botón de editar
+                                btnEditar.setVisibility(View.GONE);
+                            }
                         } else {
-                            // Si el tipo de usuario no es "Restaurante", ocultar el botón de editar
-                            btnEditar.setVisibility(View.GONE);
+                            Log.d("InfoRestauranteActivity", "No se encontró un documento de usuario con el uid: " + userId);
                         }
-                    } else {
-                        Log.d("InfoRestauranteActivity", "No se encontró un documento de usuario con el uid: " + userId);
-                    }
-                }).addOnFailureListener(e -> {
-                    Log.e("InfoRestauranteActivity", "Error obteniendo el tipo de usuario", e);
-                });
-    } else {
-        Log.d("InfoRestauranteActivity", "El usuario actual es nulo");
+                    }).addOnFailureListener(e -> {
+                        Log.e("InfoRestauranteActivity", "Error obteniendo el tipo de usuario", e);
+                    });
+        } else {
+            Log.d("InfoRestauranteActivity", "El usuario actual es nulo");
+        }
     }
-}
 
     public void habilitarEdicionEditText() {
         // Habilitar la edición de los EditText
@@ -303,8 +289,8 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     }
 
     /**
-     *  Este método sube la imagen del restaurante a Firebase Storage. Una vez que la imagen se ha subido con éxito,
-     *  llama al método obtenerURLImagenFirebaseStorage().
+     * Este método sube la imagen del restaurante a Firebase Storage. Una vez que la imagen se ha subido con éxito,
+     * llama al método obtenerURLImagenFirebaseStorage().
      */
     public void subirImagenFirebaseStorage(Bitmap imagenRestaurante, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante) {
         // Crear una referencia única para la imagen en Firebase Storage
@@ -373,11 +359,8 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                 .update(restauranteMap)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(InfoRestauranteActivity.this, "Restaurante actualizado con éxito", Toast.LENGTH_SHORT).show();
-                    limpiarCampos();
-                    // Navegar de nuevo a MainActivity
-                    Intent intent = new Intent(InfoRestauranteActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    //refrescamos la interfaz
+                    obtenerDatosRestaurante();
                 })
                 .addOnFailureListener(e -> {
                     // Error al actualizar el restaurante
@@ -386,12 +369,38 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                 });
     }
 
-    public void limpiarCampos() {
-        ivImagenRestaurante.setImageDrawable(null);
-        etNombreRestaurante.setText("");
-        etDescripcionRestaurante.setText("");
-        etLinkRestaurante.setText("");
+    public void edicion() {
+        if (!isEditing) {
+            habilitarEdicionEditText();
+        } else {
+            comprobacionCamposYGuardar();
+            // Deshabilitar la edición de los EditText
+            etNombreRestaurante.setEnabled(false);
+            etDescripcionRestaurante.setEnabled(false);
+            etLinkRestaurante.setEnabled(false);
+            // Cambiar el estado de edición
+            isEditing = false;
+            // Cambiar el icono del botón de editar de nuevo al icono de editar
+            btnEditar.setImageResource(R.drawable.icono_editar);
+
+        }
     }
+
+    public void clickLinkRestaurante(){
+        // Obtener el enlace del EditText
+        String link = etLinkRestaurante.getText().toString();
+
+        // Crear un nuevo Intent implicito para abrir el navegador
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+
+        // Iniciar la actividad con el Intent
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "No se encontró un navegador para abrir el enlace", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     public void volverMenu() {
         Intent intent = new Intent(this, MainActivity.class);
