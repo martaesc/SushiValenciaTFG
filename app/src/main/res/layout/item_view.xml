@@ -8,10 +8,10 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@drawable/search_view_bg"
         android:orientation="horizontal"
-        android:padding="8dp"
-        android:background="@drawable/search_view_bg">
+        android:padding="8dp">
 
         <ImageView
             android:id="@+id/iv_imagen_restaurante"
@@ -29,29 +29,29 @@
                 android:id="@+id/tv_nombreRestaurante"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/red"
+                android:fontFamily="@font/arima_madurai"
                 android:text="Nombre restaurante"
-                android:fontFamily="@font/arima_madurai"/>
+                android:textColor="@color/red"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <RatingBar
                 android:id="@+id/rb_puntuacion"
+                style="?android:attr/ratingBarStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:numStars="5"
-                android:stepSize="0.5"
-                style="?android:attr/ratingBarStyleSmall"/>
+                android:stepSize="0.5" />
 
             <TextView
                 android:id="@+id/tv_descripcion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="2"
                 android:ellipsize="end"
                 android:fontFamily="@font/arima_madurai"
-                android:textColor="@color/black_light"
-                android:text="pequeño vistazo a la descrpición"/>
+                android:maxLines="2"
+                android:text="pequeño vistazo a la descrpición"
+                android:textColor="@color/black_light" />
 
         </LinearLayout>
 

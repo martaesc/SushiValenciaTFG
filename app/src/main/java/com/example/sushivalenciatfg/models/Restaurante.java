@@ -11,12 +11,12 @@ public class Restaurante {
     private String horario;
 
     private String linkRestaurante;
-    private double puntuacion;
+    private int puntuacion;
     private String imagenRestaurante;
     private List<String> comentarios;
     private String idUsuarioRestaurante;
 
-    public Restaurante(String idRestaurante, String nombre, String descripcion, String direccion, String telefono, String horario, String linkRestaurante, double puntuacion, String imagenRestaurante, List<String> comentarios, String idUsuarioRestaurante) {
+    public Restaurante(String idRestaurante, String nombre, String descripcion, String direccion, String telefono, String horario, String linkRestaurante, int puntuacion, String imagenRestaurante, List<String> comentarios, String idUsuarioRestaurante) {
         this.idRestaurante = idRestaurante;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -46,6 +46,7 @@ public class Restaurante {
         this.imagenRestaurante = imagenRestaurante;
         this.idUsuarioRestaurante = idUsuario;
     }
+
 
 
     public String getIdRestaurante() {
@@ -96,11 +97,11 @@ public class Restaurante {
         this.horario = horario;
     }
 
-    public double getPuntuacion() {
+    public int getPuntuacion() {
         return puntuacion;
     }
 
-    public void setPuntuacion(double puntuacion) {
+    public void setPuntuacion(int puntuacion) {
         this.puntuacion = puntuacion;
     }
 

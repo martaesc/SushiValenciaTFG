@@ -68,7 +68,7 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         abrirDialogoSeleccionImagen();
 
         // Llamar al método para guardar un restaurante cuando se haga clic en el botón correspondiente
-        btnGuardarRestaurante.setOnClickListener(v -> obtencionDatosCampos());
+        btnGuardarRestaurante.setOnClickListener(v -> comprobacionCamposYGuardar());
 
         // Llamar al método para volver al menú principal cuando se haga clic en el botón correspondiente
         btnVolerMenu.setOnClickListener(v -> volverMenu());
@@ -131,8 +131,8 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         });
     }
 
-    // Método para obtener los datos de los campos y subir la imagen a Firebase Storage
-    public void obtencionDatosCampos() {
+    // Método para comprobar que todos los campos son correctos y guardar el restaurante en Firestore
+    public void comprobacionCamposYGuardar() {
 
         String nombreRestaurante = etNombreRestaurante.getText().toString();
         String descripcionRestaurante = etDescripcionRestaurante.getText().toString();
@@ -175,7 +175,7 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
             return;
         }
 
-        // Si todas las comprobaciones son correctas, subir la imagen a Firebase Storage y obtener la URL de la imagen
+        // Si todas las comprobaciones son correctas, se sube la imagen a Firebase Storage, se obtiene la URL de la imagen, se le añade al restaurante y este se guarda en Firestore
         subirImagenFirebaseStorage(imagenRestaurante, nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion);
     }
 
@@ -193,7 +193,7 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         storageRef.putBytes(datosImagen)
                 .addOnSuccessListener(taskSnapshot -> {
                     // Imagen subida con éxito, obtener la URL de la imagen
-                    obtenerURLImagenFirebaseStorage(storageRef, nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion);
+                    obtenerURLImagenYAñadirAlRestaurante(storageRef, nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion);
                 })
                 .addOnFailureListener(exception -> {
                     errorMessage = "Error al subir la imagen a Firebase Storage: " + exception.getMessage();
@@ -202,12 +202,12 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
     }
 
     // Método para obtener la URL de la imagen de Firebase Storage
-    public void obtenerURLImagenFirebaseStorage(StorageReference storageRef, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion) {
+    public void obtenerURLImagenYAñadirAlRestaurante(StorageReference storageRef, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion) {
         storageRef.getDownloadUrl()
                 .addOnSuccessListener(uri -> {
                     // URL de la imagen obtenida con éxito, guardar el restaurante en Firestore
                     String urlImagen = uri.toString();
-                    guardarRestaurante(nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion, urlImagen);
+                    nuevoRestaurante(nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion, urlImagen);
                 })
                 .addOnFailureListener(exception -> {
                     errorMessage = "Error al obtener la URL de la imagen: " + exception.getMessage();
@@ -217,7 +217,7 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
 
 
     // Método para guardar el restaurante en Firestore con la URL de la imagen
-    public void guardarRestaurante(String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion, String urlImagen) {
+    public void nuevoRestaurante(String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion, String urlImagen) {
         // Obtener el ID del usuario que está creando el nuevo restaurante
         String idUsuario = mAuth.getCurrentUser().getUid();
 
@@ -228,15 +228,35 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         Map<String, Object> restauranteMap = new HashMap<>();
 
         // Añadir cada campo del restaurante al Map solo si no es null para evitar problemas al guardar en Firestore
-        if (nombreRestaurante != null) restauranteMap.put("nombre", nombreRestaurante);
-        if (descripcionRestaurante != null)
+        if (nombreRestaurante != null){
+            restauranteMap.put("nombre", nombreRestaurante);
+        }
+        if (descripcionRestaurante != null){
             restauranteMap.put("descripcion", descripcionRestaurante);
-        if (direccion != null) restauranteMap.put("direccion", direccion);
-        if (telefono != null) restauranteMap.put("telefono", telefono);
-        if (horario != null) restauranteMap.put("horario", horario);
-        if (linkRestaurante != null) restauranteMap.put("linkRestaurante", linkRestaurante);
-        if (urlImagen != null) restauranteMap.put("imagenRestaurante", urlImagen);
-        if (idUsuario != null) restauranteMap.put("idUsuarioRestaurante", idUsuario);
+        }
+        if (direccion != null) {
+            restauranteMap.put("direccion", direccion);
+        }
+        if (telefono != null){
+            restauranteMap.put("telefono", telefono);
+        }
+        if (horario != null){
+            restauranteMap.put("horario", horario);
+        }
+        if (linkRestaurante != null){
+            restauranteMap.put("linkRestaurante", linkRestaurante);
+        }
+        if (urlImagen != null) {
+            restauranteMap.put("imagenRestaurante", urlImagen);
+        }
+        if (idUsuario != null) {
+            restauranteMap.put("idUsuarioRestaurante", idUsuario);
+        }
+
+        // Establecer la puntuación en 0 porque al crearlo el restaurante no tiene puntuaciones
+        int puntuacion = 0;
+        restauranteMap.put("puntuacion", puntuacion);
+
 
         // Guardar el restaurante en Firestore
         db.collection("restaurante")

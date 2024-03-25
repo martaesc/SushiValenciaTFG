@@ -6,18 +6,21 @@
     android:layout_height="match_parent"
     android:background="@drawable/fondo2"
     android:padding="16dp"
-    tools:context=".MasInfoActivity">
+    tools:context=".activities.MasInfoActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginTop="30dp">
+
 
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:fontFamily="@font/arima_madurai"
             android:gravity="center"
             android:padding="10dp"
@@ -27,80 +30,118 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/imageView2"
+        <LinearLayout
+            android:id="@+id/LinearLayoutTelefono"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/tel_icon"
-            android:layout_marginTop="40dp"/>
+            android:orientation="vertical"
+            android:layout_margin="20dp">
 
-        <TextView
-            android:id="@+id/restauranteTel"
+            <ImageView
+                android:id="@+id/imageViewTel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/tel_icon" />
+
+            <TextView
+                android:id="@+id/restauranteTel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/arima_madurai"
+                android:gravity="center"
+                android:text="Contacto"
+                android:textColor="@color/pink"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etTelefono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:enabled="false"
+                android:fontFamily="@font/arima_madurai"
+                android:gravity="center"
+                android:text="562452454"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/LinearLayoutHorario"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_margin="20dp">
 
-            android:fontFamily="@font/arima_madurai"
-            android:gravity="center"
-            android:text="Contacto"
-            android:textColor="@color/pink"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/imageViewHorario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icono_horario" />
 
+            <TextView
+                android:id="@+id/restauranteHorario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/arima_madurai"
+                android:gravity="center"
+                android:text="Horario reservas"
+                android:textColor="@color/pink"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tvTelefono"
+            <EditText
+                android:id="@+id/etHorario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:enabled="false"
+                android:fontFamily="@font/arima_madurai"
+                android:gravity="center"
+                android:text="L-V 12:00-16:00 S-D 12:00-17:00"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/LinearLayoutDireccion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/arima_madurai"
-            android:gravity="center"
-            android:text="562452454"
-            android:textColor="@color/black"
-            android:textSize="18sp" />
+            android:orientation="vertical"
+            android:layout_margin="20dp">
 
-        <TextView
-            android:id="@+id/restauranteHorario"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp"
-            android:fontFamily="@font/arima_madurai"
-            android:gravity="center"
-            android:text="Horario reservas"
-            android:textColor="@color/black"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/imageViewDireccion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icono_ubi" />
 
-        <TextView
-            android:id="@+id/tvHorario"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/arima_madurai"
-            android:gravity="center"
-            android:text="L-V 12:00-16:00
-S-D 12:00-17:00"
-            android:textColor="@color/black"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/restauranteDireccion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/arima_madurai"
+                android:gravity="center"
+                android:text="Localización"
+                android:textColor="@color/pink"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/restauranteDireccion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp"
-            android:fontFamily="@font/arima_madurai"
-            android:gravity="center"
-            android:text="Localización"
-            android:textColor="@color/black"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvDireccion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/arima_madurai"
-            android:gravity="center"
-            android:text="Calle de la piruleta, 5"
-            android:textColor="@color/black"
-            android:textSize="18sp" />
+            <EditText
+                android:id="@+id/etDireccion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:enabled="false"
+                android:fontFamily="@font/arima_madurai"
+                android:gravity="center"
+                android:text="Calle de la piruleta, 5"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+        </LinearLayout>
 
 
     </LinearLayout>
