@@ -202,8 +202,8 @@ public class MasInfoActivity extends AppCompatActivity {
     private void comprobacionCamposYGuardar() {
         // Recoger los datos de los EditText
         String telefono = etTelefono.getText().toString();
-        String horario = etTelefono.getText().toString();
-        String direccion = etTelefono.getText().toString();
+        String horario = etHorario.getText().toString();
+        String direccion = etDireccion.getText().toString();
 
 
 
