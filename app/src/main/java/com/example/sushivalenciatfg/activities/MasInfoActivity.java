@@ -49,7 +49,7 @@ public class MasInfoActivity extends AppCompatActivity {
 
     private boolean isEditing = false;
 
-    private String errorMessage;
+
 
 
     @Override
@@ -244,14 +244,14 @@ public class MasInfoActivity extends AppCompatActivity {
         db.collection("restaurante").document(restauranteId)
                 .update(restauranteMap)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(MasInfoActivity.this, "Restaurante actualizado con éxito", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Restaurante actualizado con éxito", Toast.LENGTH_SHORT).show();
                     //refrescamos la interfaz
                     obtenerDatosRestaurante();
                 })
                 .addOnFailureListener(e -> {
                     // Error al actualizar el restaurante
-                    errorMessage = "Error al actualizar el restaurante: " + e.getMessage();
-                    Toast.makeText(MasInfoActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                    Log.e("Firestore","Error al actualizar el restaurante: " + e.getMessage());
+                    Toast.makeText(this, "Error al actualizar el restaurante", Toast.LENGTH_SHORT).show();
                 });
     }
 

@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
@@ -49,7 +50,6 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> mGalleryResultLauncher;
     private ActivityResultLauncher<Intent> mCameraResultLauncher;
 
-    private String errorMessage;
 
     Restaurante restaurante;
 
@@ -196,8 +196,8 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
                     obtenerURLImagenYAñadirAlRestaurante(storageRef, nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion);
                 })
                 .addOnFailureListener(exception -> {
-                    errorMessage = "Error al subir la imagen a Firebase Storage: " + exception.getMessage();
-                    Toast.makeText(NuevoRestauranteActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                    Log.e("NuevoRestauranteActivity", "Error al subir la imagen a Firebase Storage: " + exception.getMessage());
+                    Toast.makeText(NuevoRestauranteActivity.this, "Error al subir la imagen", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -209,9 +209,9 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
                     String urlImagen = uri.toString();
                     nuevoRestaurante(nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion, urlImagen);
                 })
-                .addOnFailureListener(exception -> {
-                    errorMessage = "Error al obtener la URL de la imagen: " + exception.getMessage();
-                    Toast.makeText(NuevoRestauranteActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                .addOnFailureListener(exception -> {;
+                    Log.e("NuevoRestauranteActivity", "Error al obtener la URL de la imagen: " + exception.getMessage());
+                    Toast.makeText(NuevoRestauranteActivity.this, "Error al obtener la imagen", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -273,9 +273,8 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    // Error al guardar el restaurante
-                    errorMessage = "Error al guardar el restaurante: " + e.getMessage();
-                    Toast.makeText(NuevoRestauranteActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                    Log.e("NuevoRestauranteActivity", "Error al guardar el restaurante: " + e.getMessage());
+                    Toast.makeText(NuevoRestauranteActivity.this, "Error al guardar el restaurante", Toast.LENGTH_SHORT).show();
                 });
     }
 

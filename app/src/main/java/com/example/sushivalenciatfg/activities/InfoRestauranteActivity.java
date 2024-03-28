@@ -60,7 +60,6 @@ public class InfoRestauranteActivity extends AppCompatActivity {
 
     private boolean isEditing = false;
 
-    private String errorMessage;
 
 
     // Declaración de los ActivityResultLauncher
@@ -308,8 +307,8 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                     obtenerURLImagenFirebaseStorage(storageRef, nombreRestaurante, descripcionRestaurante, linkRestaurante);
                 })
                 .addOnFailureListener(exception -> {
-                    errorMessage = "Error al subir la imagen a Firebase Storage: " + exception.getMessage();
-                    Toast.makeText(InfoRestauranteActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                    Log.e("InfoRestauranteActivity", "Error al subir la imagen a Firebase Storage: " + exception.getMessage());
+                    Toast.makeText(InfoRestauranteActivity.this, "Error al subir la imagen", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -325,8 +324,8 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                     actualizacionRestaurante(nombreRestaurante, descripcionRestaurante, linkRestaurante, urlImagen);
                 })
                 .addOnFailureListener(exception -> {
-                    errorMessage = "Error al obtener la URL de la imagen: " + exception.getMessage();
-                    Toast.makeText(InfoRestauranteActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                    Log.e("InfoRestauranteActivity", "Error al obtener la URL de la imagen de Firebase Storage: " + exception.getMessage());
+                    Toast.makeText(InfoRestauranteActivity.this, "Error al obtener la imagen", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -363,9 +362,8 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                     obtenerDatosRestaurante();
                 })
                 .addOnFailureListener(e -> {
-                    // Error al actualizar el restaurante
-                    errorMessage = "Error al actualizar el restaurante: " + e.getMessage();
-                    Toast.makeText(InfoRestauranteActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                    Log.e("InfoRestauranteActivity", "Error al actualizar el restaurante: " + e.getMessage());
+                    Toast.makeText(InfoRestauranteActivity.this, "Error al actualizar el restaurante:", Toast.LENGTH_SHORT).show();
                 });
     }
 

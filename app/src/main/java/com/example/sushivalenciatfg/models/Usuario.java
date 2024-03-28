@@ -7,11 +7,14 @@ public class Usuario {
     private String correo;
     private String tipoUsuario; //String en vez de TipoUsuario porque Firebase no acepta tipos enum
 
-    public Usuario(String uid, String nombreUsuario, String correo, String tipoUsuario){
+    private String fotoPerfil;
+
+    public Usuario(String uid, String nombreUsuario, String correo, String tipoUsuario) {
         this.uid = uid;
         this.nombreUsuario = nombreUsuario;
         this.correo = correo;
         this.tipoUsuario = tipoUsuario;
+        this.fotoPerfil = ""; //Por defecto la foto de perfil es un string vacío, ya que no es obligatoria
     }
 
     public Usuario() {
@@ -49,12 +52,21 @@ public class Usuario {
         this.tipoUsuario = tipoUsuario;
     }
 
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
+    }
+
     public String toString() {
         return "Usuario{" +
                 "uid='" + getUid() + '\'' +
                 ", nombreUsuario='" + getNombreUsuario() + '\'' +
                 ", correo='" + getCorreo() + '\'' +
                 ", tipoUsuario='" + getTipoUsuario() + '\'' +
+                ", fotoPerfil='" + getFotoPerfil() + '\'' +
                 '}';
     }
 }

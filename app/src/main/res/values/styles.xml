@@ -5,14 +5,17 @@
 
 	</style>
 
+	<!-- Estilo para los botones -->
 	<style name="MyButtonStyle" parent="Widget.MaterialComponents.Button">
 		<item name="backgroundTint">@color/pink</item>
 	</style>
 
+	<!-- Estilo para el borde de las fotos -->
 	<style name="CustomShapeAppearance" parent="">
 		<item name="cornerFamily">rounded</item>
 		<item name="cornerSize">16dp</item>
 	</style>
+
 
 
 </resources>

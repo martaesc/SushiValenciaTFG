@@ -62,16 +62,11 @@ public class MainActivity extends AppCompatActivity {
         visibilidadBotonAñadirRestaurante();
 
 
-        // Inicia la actividad NuevoRestaurante
-        btnAñadirRestaurante.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, NuevoRestauranteActivity.class);
-            startActivity(intent);
-        });
+        btnAñadirRestaurante.setOnClickListener(v -> añadirRestaurante(v));
 
-        // Para cerrar sesión
-        btnSalir.setOnClickListener(v -> {
-            finishAffinity();
-        });
+        btnPerfil.setOnClickListener(v -> irPerfil(v));
+
+        btnSalir.setOnClickListener(v -> salir(v));
 
         // configurar el SearchView
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -201,6 +196,23 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d("MainActivity", "El usuario actual es nulo");
         }
+    }
+
+    //añadir restaurante
+    public void añadirRestaurante(View view) {
+        Intent intent = new Intent(this, NuevoRestauranteActivity.class);
+        startActivity(intent);
+    }
+
+    //para ir al perfil
+    public void irPerfil(View view) {
+        Intent intent = new Intent(this, PerfilActivity.class);
+        startActivity(intent);
+    }
+
+    //salir
+    public void salir(View view) {
+        finishAffinity();
     }
 
 

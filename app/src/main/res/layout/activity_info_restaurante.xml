@@ -136,11 +136,11 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/pink"
                 android:fontFamily="@font/arima_madurai"
                 android:text="Comentarios"
                 android:textColor="@color/white"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                style="@style/MyButtonStyle"/>
 
             <Button
                 android:id="@+id/btnMasInfo"
@@ -148,11 +148,11 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/pink"
                 android:fontFamily="@font/arima_madurai"
                 android:text="Más información"
                 android:textColor="@color/white"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                style="@style/MyButtonStyle"/>
         </LinearLayout>
 
         <Button
@@ -160,7 +160,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:backgroundTint="@color/pink"
+            style="@style/MyButtonStyle"
             android:fontFamily="@font/arima_madurai"
             android:text="Volver"
             android:textColor="@color/white"
