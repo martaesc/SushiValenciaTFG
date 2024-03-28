@@ -45,6 +45,7 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     private EditText etLinkRestaurante;
 
     private TextView tvPuntuacionRestaurante;
+    private TextView tvRestauranteLink;
 
     private Button btnVolver;
     private Button btnComentarios;
@@ -94,7 +95,7 @@ public class InfoRestauranteActivity extends AppCompatActivity {
 
         btnEditar.setOnClickListener(v -> edicion());
 
-        etLinkRestaurante.setOnClickListener(v -> clickLinkRestaurante());
+        tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
 
         btnVolver.setOnClickListener(v -> volverMenu());
         btnMasInfo.setOnClickListener(v -> irAMasInfo());
@@ -106,12 +107,53 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         etDescripcionRestaurante = findViewById(R.id.restauranteDescripcion);
         tvPuntuacionRestaurante = findViewById(R.id.restaurantePuntuacion);
         etLinkRestaurante = findViewById(R.id.restauranteLink);
+        tvRestauranteLink = findViewById(R.id.tvRestauranteLink);
 
         btnVolver = findViewById(R.id.btnVolver);
         btnComentarios = findViewById(R.id.btnComentarios);
         btnMasInfo = findViewById(R.id.btnMasInfo);
 
         btnEditar = findViewById(R.id.imageButtonEditar);
+    }
+
+    private void inicializarActivityResultLaunchers() {
+        // Inicialización de los ActivityResultLauncher para la galería y la cámara
+        mGalleryResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Uri uri = result.getData().getData();
+                        ivImagenRestaurante.setImageURI(uri);
+                    }
+                }
+        );
+
+        mCameraResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Bundle extras = result.getData().getExtras();
+                        Bitmap imageBitmap = (Bitmap) extras.get("data");
+                        ivImagenRestaurante.setImageBitmap(imageBitmap);
+                    }
+                }
+        );
+    }
+
+    private void abrirDialogoSeleccionImagen() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(InfoRestauranteActivity.this);
+        builder.setTitle("Elige una opción");
+        builder.setPositiveButton("Galería", (dialog, which) -> {
+            // Inicia la actividad de la galería
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            mGalleryResultLauncher.launch(intent);
+        });
+        builder.setNegativeButton("Cámara", (dialog, which) -> {
+            // Inicia la actividad de la cámara
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            mCameraResultLauncher.launch(intent);
+        });
+        builder.show();
     }
 
     public void obtenerDatosRestaurante() {
@@ -130,7 +172,7 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                             etNombreRestaurante.setText(nombre);
                             etDescripcionRestaurante.setText(descripcion);
                             tvPuntuacionRestaurante.setText(String.valueOf(puntuacion));
-                            etLinkRestaurante.setText(link);
+                            tvRestauranteLink.setText(link);
 
                             // Para cargar la imagen desde una URL en un ImageView usamos Glide
                             Glide.with(this)
@@ -192,7 +234,14 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         // Habilitar la edición de los EditText
         etNombreRestaurante.setEnabled(true);
         etDescripcionRestaurante.setEnabled(true);
-        etLinkRestaurante.setEnabled(true);
+
+        // Hacer que el TextView sea invisible y que el EditText sea visible
+        tvRestauranteLink.setVisibility(View.GONE);
+        etLinkRestaurante.setVisibility(View.VISIBLE);
+
+        // Copiar el texto del TextView a al EditText
+        etLinkRestaurante.setText(tvRestauranteLink.getText().toString());
+
 
         // Cambia el icono de edición al de "Guardar" para indicar que se pueden guardar los cambios
         btnEditar.setImageResource(R.drawable.icono_guardar);
@@ -203,45 +252,22 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         isEditing = true;
     }
 
-    private void inicializarActivityResultLaunchers() {
-        // Inicialización de los ActivityResultLauncher para la galería y la cámara
-        mGalleryResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Uri uri = result.getData().getData();
-                        ivImagenRestaurante.setImageURI(uri);
-                    }
-                }
-        );
+    public void deshabilitarEdicionEditText() {
+        // Deshabilitar la edición de los EditText
+        etNombreRestaurante.setEnabled(false);
+        etDescripcionRestaurante.setEnabled(false);
 
-        mCameraResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Bundle extras = result.getData().getExtras();
-                        Bitmap imageBitmap = (Bitmap) extras.get("data");
-                        ivImagenRestaurante.setImageBitmap(imageBitmap);
-                    }
-                }
-        );
+        // Hacer que el TextView sea visible y que el EditText sea invisible
+        tvRestauranteLink.setVisibility(View.GONE);
+        etLinkRestaurante.setVisibility(View.VISIBLE);
+
+        // Cambiar el icono del botón de editar de nuevo al icono de editar
+        btnEditar.setImageResource(R.drawable.icono_editar);
+
+        isEditing = false;
     }
 
-    private void abrirDialogoSeleccionImagen() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(InfoRestauranteActivity.this);
-        builder.setTitle("Elige una opción");
-        builder.setPositiveButton("Galería", (dialog, which) -> {
-            // Inicia la actividad de la galería
-            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            mGalleryResultLauncher.launch(intent);
-        });
-        builder.setNegativeButton("Cámara", (dialog, which) -> {
-            // Inicia la actividad de la cámara
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            mCameraResultLauncher.launch(intent);
-        });
-        builder.show();
-    }
+
 
 
     /**
@@ -372,31 +398,16 @@ public class InfoRestauranteActivity extends AppCompatActivity {
             habilitarEdicionEditText();
         } else {
             comprobacionCamposYGuardar();
-            // Deshabilitar la edición de los EditText
-            etNombreRestaurante.setEnabled(false);
-            etDescripcionRestaurante.setEnabled(false);
-            etLinkRestaurante.setEnabled(false);
-            // Cambiar el estado de edición
-            isEditing = false;
-            // Cambiar el icono del botón de editar de nuevo al icono de editar
-            btnEditar.setImageResource(R.drawable.icono_editar);
+            deshabilitarEdicionEditText();
 
         }
     }
 
     public void clickLinkRestaurante(){
-        // Obtener el enlace del EditText
-        String link = etLinkRestaurante.getText().toString();
-
-        // Crear un nuevo Intent implicito para abrir el navegador
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-
-        // Iniciar la actividad con el Intent
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        } else {
-            Toast.makeText(this, "No se encontró un navegador para abrir el enlace", Toast.LENGTH_SHORT).show();
-        }
+        String url = tvRestauranteLink.getText().toString();
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        startActivity(i);
     }
 
 
