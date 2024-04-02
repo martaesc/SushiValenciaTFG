@@ -110,7 +110,8 @@ public class MainActivity extends AppCompatActivity {
                             adapter = new RestauranteAdapter(restaurantes, MainActivity.this);
                             recyclerView.setAdapter(adapter);
                         } else {
-                            Log.d("MainActivity", "Error getting documents: ", task.getException());
+                            Log.d("MainActivity", "Error obteniendo restaurantes: ", task.getException());
+                            Toast.makeText(MainActivity.this, "Error obteniendo restaurantes", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

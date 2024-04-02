@@ -99,6 +99,7 @@ public class InfoRestauranteActivity extends AppCompatActivity {
 
         btnVolver.setOnClickListener(v -> volverMenu());
         btnMasInfo.setOnClickListener(v -> irAMasInfo());
+        btnComentarios.setOnClickListener(v -> irAComentarios(v));
     }
 
     public void obtenerReferencias() {
@@ -418,6 +419,12 @@ public class InfoRestauranteActivity extends AppCompatActivity {
 
     public void irAMasInfo() {
         Intent intent = new Intent(this, MasInfoActivity.class);
+        intent.putExtra("idRestaurante", restauranteId);
+        startActivity(intent);
+    }
+
+    public void irAComentarios(View view) {
+        Intent intent = new Intent(this, ComentariosActivity.class);
         intent.putExtra("idRestaurante", restauranteId);
         startActivity(intent);
     }
