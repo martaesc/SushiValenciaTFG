@@ -1,5 +1,6 @@
 package com.example.sushivalenciatfg.adapters;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,18 +56,17 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
         holder.tvFecha.setText(fechaFormateada);
 
         // Si el usuario tiene una foto, la cargas. Si no, dejas la foto por defecto
-        if (comentario.getImagenUsuario() != null) {
-            Glide.with(holder.iv_imagenUsuario.getContext())
-                    .load(comentario.getImagenUsuario())
-                    .into(holder.iv_imagenUsuario);
+        if (comentario.getfotoPerfil() != null) {
+            Glide.with(holder.iv_fotoPerfil.getContext())
+                    .load(comentario.getfotoPerfil())
+                    .into(holder.iv_fotoPerfil);
         } else {
-            holder.iv_imagenUsuario.setImageResource(R.drawable.foto_perfil_defecto);
+            holder.iv_fotoPerfil.setImageResource(R.drawable.foto_perfil_defecto);
         }
 
 
-
         // listener para el evento de pulsar durante unos segundos sobre el item del RecyclerView para eliminar el comentario
-        holder.itemView.setOnClickListener(v -> {
+        holder.itemView.setOnLongClickListener(v -> {
             new AlertDialog.Builder(v.getContext())
                     .setTitle("Eliminar Comentario")
                     .setMessage("¿Estás seguro de que deseas eliminar este comentario?")
@@ -75,7 +75,30 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
                     })
                     .setNegativeButton("No", null)
                     .show();
+            return true;
         });
+
+        //listener para el evento de pulsar sobre el item del comentario para responder
+        holder.itemView.setOnClickListener(v -> {
+            new AlertDialog.Builder(v.getContext())
+                    .setTitle("¿Quieres responder al comentario?")
+                    .setView(R.layout.layout_dialogo_respuesta) // layout personalizado para el diálogo de respuesta
+                    .setPositiveButton("Enviar", (dialog, which) -> {
+                        Dialog d = (Dialog) dialog;
+                        EditText etRespuesta = d.findViewById(R.id.etRespuesta); // EditText en el layout personalizado
+                        String textoRespuesta = etRespuesta.getText().toString();
+                        ((ComentariosActivity) v.getContext()).responderComentario(comentario.getIdComentario(), textoRespuesta);
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+        });
+
+        // Si el comentario tiene respuestas, se cargan en el RecyclerView
+        if (comentario.getRespuestasRestaurante() != null) {
+            RespuestaAdapter respuestaAdapter = new RespuestaAdapter(comentario.getRespuestasRestaurante());
+            holder.rvRespuestas.setLayoutManager(new LinearLayoutManager(context));
+            holder.rvRespuestas.setAdapter(respuestaAdapter);
+        }
 
     }
 
@@ -90,7 +113,7 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
         RatingBar rbPuntuacion;
         TextView tvComentario;
         TextView tvFecha;
-        CircleImageView iv_imagenUsuario;
+        CircleImageView iv_fotoPerfil;
         RecyclerView rvRespuestas;
 
         public ComentarioViewHolder(View itemView) {
@@ -99,7 +122,7 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
             rbPuntuacion = itemView.findViewById(R.id.rb_puntuacion);
             tvComentario = itemView.findViewById(R.id.tv_comentario);
             tvFecha = itemView.findViewById(R.id.tv_fecha);
-            iv_imagenUsuario = itemView.findViewById(R.id.iv_usuario);
+            iv_fotoPerfil = itemView.findViewById(R.id.iv_usuario);
             rvRespuestas = itemView.findViewById(R.id.rv_respuestas);
         }
     }

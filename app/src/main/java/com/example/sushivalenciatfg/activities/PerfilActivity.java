@@ -47,7 +47,7 @@ public class PerfilActivity extends AppCompatActivity {
     private TextView tvcontrasena;
     private TextInputLayout lyTipoUsuario;
 
-    private CircleImageView ivImagenUsuario;
+    private CircleImageView ivfotoPerfil;
 
     private Button btnGuardarCambios;
     private Button btnVolver;
@@ -80,14 +80,13 @@ public class PerfilActivity extends AppCompatActivity {
     }
 
 
-
     public void obtenerReferencias() {
         lyNombreUsuario = findViewById(R.id.usernameInputLayout);
         lyEmail = findViewById(R.id.emailInputLayout);
         tvcontrasena = findViewById(R.id.tvContrasena);
         lyTipoUsuario = findViewById(R.id.userTypeInputLayout);
 
-        ivImagenUsuario = findViewById(R.id.ivPhotoProfile);
+        ivfotoPerfil = findViewById(R.id.ivPhotoProfile);
 
         btnGuardarCambios = findViewById(R.id.saveButton);
         btnVolver = findViewById(R.id.backButton);
@@ -100,7 +99,7 @@ public class PerfilActivity extends AppCompatActivity {
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Uri uri = result.getData().getData();
-                        ivImagenUsuario.setImageURI(uri);
+                        ivfotoPerfil.setImageURI(uri);
                     }
                 }
         );
@@ -111,7 +110,7 @@ public class PerfilActivity extends AppCompatActivity {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Bundle extras = result.getData().getExtras();
                         Bitmap imageBitmap = (Bitmap) extras.get("data");
-                        ivImagenUsuario.setImageBitmap(imageBitmap);
+                        ivfotoPerfil.setImageBitmap(imageBitmap);
                     }
                 }
         );
@@ -119,7 +118,7 @@ public class PerfilActivity extends AppCompatActivity {
 
     // Método para abrir el diálogo de selección de imagen
     public void abrirDialogoSeleccionImagen() {
-        ivImagenUsuario.setOnClickListener(v -> {
+        ivfotoPerfil.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Elige una opción");
             builder.setPositiveButton("Galería", (dialog, which) -> {
@@ -146,7 +145,7 @@ public class PerfilActivity extends AppCompatActivity {
             lyEmail.getEditText().setText(email);
 
             // Para obtener el nombre de usuario, el tipo de usuario y la URL de la imagen, necesitamos leerlos de Firestore
-            db.collection("usuario")
+            db.collection("usuarios")
                     .whereEqualTo("uid", currentUser.getUid())
                     .get()
                     .addOnCompleteListener(task -> {
@@ -159,13 +158,16 @@ public class PerfilActivity extends AppCompatActivity {
                                 String tipoUsuario = document.getString("tipoUsuario");
                                 lyTipoUsuario.getEditText().setText(tipoUsuario);
 
-                                // Comprobar si el documento contiene un campo con la URL de la imagen, ya que no es obligatorio
-                                if (document.contains("urlImagen")) {
-                                    String urlImagen = document.getString("urlImagen");
+                                // Comprobar si el usuario tiene una imagen de perfil
+                                if (document.contains("fotoPerfil") && !document.getString("fotoPerfil").isEmpty()) {
+                                    String urlImagen = document.getString("fotoPerfil");
                                     // Cargamos la imagen en el CircleImageView usando Glide
                                     Glide.with(this)
                                             .load(urlImagen)
-                                            .into(ivImagenUsuario);
+                                            .into(ivfotoPerfil);
+                                } else {
+                                    // Establecer la imagen por defecto
+                                    ivfotoPerfil.setImageResource(R.drawable.foto_perfil_defecto);
                                 }
                             }
                         } else {
@@ -189,7 +191,7 @@ public class PerfilActivity extends AppCompatActivity {
         }
 
         // Comprobar si el nombre de usuario ya existe y no pertenece al usuario actual (para evitar que salte el error por tener el propio usuario ya ese nombre)
-        db.collection("usuario")
+        db.collection("usuarios")
                 .whereEqualTo("nombreUsuario", nombreUsuario)
                 .whereNotEqualTo("uid", currentUser.getUid())
                 .get()
@@ -197,7 +199,7 @@ public class PerfilActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         if (task.getResult().isEmpty()) {
                             // El nombre de usuario no existe o pertenece al usuario actual, continuar con la actualización
-                            if (ivImagenUsuario.getDrawable() != null) {
+                            if (ivfotoPerfil.getDrawable() != null) {
                                 actualizarUsuarioConImagen(nombreUsuario, correo, tipoUsuario);
                             } else {
                                 // Si no tiene una imagen, simplemente actualizar los otros campos del usuario
@@ -221,12 +223,12 @@ public class PerfilActivity extends AppCompatActivity {
 
     public void actualizarUsuarioConImagen(String nombreUsuario, String correo, String tipoUsuario) {
         // Convertir la imagen en un Bitmap
-        BitmapDrawable drawable = (BitmapDrawable) ivImagenUsuario.getDrawable();
-        Bitmap imagenUsuario = drawable.getBitmap();
+        BitmapDrawable drawable = (BitmapDrawable) ivfotoPerfil.getDrawable();
+        Bitmap fotoPerfil = drawable.getBitmap();
 
         // Comprimir la imagen en un ByteArrayOutputStream
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        imagenUsuario.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        fotoPerfil.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] datosImagen = baos.toByteArray();
 
         // Subir la imagen a Firebase Storage y obtener la URL
@@ -253,11 +255,11 @@ public class PerfilActivity extends AppCompatActivity {
         usuario.put("correo", correo);
         usuario.put("tipoUsuario", tipoUsuario);
         if (urlImagen != null) {
-            usuario.put("urlImagen", urlImagen);
+            usuario.put("fotoPerfil", urlImagen);
         }
 
         // Buscar el documento donde el campo 'uid' es igual al UID del usuario actual
-        db.collection("usuario")
+        db.collection("usuarios")
                 .whereEqualTo("uid", currentUser.getUid())
                 .get()
                 .addOnCompleteListener(task -> {
@@ -266,7 +268,7 @@ public class PerfilActivity extends AppCompatActivity {
                         String documentId = task.getResult().getDocuments().get(0).getId();
 
                         // Actualizar el documento con el ID obtenido
-                        db.collection("usuario").document(documentId)
+                        db.collection("usuarios").document(documentId)
                                 .update(usuario)
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Usuario actualizado con éxito", Toast.LENGTH_SHORT).show();

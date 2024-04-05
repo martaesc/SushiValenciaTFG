@@ -19,7 +19,7 @@
             android:name=".activities.NuevoRestauranteActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.StartActivity"
+            android:name=".activities.InicioActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -99,7 +99,7 @@ public class MasInfoActivity extends AppCompatActivity {
 
 
     public void obtenerDatosRestaurante() {
-        db.collection("restaurante").document(restauranteId)
+        db.collection("restaurantes").document(restauranteId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -126,8 +126,8 @@ public class MasInfoActivity extends AppCompatActivity {
         if (currentUser != null) {
             // ID de usuario actual
             String userId = currentUser.getUid();
-            // Buscar en la colección "usuario" un documento donde el campo "uid" coincide con el ID del usuario
-            db.collection("usuario")
+            // Buscar en la colección "usuarios" un documento donde el campo "uid" coincide con el ID del usuario
+            db.collection("usuarios")
                     .whereEqualTo("uid", userId)
                     .get()
                     .addOnCompleteListener(task -> {
@@ -136,8 +136,8 @@ public class MasInfoActivity extends AppCompatActivity {
                             String tipoUsuario = task.getResult().getDocuments().get(0).getString("tipoUsuario");
                             // Si el tipo de usuario es "Restaurante", entonces comprobar si es el creador del restaurante
                             if ("Restaurante".equals(tipoUsuario)) {
-                                // Buscar en la colección "restaurante" un documento donde el campo "creador" coincide con el ID del usuario
-                                db.collection("restaurante")
+                                // Buscar en la colección "restaurantes" un documento donde el campo "creador" coincide con el ID del usuario
+                                db.collection("restaurantes")
                                         .whereEqualTo("idUsuarioRestaurante", userId)
                                         .get()
                                         .addOnCompleteListener(task2 -> {
@@ -241,7 +241,7 @@ public class MasInfoActivity extends AppCompatActivity {
         }
 
         // Actualizar el restaurante en Firestore
-        db.collection("restaurante").document(restauranteId)
+        db.collection("restaurantes").document(restauranteId)
                 .update(restauranteMap)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Restaurante actualizado con éxito", Toast.LENGTH_SHORT).show();
@@ -295,6 +295,7 @@ public class MasInfoActivity extends AppCompatActivity {
 
     public void volver() {
         Intent intent = new Intent(this, InfoRestauranteActivity.class);
+        intent.putExtra("idRestaurante", restauranteId);
         startActivity(intent);
     }
 

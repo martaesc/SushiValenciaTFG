@@ -69,7 +69,7 @@ public class LoginActivity extends AppCompatActivity {
     //Cuando un usuario intenta iniciar sesión, primero buscamos el documento con el nombre de usuario ingresado,
     // obtenemos el correo electrónico de ese documento y luego usar ese correo electrónico para iniciar sesión con Firebase Authentication.
     public void login(String nombreUsuarioOEmail, String contraseña) {
-        db.collection("usuario")
+        db.collection("usuarios")
                 .whereEqualTo("nombreUsuario", nombreUsuarioOEmail)
                 .get()
                 .addOnCompleteListener(task -> {

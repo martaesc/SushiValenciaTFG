@@ -5,10 +5,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.sushivalenciatfg.R;
+import com.example.sushivalenciatfg.activities.ComentariosActivity;
 import com.example.sushivalenciatfg.models.Respuesta;
 
 import java.text.SimpleDateFormat;
@@ -34,7 +36,7 @@ public class RespuestaAdapter extends RecyclerView.Adapter<RespuestaAdapter.Resp
     @Override
     public void onBindViewHolder(RespuestaViewHolder holder, int position) {
         Respuesta respuesta = listaRespuestas.get(position);
-        holder.tvNombreUsuarioRestaurante.setText(respuesta.getIdUsuarioRestaurante());
+        holder.tvNombreUsuarioRestaurante.setText(respuesta.getNombreUsuario());
         holder.tvTextoRespuesta.setText(respuesta.getTextoRespuesta());
 
         // Formateo de la fecha (DateTimeFormatter no está disponible en la API level 24 (Android 7.0 Nougat) que es la compatible con dispositivos que ejecuten versiones de Android anteriores a la 8.0)
@@ -43,14 +45,27 @@ public class RespuestaAdapter extends RecyclerView.Adapter<RespuestaAdapter.Resp
         holder.fechaRespuesta.setText(fechaFormateada);
 
 
-        // Si el restaurante tiene una foto, la cargas. Si no, dejas la foto por defecto
-        if (respuesta.getImagenUsuarioRestaurante() != null) {
-            Glide.with(holder.iv_imagenUsuarioRestaurante.getContext())
-                    .load(respuesta.getImagenUsuarioRestaurante())
-                    .into(holder.iv_imagenUsuarioRestaurante);
+        // Si el restaurante tiene una foto, se carga. Si no, se deja la foto por defecto
+        if (respuesta.getfotoPerfilRestaurante() != null) {
+            Glide.with(holder.iv_fotoPerfilRestaurante.getContext())
+                    .load(respuesta.getfotoPerfilRestaurante())
+                    .into(holder.iv_fotoPerfilRestaurante);
         } else {
-            holder.iv_imagenUsuarioRestaurante.setImageResource(R.drawable.foto_perfil_defecto);
+            holder.iv_fotoPerfilRestaurante.setImageResource(R.drawable.foto_perfil_defecto);
         }
+
+        // listener para el evento de pulsar durante unos segundos sobre el item del RecyclerView para eliminar la respuesta
+        holder.itemView.setOnLongClickListener(v -> {
+            new AlertDialog.Builder(v.getContext())
+                    .setTitle("Eliminar Respuesta")
+                    .setMessage("¿Estás seguro de que deseas eliminar esta respuesta?")
+                    .setPositiveButton("Sí", (dialog, which) -> {
+                        ((ComentariosActivity) v.getContext()).eliminarRespuesta(respuesta.getIdRespuesta());
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+            return true;
+        });
     }
 
     @Override
@@ -61,14 +76,14 @@ public class RespuestaAdapter extends RecyclerView.Adapter<RespuestaAdapter.Resp
     public static class RespuestaViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombreUsuarioRestaurante;
         TextView fechaRespuesta;
-        CircleImageView iv_imagenUsuarioRestaurante;
+        CircleImageView iv_fotoPerfilRestaurante;
         TextView tvTextoRespuesta;
 
         public RespuestaViewHolder(View itemView) {
             super(itemView);
             tvNombreUsuarioRestaurante = itemView.findViewById(R.id.tv_nombreUsuarioRestaurante);
             fechaRespuesta = itemView.findViewById(R.id.tv_fechaRespuesta);
-            iv_imagenUsuarioRestaurante = itemView.findViewById(R.id.iv_imagenUsuarioRestaurante);
+            iv_fotoPerfilRestaurante = itemView.findViewById(R.id.iv_fotoPerfilRestaurante);
             tvTextoRespuesta = itemView.findViewById(R.id.tv_respuestaRestaurante);
 
         }

@@ -259,7 +259,7 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
 
 
         // Guardar el restaurante en Firestore
-        db.collection("restaurante")
+        db.collection("restaurantes")
                 .add(restauranteMap)
                 .addOnSuccessListener(documentReference -> {
                     // Éxito al guardar el restaurante

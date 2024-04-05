@@ -12,28 +12,28 @@ public class Comentario {
     private String textoComentario;
     private List<Respuesta> respuestasRestaurante;
 
-    private String imagenUsuario;
+    private String fotoPerfil;
     private String idRestaurante;
     private String idUsuario;
 
-    public Comentario(String idComentario, String nombreUsuario, int puntuacion, Date fecha, String textoComentario, List<Respuesta> respuestasRestaurante, String imagenUsuario, String idRestaurante, String idUsuario) {
+    public Comentario(String idComentario, String nombreUsuario, int puntuacion, Date fecha, String textoComentario, List<Respuesta> respuestasRestaurante, String fotoPerfil, String idRestaurante, String idUsuario) {
         this.idComentario = idComentario;
         this.nombreUsuario = nombreUsuario;
         this.puntuacion = puntuacion;
         this.fecha = fecha;
         this.textoComentario = textoComentario;
         this.respuestasRestaurante = respuestasRestaurante;
-        this.imagenUsuario = imagenUsuario;
+        this.fotoPerfil = fotoPerfil;
         this.idRestaurante = idRestaurante;
         this.idUsuario = idUsuario;
     }
 
-    public Comentario(String nombreUsuario, int puntuacion, Date fecha, String textoComentario, String imagenUsuario, String idRestaurante, String idUsuario) {
+    public Comentario(String nombreUsuario, int puntuacion, Date fecha, String textoComentario, String fotoPerfil, String idRestaurante, String idUsuario) {
         this.nombreUsuario = nombreUsuario;
         this.puntuacion = puntuacion;
         this.fecha = fecha;
         this.textoComentario = textoComentario;
-        this.imagenUsuario = imagenUsuario;
+        this.fotoPerfil = fotoPerfil;
         this.idRestaurante = idRestaurante;
         this.idUsuario = idUsuario;
     }
@@ -108,12 +108,12 @@ public class Comentario {
         this.respuestasRestaurante = respuestasRestaurante;
     }
 
-    public String getImagenUsuario() {
-        return imagenUsuario;
+    public String getfotoPerfil() {
+        return fotoPerfil;
     }
 
-    public void setImagenUsuario(String imagenUsuario) {
-        this.imagenUsuario = imagenUsuario;
+    public void setfotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
     }
 
     @Override
@@ -125,7 +125,7 @@ public class Comentario {
                 ", fecha=" + getFecha() +
                 ", textoComentario='" + getTextoComentario() + '\'' +
                 ", respuestasRestaurante=" + getRespuestasRestaurante() +
-                ", imagenUsuario='" + getImagenUsuario() + '\'' +
+                ", fotoPerfil='" + getfotoPerfil() + '\'' +
                 ", idRestaurante='" + getIdRestaurante() + '\'' +
                 ", idUsuario='" + getIdUsuario() + '\'' +
                 '}';

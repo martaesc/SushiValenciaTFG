@@ -1,21 +1,31 @@
 package com.example.sushivalenciatfg.models;
 
-import java.time.LocalDate;
 import java.util.Date;
 
 public class Respuesta {
     private String idRespuesta;
+    private String nombreUsuario;
     private String textoRespuesta;
     private Date fecha;
-    private String imagenUsuarioRestaurante;
+    private String fotoPerfil;
     private String idUsuarioRestaurante;
     private String idComentario;
 
-    public Respuesta(String idRespuesta, String textoRespuesta, Date fecha, String imagenUsuarioRestaurante, String idUsuarioRestaurante, String idComentario) {
+    public Respuesta(String idRespuesta, String nombreUsuario, String textoRespuesta, Date fecha, String fotoPerfilRestaurante, String idUsuarioRestaurante, String idComentario) {
         this.idRespuesta = idRespuesta;
+        this.nombreUsuario = nombreUsuario;
         this.textoRespuesta = textoRespuesta;
         this.fecha = fecha;
-        this.imagenUsuarioRestaurante = imagenUsuarioRestaurante;
+        this.fotoPerfil = fotoPerfilRestaurante;
+        this.idUsuarioRestaurante = idUsuarioRestaurante;
+        this.idComentario = idComentario;
+    }
+
+    public Respuesta(String nombreUsuario, String textoRespuesta, Date fecha, String fotoPerfilRestaurante, String idUsuarioRestaurante, String idComentario) {
+        this.nombreUsuario = nombreUsuario;
+        this.textoRespuesta = textoRespuesta;
+        this.fecha = fecha;
+        this.fotoPerfil = fotoPerfilRestaurante;
         this.idUsuarioRestaurante = idUsuarioRestaurante;
         this.idComentario = idComentario;
     }
@@ -29,6 +39,14 @@ public class Respuesta {
 
     public void setIdRespuesta(String idRespuesta) {
         this.idRespuesta = idRespuesta;
+    }
+
+    public String getNombreUsuario() {
+        return nombreUsuario;
+    }
+
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
     }
 
     public String getTextoRespuesta() {
@@ -63,12 +81,12 @@ public class Respuesta {
         this.idComentario = idComentario;
     }
 
-    public String getImagenUsuarioRestaurante() {
-        return imagenUsuarioRestaurante;
+    public String getfotoPerfilRestaurante() {
+        return fotoPerfil;
     }
 
-    public void setImagenUsuarioRestaurante(String imagenUsuarioRestaurante) {
-        this.imagenUsuarioRestaurante = imagenUsuarioRestaurante;
+    public void setfotoPerfilRestaurante(String fotoPerfilRestaurante) {
+        this.fotoPerfil = fotoPerfilRestaurante;
     }
 
     @Override
@@ -77,7 +95,7 @@ public class Respuesta {
                 "idRespuesta='" + getIdRespuesta() + '\'' +
                 ", textoRespuesta='" + getTextoRespuesta() + '\'' +
                 ", fecha=" + getFecha() +
-                ", imagenUsuarioRestaurante='" + getImagenUsuarioRestaurante() + '\'' +
+                ", fotoPerfil='" + getfotoPerfilRestaurante() + '\'' +
                 ", idUsuarioRestaurante='" + getIdUsuarioRestaurante() + '\'' +
                 ", idComentario='" + getIdComentario() + '\'' +
                 '}';

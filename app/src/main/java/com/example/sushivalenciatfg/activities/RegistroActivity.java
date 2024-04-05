@@ -85,7 +85,7 @@ public class RegistroActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         String idUsuario = mAuth.getCurrentUser().getUid();
                         Usuario user = new Usuario(idUsuario, nombreUsuario, correo, tipoUsuario);
-                        db.collection("usuario")
+                        db.collection("usuarios")
                                 .add(user)
                                 .addOnSuccessListener(documentReference -> {
                                     Toast.makeText(RegistroActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();

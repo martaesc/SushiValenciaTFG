@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void obtenerRestaurantes() {
-        db.collection("restaurante")
+        db.collection("restaurantes")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -122,8 +122,8 @@ public class MainActivity extends AppCompatActivity {
         if (currentUser != null) {
             // Si el usuario ha iniciado sesión, obtener su ID de usuario
             String userId = currentUser.getUid();
-            // Buscar en la colección "usuario" un documento donde el campo "uid" coincide con el ID del usuario
-            db.collection("usuario")
+            // Buscar en la colección "usuarios" un documento donde el campo "uid" coincide con el ID del usuario
+            db.collection("usuarios")
                     .whereEqualTo("uid", userId)
                     .get()
                     .addOnCompleteListener(task -> {
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
         currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
-            db.collection("restaurante")
+            db.collection("restaurantes")
                     .document(restauranteId)
                     .get()
                     .addOnCompleteListener(task -> {
@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                             if (document.exists()) {
                                 String creadorId = document.getString("idUsuarioRestaurante");
                                 if (userId.equals(creadorId)) {
-                                    db.collection("restaurante").document(restauranteId)
+                                    db.collection("restaurantes").document(restauranteId)
                                             .delete()
                                             .addOnSuccessListener(aVoid -> {
                                                 Log.d("MainActivity", "Restaurante eliminado con éxito");

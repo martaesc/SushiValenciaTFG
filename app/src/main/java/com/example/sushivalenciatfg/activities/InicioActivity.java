@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.sushivalenciatfg.R;
 import com.google.android.material.button.MaterialButton;
 
-public class StartActivity  extends AppCompatActivity {
+public class InicioActivity extends AppCompatActivity {
 
     private MaterialButton btnEmpezar;
 
@@ -20,7 +20,7 @@ public class StartActivity  extends AppCompatActivity {
         btnEmpezar = findViewById(R.id.btnEmpezar);
 
         btnEmpezar.setOnClickListener(v -> {
-            Intent intent = new Intent(StartActivity.this, LoginActivity.class);
+            Intent intent = new Intent(InicioActivity.this, LoginActivity.class);
             startActivity(intent);
         });
     }

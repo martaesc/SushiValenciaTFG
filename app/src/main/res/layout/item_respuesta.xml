@@ -9,12 +9,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/search_view_bg"
+        android:background="@drawable/borde_respuesta"
         android:orientation="horizontal"
         android:padding="16dp">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/iv_imagenUsuarioRestaurante"
+                android:id="@+id/iv_fotoPerfilRestaurante"
                 android:layout_width="53dp"
                 android:layout_height="66dp"
                 android:src="@drawable/foto_perfil_defecto" />
@@ -38,7 +38,7 @@
                         android:layout_marginRight="10dp"
                         android:fontFamily="@font/arima_madurai"
                         android:text="Nombre Usuario"
-                        android:textColor="@color/red"
+                        android:textColor="@color/green"
                         android:textSize="17sp"
                         android:textStyle="bold" />
 
