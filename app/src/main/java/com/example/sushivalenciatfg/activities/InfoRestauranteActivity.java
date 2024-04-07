@@ -62,7 +62,6 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     private boolean isEditing = false;
 
 
-
     // Declaración de los ActivityResultLauncher
     private ActivityResultLauncher<Intent> mGalleryResultLauncher;
     private ActivityResultLauncher<Intent> mCameraResultLauncher;
@@ -166,13 +165,13 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                         if (document.exists()) {
                             String nombre = document.getString("nombre");
                             String descripcion = document.getString("descripcion");
-                            Integer puntuacion = document.getLong("puntuacion").intValue();
+                            Double puntuacionPromedio = document.getDouble("puntuacion");
                             String link = document.getString("linkRestaurante");
                             String imagenUrl = document.getString("imagenRestaurante");
 
                             etNombreRestaurante.setText(nombre);
                             etDescripcionRestaurante.setText(descripcion);
-                            tvPuntuacionRestaurante.setText(String.valueOf(puntuacion));
+                            tvPuntuacionRestaurante.setText(String.format("%.1f", puntuacionPromedio));
                             tvRestauranteLink.setText(link);
 
                             // Para cargar la imagen desde una URL en un ImageView usamos Glide
@@ -270,8 +269,6 @@ public class InfoRestauranteActivity extends AppCompatActivity {
 
         isEditing = false;
     }
-
-
 
 
     /**
@@ -407,7 +404,7 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         }
     }
 
-    public void clickLinkRestaurante(){
+    public void clickLinkRestaurante() {
         String url = tvRestauranteLink.getText().toString();
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setData(Uri.parse(url));

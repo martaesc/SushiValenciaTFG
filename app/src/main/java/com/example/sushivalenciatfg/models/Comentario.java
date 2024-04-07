@@ -16,18 +16,9 @@ public class Comentario {
     private String idRestaurante;
     private String idUsuario;
 
-    public Comentario(String idComentario, String nombreUsuario, int puntuacion, Date fecha, String textoComentario, List<Respuesta> respuestasRestaurante, String fotoPerfil, String idRestaurante, String idUsuario) {
-        this.idComentario = idComentario;
-        this.nombreUsuario = nombreUsuario;
-        this.puntuacion = puntuacion;
-        this.fecha = fecha;
-        this.textoComentario = textoComentario;
-        this.respuestasRestaurante = respuestasRestaurante;
-        this.fotoPerfil = fotoPerfil;
-        this.idRestaurante = idRestaurante;
-        this.idUsuario = idUsuario;
-    }
 
+    public Comentario() {
+    }
     public Comentario(String nombreUsuario, int puntuacion, Date fecha, String textoComentario, String fotoPerfil, String idRestaurante, String idUsuario) {
         this.nombreUsuario = nombreUsuario;
         this.puntuacion = puntuacion;
@@ -36,12 +27,6 @@ public class Comentario {
         this.fotoPerfil = fotoPerfil;
         this.idRestaurante = idRestaurante;
         this.idUsuario = idUsuario;
-    }
-
-
-
-
-    public Comentario() {
     }
 
     public String getIdComentario() {

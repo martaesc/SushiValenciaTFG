@@ -24,7 +24,7 @@
             android:layout_weight="1"
             android:fontFamily="@font/arima_madurai"
             android:text="¿Dónde te apetece comer hoy?"
-            android:textColor="@android:color/black"
+            android:textColor="@color/pink"
             android:textSize="20sp"
             android:textStyle="bold" />
 

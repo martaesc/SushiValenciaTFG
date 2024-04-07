@@ -39,6 +39,7 @@ public class MasInfoActivity extends AppCompatActivity {
 
     private Button btnEditar;
     private Button btnVolver;
+    private Button btnVolverMenuPrincipal;
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -75,12 +76,10 @@ public class MasInfoActivity extends AppCompatActivity {
         habilitarBotonEditar();
 
         btnEditar.setOnClickListener(v -> edicion());
-
         tvTelefono.setOnClickListener(v -> llamarTelefono());
-
         tvDireccion.setOnClickListener(v -> abrirMapa());
-
         btnVolver.setOnClickListener(v -> volver());
+        btnVolverMenuPrincipal.setOnClickListener(v -> volverMenuPrincipal());
     }
 
     public void obtenerReferencias() {
@@ -95,6 +94,7 @@ public class MasInfoActivity extends AppCompatActivity {
 
         btnEditar = findViewById(R.id.btnEditarInfo);
         btnVolver = findViewById(R.id.btnVolverInfoActivity);
+        btnVolverMenuPrincipal = findViewById(R.id.btnVolverMenuPrincipal);
     }
 
 
@@ -296,6 +296,11 @@ public class MasInfoActivity extends AppCompatActivity {
     public void volver() {
         Intent intent = new Intent(this, InfoRestauranteActivity.class);
         intent.putExtra("idRestaurante", restauranteId);
+        startActivity(intent);
+    }
+
+    public void volverMenuPrincipal() {
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 

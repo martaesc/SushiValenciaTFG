@@ -254,8 +254,11 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         }
 
         // Establecer la puntuación en 0 porque al crearlo el restaurante no tiene puntuaciones
-        int puntuacion = 0;
+        double puntuacion = 0.0;
         restauranteMap.put("puntuacion", puntuacion);
+
+        //int puntuacion = 0;
+        //restauranteMap.put("puntuacion", puntuacion);
 
 
         // Guardar el restaurante en Firestore

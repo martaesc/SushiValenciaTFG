@@ -14,7 +14,7 @@ public class Usuario {
         this.nombreUsuario = nombreUsuario;
         this.correo = correo;
         this.tipoUsuario = tipoUsuario;
-        this.fotoPerfil = ""; //Por defecto la foto de perfil es un string vacío, ya que no es obligatoria
+        this.fotoPerfil = ""; //Por defecto la foto de perfil es un string vacío, ya que es opcional
     }
 
     public Usuario() {

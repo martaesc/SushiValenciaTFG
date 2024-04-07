@@ -196,17 +196,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-
-        <Button
-            android:id="@+id/btnVolverInfoActivity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/MyButtonStyle"
-            android:fontFamily="@font/arima_madurai"
-            android:text="Volver"
-            android:textColor="@color/white"
-            android:textStyle="bold" />
-
         <Button
             android:id="@+id/btnEditarInfo"
             android:layout_width="match_parent"
@@ -217,6 +206,36 @@
             android:text="Editar"
             android:textColor="@color/white"
             android:textStyle="bold" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+            <Button
+                android:id="@+id/btnVolverInfoActivity"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                style="@style/MyButtonStyle"
+                android:fontFamily="@font/arima_madurai"
+                android:text="Volver"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnVolverMenuPrincipal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Menú principal"
+                style="@style/MyButtonStyle"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"/>
+        </LinearLayout>
+
+
     </LinearLayout>
 
 

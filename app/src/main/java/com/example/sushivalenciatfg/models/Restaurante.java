@@ -11,31 +11,15 @@ public class Restaurante {
     private String horario;
 
     private String linkRestaurante;
-    private int puntuacion;
+    private double puntuacion;
     private String imagenRestaurante;
-    private List<String> comentarios;
+    private List<Comentario> comentarios;
     private String idUsuarioRestaurante;
-
-    public Restaurante(String idRestaurante, String nombre, String descripcion, String direccion, String telefono, String horario, String linkRestaurante, int puntuacion, String imagenRestaurante, List<String> comentarios, String idUsuarioRestaurante) {
-        this.idRestaurante = idRestaurante;
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.direccion = direccion;
-        this.telefono = telefono;
-        this.horario = horario;
-        this.linkRestaurante = linkRestaurante;
-        this.puntuacion = puntuacion;
-        this.imagenRestaurante = imagenRestaurante;
-        this.comentarios = comentarios;
-        this.idUsuarioRestaurante = idUsuarioRestaurante;
-    }
-
-
 
     public Restaurante() {
     }
 
-    //Constructor para crear un nuevo restaurante(aún no tiene comentarios ni puntuaicones)
+    //nuevo restaurante(aún no tiene comentarios ni puntuaicones)
     public Restaurante(String nombreRestaurante, String descripcionRestaurante, String direccion, String telefono, String horario, String linkRestaurante, String imagenRestaurante, String idUsuario) {
         this.nombre = nombreRestaurante;
         this.descripcion = descripcionRestaurante;
@@ -97,11 +81,11 @@ public class Restaurante {
         this.horario = horario;
     }
 
-    public int getPuntuacion() {
+    public double getPuntuacion() {
         return puntuacion;
     }
 
-    public void setPuntuacion(int puntuacion) {
+    public void setPuntuacion(double puntuacion) {
         this.puntuacion = puntuacion;
     }
 
@@ -113,11 +97,11 @@ public class Restaurante {
         this.imagenRestaurante = imagenRestaurante;
     }
 
-    public List<String> getComentarios() {
+    public List<Comentario> getComentarios() {
         return comentarios;
     }
 
-    public void setComentarios(List<String> comentarios) {
+    public void setComentarios(List<Comentario> comentarios) {
         this.comentarios = comentarios;
     }
 

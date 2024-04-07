@@ -11,15 +11,6 @@ public class Respuesta {
     private String idUsuarioRestaurante;
     private String idComentario;
 
-    public Respuesta(String idRespuesta, String nombreUsuario, String textoRespuesta, Date fecha, String fotoPerfilRestaurante, String idUsuarioRestaurante, String idComentario) {
-        this.idRespuesta = idRespuesta;
-        this.nombreUsuario = nombreUsuario;
-        this.textoRespuesta = textoRespuesta;
-        this.fecha = fecha;
-        this.fotoPerfil = fotoPerfilRestaurante;
-        this.idUsuarioRestaurante = idUsuarioRestaurante;
-        this.idComentario = idComentario;
-    }
 
     public Respuesta(String nombreUsuario, String textoRespuesta, Date fecha, String fotoPerfilRestaurante, String idUsuarioRestaurante, String idComentario) {
         this.nombreUsuario = nombreUsuario;

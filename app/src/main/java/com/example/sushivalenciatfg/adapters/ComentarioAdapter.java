@@ -16,11 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.sushivalenciatfg.R;
 import com.example.sushivalenciatfg.activities.ComentariosActivity;
-import com.example.sushivalenciatfg.activities.MainActivity;
 import com.example.sushivalenciatfg.models.Comentario;
-import com.example.sushivalenciatfg.models.Respuesta;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -71,7 +67,7 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
                     .setTitle("Eliminar Comentario")
                     .setMessage("¿Estás seguro de que deseas eliminar este comentario?")
                     .setPositiveButton("Sí", (dialog, which) -> {
-                        ((ComentariosActivity) v.getContext()).eliminarComentario(comentario.getIdComentario());
+                        ((ComentariosActivity) v.getContext()).eliminarComentarioDeFirestore(comentario.getIdComentario());
                     })
                     .setNegativeButton("No", null)
                     .show();

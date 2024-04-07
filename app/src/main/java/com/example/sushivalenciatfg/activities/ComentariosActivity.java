@@ -19,9 +19,13 @@ import com.example.sushivalenciatfg.models.Comentario;
 import com.example.sushivalenciatfg.models.Respuesta;
 import com.example.sushivalenciatfg.models.Restaurante;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -51,6 +55,7 @@ public class ComentariosActivity extends AppCompatActivity {
     private FirebaseUser currentUser;
 
     private String restauranteId;
+    private double puntuacionPromedio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,55 +95,55 @@ public class ComentariosActivity extends AppCompatActivity {
         btnVolverMenu = findViewById(R.id.btnVolverAlMenuPrincipal);
     }
 
-   public void visibilidadComponentesParaRestaurante() {
-    // // Ocultar por defecto los componentes (para evitar el problema de que tarden unos segundos en desaparecer al entrar a la activity)
-    subtitulo.setVisibility(View.GONE);
-    punuacion.setVisibility(View.GONE);
-    textoComentario.setVisibility(View.GONE);
-    btnPublicar.setVisibility(View.GONE);
+    public void visibilidadComponentesParaRestaurante() {
+        // // Ocultar por defecto los componentes (para evitar el problema de que tarden unos segundos en desaparecer al entrar a la activity)
+        subtitulo.setVisibility(View.GONE);
+        punuacion.setVisibility(View.GONE);
+        textoComentario.setVisibility(View.GONE);
+        btnPublicar.setVisibility(View.GONE);
 
-    if (currentUser != null) {
-        // ID de usuario actual
-        String userId = currentUser.getUid();
+        if (currentUser != null) {
+            // ID de usuario actual
+            String userId = currentUser.getUid();
 
-        // Obtener el usuario actual
-        obtenerUsuario(userId, documentSnapshot -> {
-            // Obtener el tipo de usuario del documento
-            String tipoUsuario = documentSnapshot.getString("tipoUsuario");
+            // Obtener el usuario actual
+            obtenerUsuario(userId, documentSnapshot -> {
+                // Obtener el tipo de usuario del documento
+                String tipoUsuario = documentSnapshot.getString("tipoUsuario");
 
-            // Si el tipo de usuario es "Restaurante", entonces comprobar si es el creador del restaurante
-            if ("Restaurante".equals(tipoUsuario)) {
-                // Buscar en la colección "restaurantes" un documento donde el campo "idUsuarioRestaurante" coincide con el ID del usuario
-                db.collection("restaurantes")
-                        .whereEqualTo("idUsuarioRestaurante", userId)
-                        .get()
-                        .addOnCompleteListener(task2 -> {
-                            if (task2.isSuccessful() && !task2.getResult().isEmpty()) {
-                                // Si el usuario es el creador del restaurante, ocultar los componentes para publicar una valoración
-                                subtitulo.setVisibility(View.GONE);
-                                punuacion.setVisibility(View.GONE);
-                                textoComentario.setVisibility(View.GONE);
-                                btnPublicar.setVisibility(View.GONE);
-                            } else {
-                                // Si el usuario es un restaurante pero no el creador del restaurante, mostrar los componentes para publicar una valoración
-                                subtitulo.setVisibility(View.VISIBLE);
-                                punuacion.setVisibility(View.VISIBLE);
-                                textoComentario.setVisibility(View.VISIBLE);
-                                btnPublicar.setVisibility(View.VISIBLE);
-                            }
-                        });
-            } else {
-                // Si el tipo de usuario no es "Restaurante", mostrar los componentes para publicar una valoración
-                subtitulo.setVisibility(View.VISIBLE);
-                punuacion.setVisibility(View.VISIBLE);
-                textoComentario.setVisibility(View.VISIBLE);
-                btnPublicar.setVisibility(View.VISIBLE);
-            }
-        });
-    } else {
-        Log.d("ComentariosActivity", "El usuario actual es nulo");
+                // Si el tipo de usuario es "Restaurante", entonces comprobar si es el creador del restaurante
+                if ("Restaurante".equals(tipoUsuario)) {
+                    // Buscar en la colección "restaurantes" un documento donde el campo "idUsuarioRestaurante" coincide con el ID del usuario
+                    db.collection("restaurantes")
+                            .whereEqualTo("idUsuarioRestaurante", userId)
+                            .get()
+                            .addOnCompleteListener(task2 -> {
+                                if (task2.isSuccessful() && !task2.getResult().isEmpty()) {
+                                    // Si el usuario es el creador del restaurante, ocultar los componentes para publicar una valoración
+                                    subtitulo.setVisibility(View.GONE);
+                                    punuacion.setVisibility(View.GONE);
+                                    textoComentario.setVisibility(View.GONE);
+                                    btnPublicar.setVisibility(View.GONE);
+                                } else {
+                                    // Si el usuario es un restaurante pero no el creador del restaurante, mostrar los componentes para publicar una valoración
+                                    subtitulo.setVisibility(View.VISIBLE);
+                                    punuacion.setVisibility(View.VISIBLE);
+                                    textoComentario.setVisibility(View.VISIBLE);
+                                    btnPublicar.setVisibility(View.VISIBLE);
+                                }
+                            });
+                } else {
+                    // Si el tipo de usuario no es "Restaurante", mostrar los componentes para publicar una valoración
+                    subtitulo.setVisibility(View.VISIBLE);
+                    punuacion.setVisibility(View.VISIBLE);
+                    textoComentario.setVisibility(View.VISIBLE);
+                    btnPublicar.setVisibility(View.VISIBLE);
+                }
+            });
+        } else {
+            Log.d("ComentariosActivity", "El usuario actual es nulo");
+        }
     }
-}
 
     public void cargarValoraciones() {
         db.collection("comentarios")
@@ -237,9 +242,12 @@ public class ComentariosActivity extends AppCompatActivity {
 
                 // Añadimos el objeto del comentario a la lista de comentarios del restaurante
                 db.collection("restaurantes").document(restauranteId)
-                        .update("listaComentarios", FieldValue.arrayUnion(nuevoComentario));
+                        .update("listaComentarios", FieldValue.arrayUnion(nuevoComentario.getIdComentario()));
 
                 limpiarCampos();
+
+                // Actualizar la puntuación del restaurante para enviarselo a InfoRestauranteActivity
+                actualizarPuntuacionPromedio();
             });
         });
     }
@@ -271,7 +279,7 @@ public class ComentariosActivity extends AppCompatActivity {
                 });
     }
 
-    public void eliminarComentario(String comentarioId) {
+    public void eliminarComentarioDeFirestore(String comentarioId) {
         // ID del usuario actual
         String idUsuarioActual = currentUser.getUid();
 
@@ -285,22 +293,23 @@ public class ComentariosActivity extends AppCompatActivity {
                     obtenerRestaurante(comentario.getIdRestaurante(), restaurante -> {
                         // Compruebo si el usuario actual es el propietario del restaurante o el usuario que publicó el comentario
                         if (idUsuarioActual.equals(comentario.getIdUsuario()) || idUsuarioActual.equals(restaurante.getIdUsuarioRestaurante())) {
+                            // Elimino el comentario del array de comentarios del restaurante
+                            eliminarComentarioDelArray(restaurante.getIdRestaurante(), comentarioId);
+
                             // Elimino el comentario de la collección comentarios
                             db.collection("comentarios").document(comentarioId)
                                     .delete()
                                     .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(this, "Comentario eliminado con éxito", Toast.LENGTH_SHORT).show();
-
-                                        // Elimino el comentario del array de comentarios del restaurante
-                                        db.collection("restaurantes").document(restaurante.getIdRestaurante())
-                                                .update("listaComentarios", FieldValue.arrayRemove(comentarioId))
-                                                .addOnSuccessListener(aVoid1 -> {
-                                                    // refresco la interfaz
-                                                    cargarValoraciones();
-                                                })
-                                                .addOnFailureListener(e -> {
-                                                    Log.e("ComentariosActivity", "Error eliminando comentario del array", e);
-                                                });
+                                        // si el comentario tiene respuestas, las elimino también
+                                        if (comentario.getRespuestasRestaurante() != null) {
+                                            for (Respuesta respuesta : comentario.getRespuestasRestaurante()) {
+                                                eliminarRespuestaEnFirestore(respuesta.getIdRespuesta());
+                                            }
+                                        }
+                                        // Actualizar la puntuación promedio después de eliminar el comentario
+                                        actualizarPuntuacionPromedio();
+                                        // Refrescar la interfaz
+                                        cargarValoraciones();
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.e("ComentariosActivity", "Error eliminando comentario", e);
@@ -315,6 +324,21 @@ public class ComentariosActivity extends AppCompatActivity {
                     Log.e("ComentariosActivity", "Error obteniendo comentario", e);
                 });
     }
+
+    // Método para eliminar el idCmentario de la lista de comentarios de un restaurante
+    public void eliminarComentarioDelArray(String restauranteId, String comentarioId) {
+        Log.d("ComentariosActivity", "comentarioId: " + comentarioId + ", restauranteId: " + restauranteId);
+        // Actualizar el documento del restaurante eliminando el id del comentario del array
+        db.collection("restaurantes").document(restauranteId)
+                .update("listaComentarios", FieldValue.arrayRemove(comentarioId))
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Comentario eliminado con éxito", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ComentariosActivity", "Error actualizando listaComentarios", e);
+                });
+    }
+
 
     public void responderComentario(String comentarioId, String textoRespuesta) {
         // ID del usuario actual
@@ -373,7 +397,7 @@ public class ComentariosActivity extends AppCompatActivity {
     }
 
 
-    private void guardarRespuestaEnFirestore(Respuesta nuevaRespuesta, String comentarioId, OnSuccessListener<Void> onSuccessListener) {
+    public void guardarRespuestaEnFirestore(Respuesta nuevaRespuesta, String comentarioId, OnSuccessListener<Void> onSuccessListener) {
         // Guardamos la nueva respuesta en Firestore
         db.collection("respuestas")
                 .add(nuevaRespuesta)
@@ -404,34 +428,31 @@ public class ComentariosActivity extends AppCompatActivity {
                 });
     }
 
-    public void eliminarRespuesta(String respuestaId) {
+
+    public void eliminarRespuestaEnFirestore(String respuestaId) {
         // ID del usuario actual
         String idUsuarioActual = currentUser.getUid();
 
         // Obtengo el documento de la respuesta de Firestore
-        db.collection("respuestas").document(respuestaId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
+        Task<DocumentSnapshot> getRespuestaTask = db.collection("respuestas").document(respuestaId).get();
+
+        getRespuestaTask.addOnSuccessListener(documentSnapshot -> {
                     Respuesta respuesta = documentSnapshot.toObject(Respuesta.class);
 
                     // Compruebo si el usuario actual es el propietario del restaurante
                     if (idUsuarioActual.equals(respuesta.getIdUsuarioRestaurante())) {
-                        // Eliminar la respuesta
-                        db.collection("respuestas").document(respuestaId)
-                                .delete()
+                        // Elimino la respuesta del array de respuestas del comentario en Firestore
+                        Task<Void> eliminarRespuestaArrayTask = eliminarRespuestaDelArray(respuesta.getIdComentario(), respuesta);
+
+                        // Elimino la respuesta de la colección respuestas
+                        Task<Void> eliminarRespuestaDocTask = db.collection("respuestas").document(respuestaId).delete();
+
+                        // usamos Tasks.whenAllSuccess() para esperar a que ambas tareas de eliminación se completen antes de llamar a cargarValoraciones()
+                        Tasks.whenAllSuccess(eliminarRespuestaArrayTask, eliminarRespuestaDocTask)
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Respuesta eliminada con éxito", Toast.LENGTH_SHORT).show();
-
-                                    // Eliminar la respuesta del array de respuestas del comentario
-                                    db.collection("comentarios").document(respuesta.getIdComentario())
-                                            .update("respuestasRestaurante", FieldValue.arrayRemove(respuesta))
-                                            .addOnSuccessListener(aVoid1 -> {
-                                                // Recargar las valoraciones para actualizar la interfaz
-                                                cargarValoraciones();
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                Log.e("ComentariosActivity", "Error eliminando respuesta del array", e);
-                                            });
+                                    // Refrescar la interfaz después de completar ambas eliminaciones
+                                    cargarValoraciones();
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.e("ComentariosActivity", "Error eliminando respuesta", e);
@@ -443,6 +464,92 @@ public class ComentariosActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("ComentariosActivity", "Error obteniendo respuesta", e);
+                });
+    }
+
+    public Task<Void> eliminarRespuestaDelArray(String comentarioId, Respuesta respuesta) {
+        TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
+
+        // Obtener el documento del comentario
+        DocumentReference comentarioRef = db.collection("comentarios").document(comentarioId);
+
+        // transacción para actualizar el array de respuestas (ya que firestore no deja eliminar el objeto directamente)
+        db.runTransaction(transaction -> {
+                    DocumentSnapshot snapshot = transaction.get(comentarioRef);
+                    Comentario comentario = snapshot.toObject(Comentario.class);
+
+                    // si el comentario existe y tiene respuestas
+                    if (comentario != null && comentario.getRespuestasRestaurante() != null) {
+                        // Obtengo la lista de respuestas
+                        List<Respuesta> respuestas = comentario.getRespuestasRestaurante();
+
+                        // Busco el índice de la respuesta que quiero eliminar
+                        int index = -1;
+                        for (int i = 0; i < respuestas.size(); i++) {
+                            if (respuestas.get(i).getIdRespuesta().equals(respuesta.getIdRespuesta())) {
+                                index = i;
+                                break;
+                            }
+                        }
+
+                        // y si lo encuentro lo elimino del array
+                        if (index != -1) {
+                            respuestas.remove(index);
+                            // Actualizo el documento de comentarios con la lista de respuestas actualizada
+                            transaction.set(comentarioRef, comentario);
+                        }
+                    }
+
+                    return null;
+                })
+                .addOnSuccessListener(result -> {
+                    Log.d("ComentariosActivity", "Respuesta eliminada del array con éxito");
+                    taskCompletionSource.setResult(null); // Marcar la tarea como completada
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ComentariosActivity", "Error eliminando respuesta del array", e);
+                    taskCompletionSource.setException(e); // Marcar la tarea como fallida
+                });
+
+        return taskCompletionSource.getTask();
+    }
+
+
+
+    // método para calcular el promedio de las puntuaciones (sumar todas las puntuaciones y luego dividir esa suma por el número total de puntuaciones que se han realizado)
+    public void actualizarPuntuacionPromedio() {
+        // Obtener todos los comentarios del restaurante
+        db.collection("comentarios")
+                .whereEqualTo("idRestaurante", restauranteId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        int totalPuntuacion = 0;
+                        int numComentarios = 0;
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Comentario comentario = document.toObject(Comentario.class);
+                            totalPuntuacion += comentario.getPuntuacion();
+                            numComentarios++;
+                        }
+                        //Si numComentarios es cero, entonces puntuacionPromedio se establece en cero (para evitar que el resultado de la división sea NaN (Not a Number))
+                        if (numComentarios != 0) {
+                            puntuacionPromedio = (double) totalPuntuacion / numComentarios;
+                        } else {
+                            puntuacionPromedio = 0;
+                        }
+
+                        // Actualizar la puntuación promedio del restaurante en Firestore
+                        db.collection("restaurantes").document(restauranteId)
+                                .update("puntuacion", puntuacionPromedio)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("ComentariosActivity", "Puntuación promedio actualizada con éxito");
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("ComentariosActivity", "Error actualizando puntuación promedio", e);
+                                });
+                    } else {
+                        Log.d("MainActivity", "Error obteniendo valoraciones: ", task.getException());
+                    }
                 });
     }
 

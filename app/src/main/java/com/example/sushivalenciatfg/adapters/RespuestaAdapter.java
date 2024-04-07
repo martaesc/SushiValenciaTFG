@@ -14,7 +14,6 @@ import com.example.sushivalenciatfg.activities.ComentariosActivity;
 import com.example.sushivalenciatfg.models.Respuesta;
 
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
@@ -60,7 +59,7 @@ public class RespuestaAdapter extends RecyclerView.Adapter<RespuestaAdapter.Resp
                     .setTitle("Eliminar Respuesta")
                     .setMessage("¿Estás seguro de que deseas eliminar esta respuesta?")
                     .setPositiveButton("Sí", (dialog, which) -> {
-                        ((ComentariosActivity) v.getContext()).eliminarRespuesta(respuesta.getIdRespuesta());
+                        ((ComentariosActivity) v.getContext()).eliminarRespuestaEnFirestore(respuesta.getIdRespuesta());
                     })
                     .setNegativeButton("No", null)
                     .show();
