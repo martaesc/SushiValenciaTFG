@@ -152,7 +152,7 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         Bitmap imagenRestaurante = drawable.getBitmap();
 
         // Comprobar si los campos de texto están vacíos
-        if (nombreRestaurante.isEmpty() || descripcionRestaurante.isEmpty() || linkRestaurante.isEmpty() || horario.isEmpty() || telefono.isEmpty() || direccion.isEmpty()) {
+        if (nombreRestaurante.isEmpty() || descripcionRestaurante.isEmpty() || horario.isEmpty() || telefono.isEmpty() || direccion.isEmpty()) {
             Toast.makeText(this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -169,10 +169,14 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
             return;
         }
 
-        // Comprobar si el enlace es válido
-        if (!Patterns.WEB_URL.matcher(linkRestaurante).matches()) {
+        // Comprobar si el enlace es válido (si no está vacío)
+        if (!linkRestaurante.isEmpty() && !Patterns.WEB_URL.matcher(linkRestaurante).matches()) {
             Toast.makeText(this, "Por favor, introduzca un enlace válido", Toast.LENGTH_SHORT).show();
             return;
+        } else {
+            if (linkRestaurante.isEmpty()) {
+                linkRestaurante = null;
+            }
         }
 
         // Si todas las comprobaciones son correctas, se sube la imagen a Firebase Storage, se obtiene la URL de la imagen, se le añade al restaurante y este se guarda en Firestore
@@ -209,7 +213,8 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
                     String urlImagen = uri.toString();
                     nuevoRestaurante(nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion, urlImagen);
                 })
-                .addOnFailureListener(exception -> {;
+                .addOnFailureListener(exception -> {
+                    ;
                     Log.e("NuevoRestauranteActivity", "Error al obtener la URL de la imagen: " + exception.getMessage());
                     Toast.makeText(NuevoRestauranteActivity.this, "Error al obtener la imagen", Toast.LENGTH_SHORT).show();
                 });
@@ -228,24 +233,28 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         Map<String, Object> restauranteMap = new HashMap<>();
 
         // Añadir cada campo del restaurante al Map solo si no es null para evitar problemas al guardar en Firestore
-        if (nombreRestaurante != null){
+        if (nombreRestaurante != null) {
             restauranteMap.put("nombre", nombreRestaurante);
         }
-        if (descripcionRestaurante != null){
+        if (descripcionRestaurante != null) {
             restauranteMap.put("descripcion", descripcionRestaurante);
         }
         if (direccion != null) {
             restauranteMap.put("direccion", direccion);
         }
-        if (telefono != null){
+        if (telefono != null) {
             restauranteMap.put("telefono", telefono);
         }
-        if (horario != null){
+        if (horario != null) {
             restauranteMap.put("horario", horario);
         }
-        if (linkRestaurante != null){
+        // si linkRestaurante es null, se añade al Map con el valor "El restaurante no tiene web". De lo contrario, se añade con su valor actual.
+        if (linkRestaurante != null) {
             restauranteMap.put("linkRestaurante", linkRestaurante);
+        } else {
+            restauranteMap.put("linkRestaurante", "El restaurante no tiene web");
         }
+
         if (urlImagen != null) {
             restauranteMap.put("imagenRestaurante", urlImagen);
         }
@@ -256,9 +265,6 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         // Establecer la puntuación en 0 porque al crearlo el restaurante no tiene puntuaciones
         double puntuacion = 0.0;
         restauranteMap.put("puntuacion", puntuacion);
-
-        //int puntuacion = 0;
-        //restauranteMap.put("puntuacion", puntuacion);
 
 
         // Guardar el restaurante en Firestore

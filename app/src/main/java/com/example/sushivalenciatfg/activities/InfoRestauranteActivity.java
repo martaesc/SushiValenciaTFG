@@ -93,8 +93,8 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         inicializarActivityResultLaunchers();
 
         btnEditar.setOnClickListener(v -> edicion());
+tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
 
-        tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
 
         btnVolver.setOnClickListener(v -> volverMenu());
         btnMasInfo.setOnClickListener(v -> irAMasInfo());
@@ -174,6 +174,7 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                             tvPuntuacionRestaurante.setText(String.format("%.1f", puntuacionPromedio));
                             tvRestauranteLink.setText(link);
 
+
                             // Para cargar la imagen desde una URL en un ImageView usamos Glide
                             Glide.with(this)
                                     .load(imagenUrl)
@@ -187,48 +188,31 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                 });
     }
 
-    public void habilitarBotonEditar() {
-        currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            // ID de usuario actual
-            String userId = currentUser.getUid();
-            // Buscar en la colección "usuarios" un documento donde el campo "uid" coincide con el ID del usuario
-            db.collection("usuarios")
-                    .whereEqualTo("uid", userId)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                            // Obtener el tipo de usuario del documento
-                            String tipoUsuario = task.getResult().getDocuments().get(0).getString("tipoUsuario");
-                            // Si el tipo de usuario es "Restaurante", entonces comprobar si es el creador del restaurante
-                            if ("Restaurante".equals(tipoUsuario)) {
-                                // Buscar en la colección "restaurantes" un documento donde el campo "creador" coincide con el ID del usuario
-                                db.collection("restaurantes")
-                                        .whereEqualTo("idUsuarioRestaurante", userId)
-                                        .get()
-                                        .addOnCompleteListener(task2 -> {
-                                            if (task2.isSuccessful() && !task2.getResult().isEmpty()) {
-                                                // Si el usuario es el creador del restaurante, mostrar el botón de editar
-                                                btnEditar.setVisibility(View.VISIBLE);
-                                            } else {
-                                                // Si el usuario no es el creador del restaurante, ocultar el botón de editar
-                                                btnEditar.setVisibility(View.GONE);
-                                            }
-                                        });
-                            } else {
-                                // Si el tipo de usuario no es "Restaurante", ocultar el botón de editar
-                                btnEditar.setVisibility(View.GONE);
-                            }
-                        } else {
-                            Log.d("InfoRestauranteActivity", "No se encontró un documento de usuario con el uid: " + userId);
-                        }
-                    }).addOnFailureListener(e -> {
-                        Log.e("InfoRestauranteActivity", "Error obteniendo el tipo de usuario", e);
-                    });
-        } else {
-            Log.d("InfoRestauranteActivity", "El usuario actual es nulo");
-        }
+   public void habilitarBotonEditar() {
+    currentUser = mAuth.getCurrentUser();
+    if (currentUser != null) {
+        // ID de usuario actual
+        String userId = currentUser.getUid();
+
+        // Buscar en la colección "restaurantes" un documento donde el campo "idUsuarioRestaurante" coincide con el ID del usuario
+        // y el ID del restaurante coincide con restauranteId
+        db.collection("restaurantes")
+                .whereEqualTo("idUsuarioRestaurante", userId)
+                .whereEqualTo("idRestaurante", restauranteId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        // Si el usuario es el creador del restaurante, mostrar el botón de editar
+                        btnEditar.setVisibility(View.VISIBLE);
+                    } else {
+                        // Si el usuario no es el creador del restaurante, ocultar el botón de editar
+                        btnEditar.setVisibility(View.GONE);
+                    }
+                });
+    } else {
+        Log.d("InfoRestauranteActivity", "El usuario actual es nulo");
     }
+}
 
     public void habilitarEdicionEditText() {
         // Habilitar la edición de los EditText
@@ -266,6 +250,7 @@ public class InfoRestauranteActivity extends AppCompatActivity {
 
         // Deshabilitar la selección de una imagen
         ivImagenRestaurante.setOnClickListener(null);
+        etLinkRestaurante.setOnClickListener(null);
 
         isEditing = false;
     }
@@ -275,7 +260,7 @@ public class InfoRestauranteActivity extends AppCompatActivity {
      * Este método recoge los datos de los EditText, realiza varias comprobaciones para asegurarse de que los datos son válidos,
      * y luego llama al método subirImagenFirebaseStorage().
      */
-    private void comprobacionCamposYGuardar() {
+    public void comprobacionCamposYGuardar() {
         // Recoger los datos de los EditText
         String nombre = etNombreRestaurante.getText().toString();
         String descripcion = etDescripcionRestaurante.getText().toString();
@@ -304,8 +289,8 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         }
 
 
-        // Comprobar si el enlace es válido
-        if (!Patterns.WEB_URL.matcher(link).matches()) {
+        // Comprobar si el enlace es válido o es el texto "El restaurante no tiene web"
+        if (!Patterns.WEB_URL.matcher(link).matches() && !link.equals("El restaurante no tiene web")) {
             Toast.makeText(this, "El enlace no es válido", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -404,12 +389,19 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         }
     }
 
-    public void clickLinkRestaurante() {
-        String url = tvRestauranteLink.getText().toString();
+    // para evitar el ActivityNotFoundException al clickar sobre el textview cuando no es un enlace, se verifica si el texto del
+    // enlace es "El restaurante no tiene web". Si es así, muestra un mensaje al usuario. Si no, intenta abrir el enlace como antes.
+  public void clickLinkRestaurante() {
+    String url = tvRestauranteLink.getText().toString();
+    if (url.equals("El restaurante no tiene web")) {
+        Toast.makeText(this, "Este restaurante no tiene página web", Toast.LENGTH_SHORT).show();
+        return; // para no continuar ejecutando el código restante si el enlace no es válido para abrirlo en un navegador
+    } else {
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setData(Uri.parse(url));
         startActivity(i);
     }
+}
 
 
     public void volverMenu() {

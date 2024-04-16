@@ -1,4 +1,4 @@
-package com.example.sushivalenciatfg;
+package com.example.sushivalenciatfg.tests;
 
 import android.content.Context;
 

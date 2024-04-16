@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Patterns;
+import android.util.Log;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -37,32 +37,10 @@ public class RegistroActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        //obtener referencia a los elementos de la vista
         obtenerReferencias();
 
-        //configurar el botón de registro
         btnRegistro.setOnClickListener(v -> {
-            String nombreUsuario = txtRegistroUsuario.getEditText().getText().toString();
-            String correo = txtRegistroCorreo.getEditText().getText().toString();
-            String contraseña = txtLoginContraseña.getEditText().getText().toString();
-            String contraseña2 = txtLoginContraseña2.getEditText().getText().toString();
-            int usuarioSeleccionado = radioGroup.getCheckedRadioButtonId();
-
-            if (usuarioSeleccionado == -1) {
-                Toast.makeText(RegistroActivity.this, "Debe seleccionar un tipo de usuario", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            RadioButton radioButton = findViewById(usuarioSeleccionado);
-            String tipoUsuarioString = radioButton.getText().toString();
-
-            if (nombreUsuario.isEmpty() || correo.isEmpty() || contraseña.isEmpty() || contraseña2.isEmpty()) {
-                Toast.makeText(RegistroActivity.this, "Por favor, rellene todos los campos", Toast.LENGTH_SHORT).show();
-            } else if (!contraseña.equals(contraseña2)) {
-                Toast.makeText(RegistroActivity.this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
-            } else {
-                registerUser(nombreUsuario, correo, contraseña, tipoUsuarioString);
-            }
+            registroUsuario();
         });
     }
 
@@ -78,8 +56,32 @@ public class RegistroActivity extends AppCompatActivity {
 
     }
 
+    public void registroUsuario() {
+    String nombreUsuario = txtRegistroUsuario.getEditText().getText().toString();
+    String correo = txtRegistroCorreo.getEditText().getText().toString();
+    String contraseña = txtLoginContraseña.getEditText().getText().toString();
+    String contraseña2 = txtLoginContraseña2.getEditText().getText().toString();
+    int usuarioSeleccionado = radioGroup.getCheckedRadioButtonId();
+
+    if (usuarioSeleccionado == -1) {
+        Toast.makeText(RegistroActivity.this, "Debe seleccionar un tipo de usuario", Toast.LENGTH_SHORT).show();
+        return;
+    }
+
+    RadioButton radioButton = findViewById(usuarioSeleccionado);
+    String tipoUsuarioString = radioButton.getText().toString();
+
+    if (nombreUsuario.isEmpty() || correo.isEmpty() || contraseña.isEmpty() || contraseña2.isEmpty()) {
+        Toast.makeText(RegistroActivity.this, "Por favor, rellene todos los campos", Toast.LENGTH_SHORT).show();
+    } else if (!contraseña.equals(contraseña2)) {
+        Toast.makeText(RegistroActivity.this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
+    } else {
+        gestionRegistroUsuario(nombreUsuario, correo, contraseña, tipoUsuarioString);
+    }
+}
+
     //método para registrar un usuario en Firebase
-    public void registerUser(String nombreUsuario, String correo, String contraseña, String tipoUsuario) {
+    public void gestionRegistroUsuario(String nombreUsuario, String correo, String contraseña, String tipoUsuario) {
         mAuth.createUserWithEmailAndPassword(correo, contraseña)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
@@ -92,9 +94,9 @@ public class RegistroActivity extends AppCompatActivity {
                                     // Start LoginActivity
                                     Intent intent = new Intent(this, LoginActivity.class);
                                     startActivity(intent);
-                                    finish(); // This closes the current activity
+                                    finish(); // Cerrar la actividad actual
                                 })
-                                .addOnFailureListener(e -> Toast.makeText(RegistroActivity.this, "Error al registrar en Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                                .addOnFailureListener(e -> Log.e("RegistroActivity", "Error al registrar en Firestore: " + e.getMessage()));
                     } else {
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                             Toast.makeText(RegistroActivity.this, "Ya existe una cuenta con este correo electrónico", Toast.LENGTH_SHORT).show();

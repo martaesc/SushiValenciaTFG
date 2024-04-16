@@ -11,7 +11,6 @@ public class Comentario {
     private Date fecha;
     private String textoComentario;
     private List<Respuesta> respuestasRestaurante;
-
     private String fotoPerfil;
     private String idRestaurante;
     private String idUsuario;

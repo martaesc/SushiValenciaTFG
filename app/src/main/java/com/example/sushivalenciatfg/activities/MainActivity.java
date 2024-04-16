@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
         visibilidadBotonAñadirRestaurante();
 
+        configurarBusqueda();
+
 
         btnAñadirRestaurante.setOnClickListener(v -> añadirRestaurante(v));
 
@@ -68,7 +70,20 @@ public class MainActivity extends AppCompatActivity {
 
         btnSalir.setOnClickListener(v -> salir(v));
 
-        // configurar el SearchView
+
+    }
+
+
+    public void obtenerReferencias() {
+        btnPerfil = findViewById(R.id.btnPerfil);
+        btnSalir = findViewById(R.id.btnSalir);
+        searchView = findViewById(R.id.searchView);
+        recyclerView = findViewById(R.id.lista_restaurantes);
+        btnAñadirRestaurante = findViewById(R.id.btnAñadirRestaurante);
+    }
+
+    // configurar el SearchView
+    public void configurarBusqueda() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -81,16 +96,6 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-    }
-
-
-    public void obtenerReferencias() {
-        btnPerfil = findViewById(R.id.btnPerfil);
-        btnSalir = findViewById(R.id.btnSalir);
-        searchView = findViewById(R.id.searchView);
-        recyclerView = findViewById(R.id.lista_restaurantes);
-        btnAñadirRestaurante = findViewById(R.id.btnAñadirRestaurante);
     }
 
     public void obtenerRestaurantes() {
@@ -118,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void visibilidadBotonAñadirRestaurante() {
-       currentUser = mAuth.getCurrentUser();
+        currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             // Si el usuario ha iniciado sesión, obtener su ID de usuario
             String userId = currentUser.getUid();
@@ -182,20 +187,23 @@ public class MainActivity extends AppCompatActivity {
                                                 startActivity(intent);
                                                 finish();
                                             })
-                                            .addOnFailureListener(e -> Log.w("MainActivity", "Error al eliminar restaurante", e));
+                                            .addOnFailureListener(e -> {
+                                                Log.e("MainActivity", "Error al eliminar restaurante", e);
+                                                Toast.makeText(MainActivity.this, "Error al eliminar restaurante", Toast.LENGTH_SHORT).show();
+                                            });
                                 } else {
                                     Log.d("MainActivity", "El usuario no tiene permiso para eliminar este restaurante");
                                     Toast.makeText(MainActivity.this, "No tienes permiso para eliminar este restaurante", Toast.LENGTH_SHORT).show();
                                 }
                             } else {
-                                Log.d("MainActivity", "No se encontró el restaurante");
+                                Log.e("MainActivity", "No se encontró el restaurante");
                             }
                         } else {
-                            Log.d("MainActivity", "Error al obtener restaurante", task.getException());
+                            Log.e("MainActivity", "Error al obtener restaurante", task.getException());
                         }
                     });
         } else {
-            Log.d("MainActivity", "El usuario actual es nulo");
+            Log.e("MainActivity", "El usuario actual es nulo");
         }
     }
 

@@ -15,8 +15,14 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
     }
 
     buildTypes {
@@ -34,19 +40,16 @@ android {
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
+    //para poder utilizar la librería de Material Design y que la interfaz sea más atractiva
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.activity:activity:1.2.0'
-    implementation 'com.google.firebase:firebase-storage:20.3.0'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
 
     //para poder utilizar la librería de CircleImageView y que el ImageView del usuario sea circular
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 
-    //para poder utilizar la librería de Material Design y que la interfaz sea más atractiva
-    implementation 'com.google.android.material:material:1.4.0'
+
 
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
@@ -55,8 +58,27 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics'
     implementation("com.google.firebase:firebase-auth")
     implementation 'com.google.firebase:firebase-firestore'
-    //para poder utilizar el framework de glide (para cargar la imagen desde una URL en Firebase Storage)
+    implementation 'com.google.firebase:firebase-storage'
+    //para poder utilizar glide (para cargar la imagen desde una URL en Firebase Storage)
     implementation 'com.github.bumptech.glide:glide:4.12.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+
+    //PRUEBAS
+    // JUnit (para pruebas unitarias que no requiren interracción con la interfaz de usuario)
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    // Espresso (para pruebas de interfaz de usuario)
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
+    //dependencia de la biblioteca Android Test Core, que proporciona las clases base y las funcionalidades necesarias para escribir y ejecutar pruebas en Android.
+    testImplementation 'androidx.test:core:1.4.0'
+
+
+    // Mockito
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+
+
+
+
 
 }

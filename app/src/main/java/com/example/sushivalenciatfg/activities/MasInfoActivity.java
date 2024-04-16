@@ -122,47 +122,29 @@ public class MasInfoActivity extends AppCompatActivity {
     }
 
     public void habilitarBotonEditar() {
-        currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            // ID de usuario actual
-            String userId = currentUser.getUid();
-            // Buscar en la colección "usuarios" un documento donde el campo "uid" coincide con el ID del usuario
-            db.collection("usuarios")
-                    .whereEqualTo("uid", userId)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                            // Obtener el tipo de usuario del documento
-                            String tipoUsuario = task.getResult().getDocuments().get(0).getString("tipoUsuario");
-                            // Si el tipo de usuario es "Restaurante", entonces comprobar si es el creador del restaurante
-                            if ("Restaurante".equals(tipoUsuario)) {
-                                // Buscar en la colección "restaurantes" un documento donde el campo "creador" coincide con el ID del usuario
-                                db.collection("restaurantes")
-                                        .whereEqualTo("idUsuarioRestaurante", userId)
-                                        .get()
-                                        .addOnCompleteListener(task2 -> {
-                                            if (task2.isSuccessful() && !task2.getResult().isEmpty()) {
-                                                // Si el usuario es el creador del restaurante, mostrar el botón de editar
-                                                btnEditar.setVisibility(View.VISIBLE);
-                                            } else {
-                                                // Si el usuario no es el creador del restaurante, ocultar el botón de editar
-                                                btnEditar.setVisibility(View.GONE);
-                                            }
-                                        });
-                            } else {
-                                // Si el tipo de usuario no es "Restaurante", ocultar el botón de editar
-                                btnEditar.setVisibility(View.GONE);
-                            }
-                        } else {
-                            Log.d("InfoRestauranteActivity", "No se encontró un documento de usuario con el uid: " + userId);
-                        }
-                    }).addOnFailureListener(e -> {
-                        Log.e("InfoRestauranteActivity", "Error obteniendo el tipo de usuario", e);
-                    });
-        } else {
-            Log.d("InfoRestauranteActivity", "El usuario actual es nulo");
-        }
+    currentUser = mAuth.getCurrentUser();
+    if (currentUser != null) {
+        // ID de usuario actual
+        String userId = currentUser.getUid();
+        // Buscar en la colección "restaurantes" un documento donde el campo "idUsuarioRestaurante" coincide con el ID del usuario
+        // y el ID del restaurante coincide con restauranteId
+        db.collection("restaurantes")
+                .whereEqualTo("idUsuarioRestaurante", userId)
+                .whereEqualTo("idRestaurante", restauranteId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        // Si el usuario es el creador del restaurante, mostrar el botón de editar
+                        btnEditar.setVisibility(View.VISIBLE);
+                    } else {
+                        // Si el usuario no es el creador del restaurante, ocultar el botón de editar
+                        btnEditar.setVisibility(View.GONE);
+                    }
+                });
+    } else {
+        Log.d("MasInfoActivity", "El usuario actual es nulo");
     }
+}
 
     public void habilitarEdicionEditText() {
         // Copiar el texto de los TextView a los EditText
@@ -278,20 +260,20 @@ public class MasInfoActivity extends AppCompatActivity {
     }
 }
 
-    public void abrirMapa() {
-        String direccion = etDireccion.getText().toString();
-        // Crear un Intent implicito para abrir Google Maps con la dirección del restaurante
-        Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + direccion);
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-        mapIntent.setPackage("com.google.android.apps.maps"); // Especificar que se abra con Google Maps
+   public void abrirMapa() {
+    String direccion = tvDireccion.getText().toString(); // Obtener la dirección del TextView
+    // Crear un Intent implicito para abrir Google Maps con la dirección del restaurante
+    Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + direccion);
+    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+    mapIntent.setPackage("com.google.android.apps.maps"); // Especificar que se abra con Google Maps
 
-        // Comprobar si hay una actividad que pueda manejar el Intent
-        if (mapIntent.resolveActivity(getPackageManager()) != null) {
-            startActivity(mapIntent);
-        } else {
-            Toast.makeText(this, "No se encontró una aplicación de mapas", Toast.LENGTH_SHORT).show();
-        }
+    // Comprobar si hay una actividad que pueda manejar el Intent
+    if (mapIntent.resolveActivity(getPackageManager()) != null) {
+        startActivity(mapIntent);
+    } else {
+        Toast.makeText(this, "No se encontró una aplicación de mapas", Toast.LENGTH_SHORT).show();
     }
+}
 
     public void volver() {
         Intent intent = new Intent(this, InfoRestauranteActivity.class);

@@ -221,6 +221,8 @@ public class PerfilActivity extends AppCompatActivity {
                 });
     }
 
+
+
     public void actualizarUsuarioConImagen(String nombreUsuario, String correo, String tipoUsuario) {
         // Convertir la imagen en un Bitmap
         BitmapDrawable drawable = (BitmapDrawable) ivfotoPerfil.getDrawable();
@@ -285,6 +287,8 @@ public class PerfilActivity extends AppCompatActivity {
                     }
                 });
     }
+
+
 
     // Método para actualizar el correo electrónico en FirebaseAuth
     public void actualizarCorreoEnAuth(String correo) {
