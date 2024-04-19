@@ -51,6 +51,41 @@ public class MasInfoActivity extends AppCompatActivity {
     private boolean isEditing = false;
 
 
+    public EditText getEtTelefono() {
+        return etTelefono;
+    }
+
+    public EditText getEtHorario() {
+        return etHorario;
+    }
+
+    public EditText getEtDireccion() {
+        return etDireccion;
+    }
+
+    public TextView getTvTelefono() {
+        return tvTelefono;
+    }
+
+    public TextView getTvHorario() {
+        return tvHorario;
+    }
+
+    public TextView getTvDireccion() {
+        return tvDireccion;
+    }
+
+    public Button getBtnEditar() {
+        return btnEditar;
+    }
+
+    public void setIsEditing(boolean b) {
+        isEditing = b;
+    }
+
+    public boolean getIsEditing() {
+        return isEditing;
+    }
 
 
     @Override
@@ -181,7 +216,7 @@ public class MasInfoActivity extends AppCompatActivity {
         btnEditar.setText("Editar");
     }
 
-    private void comprobacionCamposYGuardar() {
+    public void comprobacionCamposYGuardar() {
         // Recoger los datos de los EditText
         String telefono = etTelefono.getText().toString();
         String horario = etHorario.getText().toString();
@@ -285,6 +320,7 @@ public class MasInfoActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
+
 
 
 }

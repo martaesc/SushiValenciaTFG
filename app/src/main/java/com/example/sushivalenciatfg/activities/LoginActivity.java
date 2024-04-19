@@ -36,6 +36,14 @@ public class LoginActivity extends AppCompatActivity {
         this.db = db;
     }
 
+    //getters para poder acceder a los campos desde el entorno de pruebas
+    public TextInputLayout getTxtLoginNombreOCorreo() {
+        return txtLoginNombreOCorreo;
+    }
+    public TextInputLayout getTxtLoginContrasena() {
+        return txtLoginContrasena;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -20,12 +20,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.sushivalenciatfg.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.ActionCodeSettings;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -60,6 +57,26 @@ public class PerfilActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> mGalleryResultLauncher;
     private ActivityResultLauncher<Intent> mCameraResultLauncher;
 
+    public void setFirebaseAuth(FirebaseAuth mAuth) {
+        this.mAuth = mAuth;
+    }
+
+
+    public void setCurrentUser(FirebaseUser currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public TextInputLayout getLyNombreUsuario() {
+        return lyNombreUsuario;
+    }
+
+    public TextInputLayout getLyEmail() {
+        return lyEmail;
+    }
+
+    public TextInputLayout getLyTipoUsuario() {
+        return lyTipoUsuario;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,29 +109,39 @@ public class PerfilActivity extends AppCompatActivity {
         btnVolver = findViewById(R.id.backButton);
     }
 
-    public void inicializarActivityResultLaunchers() {
-        // Inicialización de los ActivityResultLauncher para la galería y la cámara
-        mGalleryResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Uri uri = result.getData().getData();
+   public void inicializarActivityResultLaunchers() {
+    // Inicialización de los ActivityResultLauncher para la galería y la cámara
+    mGalleryResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null) {
+                        Uri uri = data.getData();
                         ivfotoPerfil.setImageURI(uri);
+                    } else {
+                        Toast.makeText(this, "Error al obtener la imagen de la galería", Toast.LENGTH_SHORT).show();
                     }
                 }
-        );
+            }
+    );
 
-        mCameraResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Bundle extras = result.getData().getExtras();
+    mCameraResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null) {
+                        Bundle extras = data.getExtras();
                         Bitmap imageBitmap = (Bitmap) extras.get("data");
                         ivfotoPerfil.setImageBitmap(imageBitmap);
+                    } else {
+                        Toast.makeText(this, "Error al obtener la imagen de la cámara", Toast.LENGTH_SHORT).show();
                     }
                 }
-        );
-    }
+            }
+    );
+}
 
     // Método para abrir el diálogo de selección de imagen
     public void abrirDialogoSeleccionImagen() {
@@ -327,7 +354,6 @@ public class PerfilActivity extends AppCompatActivity {
                 });
     }
 
-    //para volver a la pantalla anterior
     public void volver() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);

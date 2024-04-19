@@ -67,6 +67,36 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> mCameraResultLauncher;
 
 
+    public ImageView getIvImagenRestaurante() {
+        return ivImagenRestaurante;
+    }
+
+    public EditText getEtNombreRestaurante() {
+        return etNombreRestaurante;
+    }
+
+    public EditText getEtDescripcionRestaurante() {
+        return etDescripcionRestaurante;
+    }
+
+    public EditText getEtLinkRestaurante() {
+        return etLinkRestaurante;
+    }
+
+    public TextView getTvRestauranteLink() {
+        return tvRestauranteLink;
+    }
+
+    public void setIsEditing(boolean b) {
+        isEditing = b;
+    }
+
+    public boolean getIsEditing() {
+        return isEditing;
+    }
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,7 +123,7 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         inicializarActivityResultLaunchers();
 
         btnEditar.setOnClickListener(v -> edicion());
-tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
+        tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
 
 
         btnVolver.setOnClickListener(v -> volverMenu());
@@ -116,31 +146,37 @@ tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
         btnEditar = findViewById(R.id.imageButtonEditar);
     }
 
-    private void inicializarActivityResultLaunchers() {
-        // Inicialización de los ActivityResultLauncher para la galería y la cámara
-        mGalleryResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Uri uri = result.getData().getData();
+    public void inicializarActivityResultLaunchers() {
+    // Inicialización de los ActivityResultLauncher para la galería y la cámara
+    mGalleryResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    if (uri != null) {
                         ivImagenRestaurante.setImageURI(uri);
                     }
                 }
-        );
+            }
+    );
 
-        mCameraResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Bundle extras = result.getData().getExtras();
+    mCameraResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Bundle extras = result.getData().getExtras();
+                    if (extras != null) {
                         Bitmap imageBitmap = (Bitmap) extras.get("data");
-                        ivImagenRestaurante.setImageBitmap(imageBitmap);
+                        if (imageBitmap != null) {
+                            ivImagenRestaurante.setImageBitmap(imageBitmap);
+                        }
                     }
                 }
-        );
-    }
+            }
+    );
+}
 
-    private void abrirDialogoSeleccionImagen() {
+    public void abrirDialogoSeleccionImagen() {
         AlertDialog.Builder builder = new AlertDialog.Builder(InfoRestauranteActivity.this);
         builder.setTitle("Elige una opción");
         builder.setPositiveButton("Galería", (dialog, which) -> {
@@ -156,63 +192,76 @@ tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
         builder.show();
     }
 
-    public void obtenerDatosRestaurante() {
+   public void obtenerDatosRestaurante() {
+    if (restauranteId != null) {
         db.collection("restaurantes").document(restauranteId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
+                        if (document != null && document.exists()) {
                             String nombre = document.getString("nombre");
                             String descripcion = document.getString("descripcion");
                             Double puntuacionPromedio = document.getDouble("puntuacion");
                             String link = document.getString("linkRestaurante");
                             String imagenUrl = document.getString("imagenRestaurante");
 
-                            etNombreRestaurante.setText(nombre);
-                            etDescripcionRestaurante.setText(descripcion);
-                            tvPuntuacionRestaurante.setText(String.format("%.1f", puntuacionPromedio));
-                            tvRestauranteLink.setText(link);
-
+                            if (nombre != null) {
+                                etNombreRestaurante.setText(nombre);
+                            }
+                            if (descripcion != null) {
+                                etDescripcionRestaurante.setText(descripcion);
+                            }
+                            if (puntuacionPromedio != null) {
+                                tvPuntuacionRestaurante.setText(String.format("%.1f", puntuacionPromedio));
+                            }
+                            if (link != null) {
+                                tvRestauranteLink.setText(link);
+                            }
 
                             // Para cargar la imagen desde una URL en un ImageView usamos Glide
-                            Glide.with(this)
-                                    .load(imagenUrl)
-                                    .into(ivImagenRestaurante);
+                            if (imagenUrl != null) {
+                                Glide.with(this)
+                                        .load(imagenUrl)
+                                        .into(ivImagenRestaurante);
+                            }
                         } else {
-                            Log.d("InfoRestauranteActivity", "No se encontró el restaurante");
+                            Log.e("InfoRestauranteActivity", "No se encontró el restaurante");
                         }
                     } else {
-                        Log.d("InfoRestauranteActivity", "Error al obtener restaurante", task.getException());
-                    }
-                });
-    }
-
-   public void habilitarBotonEditar() {
-    currentUser = mAuth.getCurrentUser();
-    if (currentUser != null) {
-        // ID de usuario actual
-        String userId = currentUser.getUid();
-
-        // Buscar en la colección "restaurantes" un documento donde el campo "idUsuarioRestaurante" coincide con el ID del usuario
-        // y el ID del restaurante coincide con restauranteId
-        db.collection("restaurantes")
-                .whereEqualTo("idUsuarioRestaurante", userId)
-                .whereEqualTo("idRestaurante", restauranteId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        // Si el usuario es el creador del restaurante, mostrar el botón de editar
-                        btnEditar.setVisibility(View.VISIBLE);
-                    } else {
-                        // Si el usuario no es el creador del restaurante, ocultar el botón de editar
-                        btnEditar.setVisibility(View.GONE);
+                        Log.e("InfoRestauranteActivity", "Error al obtener restaurante", task.getException());
                     }
                 });
     } else {
-        Log.d("InfoRestauranteActivity", "El usuario actual es nulo");
+        Log.e("InfoRestauranteActivity", "El id del restaurante es nulo");
     }
 }
+
+    public void habilitarBotonEditar() {
+        currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            // ID de usuario actual
+            String userId = currentUser.getUid();
+
+            // Buscar en la colección "restaurantes" un documento donde el campo "idUsuarioRestaurante" coincide con el ID del usuario
+            // y el ID del restaurante coincide con restauranteId
+            db.collection("restaurantes")
+                    .whereEqualTo("idUsuarioRestaurante", userId)
+                    .whereEqualTo("idRestaurante", restauranteId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            // Si el usuario es el creador del restaurante, mostrar el botón de editar
+                            btnEditar.setVisibility(View.VISIBLE);
+                        } else {
+                            // Si el usuario no es el creador del restaurante, ocultar el botón de editar
+                            btnEditar.setVisibility(View.GONE);
+                        }
+                    });
+        } else {
+            Log.d("InfoRestauranteActivity", "El usuario actual es nulo");
+        }
+    }
 
     public void habilitarEdicionEditText() {
         // Habilitar la edición de los EditText
@@ -266,6 +315,12 @@ tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
         String descripcion = etDescripcionRestaurante.getText().toString();
         String link = etLinkRestaurante.getText().toString();
 
+        // Comprobar si los campos de texto están vacíos
+        if (nombre.isEmpty() || descripcion.isEmpty() || link.isEmpty()) {
+            Toast.makeText(this, "No puede quedar ningún campo vacío", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Comprobar si el ImageView tiene una imagen establecida
         if (ivImagenRestaurante.getDrawable() == null) {
             Toast.makeText(this, "Por favor, seleccione una imagen", Toast.LENGTH_SHORT).show();
@@ -275,12 +330,6 @@ tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
         // Obtener la imagen seleccionada como un bitmap
         BitmapDrawable drawable = (BitmapDrawable) ivImagenRestaurante.getDrawable();
         Bitmap imagenRestaurante = drawable.getBitmap();
-
-        // Comprobar si los campos de texto están vacíos
-        if (nombre.isEmpty() || descripcion.isEmpty() || link.isEmpty()) {
-            Toast.makeText(this, "No puede quedar ningún campo vacío", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         // Comprobar si la descripción tiene más de 20 líneas
         if (descripcion.split("\n").length > 20) {
@@ -391,17 +440,17 @@ tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
 
     // para evitar el ActivityNotFoundException al clickar sobre el textview cuando no es un enlace, se verifica si el texto del
     // enlace es "El restaurante no tiene web". Si es así, muestra un mensaje al usuario. Si no, intenta abrir el enlace como antes.
-  public void clickLinkRestaurante() {
-    String url = tvRestauranteLink.getText().toString();
-    if (url.equals("El restaurante no tiene web")) {
-        Toast.makeText(this, "Este restaurante no tiene página web", Toast.LENGTH_SHORT).show();
-        return; // para no continuar ejecutando el código restante si el enlace no es válido para abrirlo en un navegador
-    } else {
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        startActivity(i);
+    public void clickLinkRestaurante() {
+        String url = tvRestauranteLink.getText().toString();
+        if (url.equals("El restaurante no tiene web")) {
+            Toast.makeText(this, "Este restaurante no tiene página web", Toast.LENGTH_SHORT).show();
+            return; // para no continuar ejecutando el código restante si el enlace no es válido para abrirlo en un navegador
+        } else {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(url));
+            startActivity(i);
+        }
     }
-}
 
 
     public void volverMenu() {
@@ -420,4 +469,6 @@ tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
         intent.putExtra("idRestaurante", restauranteId);
         startActivity(intent);
     }
+
+
 }

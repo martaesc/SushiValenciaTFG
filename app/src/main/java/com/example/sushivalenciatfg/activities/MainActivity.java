@@ -44,6 +44,20 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseUser currentUser;
 
+    //setters útiles para las pruebas, ya que permiten inyectar instancias simuladas de FirebaseAuth y FirebaseFirestore en LoginActivity.
+    public void setFirebaseAuth(FirebaseAuth mAuth) {
+        this.mAuth = mAuth;
+    }
+
+    public void setFirestore(FirebaseFirestore db) {
+        this.db = db;
+    }
+
+    public void setCurrentUser(FirebaseUser mockUser) {
+        this.currentUser = mockUser;
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -223,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
     public void salir(View view) {
         finishAffinity();
     }
+
 
 
 }

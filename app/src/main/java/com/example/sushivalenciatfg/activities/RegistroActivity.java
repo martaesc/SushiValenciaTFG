@@ -28,6 +28,15 @@ public class RegistroActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
+    //setters útiles para las pruebas, ya que permiten inyectar instancias simuladas de FirebaseAuth y FirebaseFirestore en LoginActivity.
+    public void setFirebaseAuth(FirebaseAuth mAuth) {
+        this.mAuth = mAuth;
+    }
+
+    public void setFirestore(FirebaseFirestore db) {
+        this.db = db;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,28 +66,35 @@ public class RegistroActivity extends AppCompatActivity {
     }
 
     public void registroUsuario() {
-    String nombreUsuario = txtRegistroUsuario.getEditText().getText().toString();
-    String correo = txtRegistroCorreo.getEditText().getText().toString();
-    String contraseña = txtLoginContraseña.getEditText().getText().toString();
-    String contraseña2 = txtLoginContraseña2.getEditText().getText().toString();
-    int usuarioSeleccionado = radioGroup.getCheckedRadioButtonId();
+        String nombreUsuario = txtRegistroUsuario.getEditText().getText().toString();
+        String correo = txtRegistroCorreo.getEditText().getText().toString();
+        String contraseña = txtLoginContraseña.getEditText().getText().toString();
+        String contraseña2 = txtLoginContraseña2.getEditText().getText().toString();
 
-    if (usuarioSeleccionado == -1) {
-        Toast.makeText(RegistroActivity.this, "Debe seleccionar un tipo de usuario", Toast.LENGTH_SHORT).show();
-        return;
+        // Primero, verificar si los campos de texto están vacíos
+        if (nombreUsuario.isEmpty() || correo.isEmpty() || contraseña.isEmpty() || contraseña2.isEmpty()) {
+            Toast.makeText(RegistroActivity.this, "Por favor, rellene todos los campos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int usuarioSeleccionado = radioGroup.getCheckedRadioButtonId();
+
+        // Luego, verificar si se ha seleccionado un tipo de usuario
+        if (usuarioSeleccionado == -1) {
+            Toast.makeText(RegistroActivity.this, "Debe seleccionar un tipo de usuario", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        RadioButton radioButton = findViewById(usuarioSeleccionado);
+        String tipoUsuarioString = radioButton.getText().toString();
+
+        // Finalmente, verificar si las contraseñas coinciden
+        if (!contraseña.equals(contraseña2)) {
+            Toast.makeText(RegistroActivity.this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
+        } else {
+            gestionRegistroUsuario(nombreUsuario, correo, contraseña, tipoUsuarioString);
+        }
     }
-
-    RadioButton radioButton = findViewById(usuarioSeleccionado);
-    String tipoUsuarioString = radioButton.getText().toString();
-
-    if (nombreUsuario.isEmpty() || correo.isEmpty() || contraseña.isEmpty() || contraseña2.isEmpty()) {
-        Toast.makeText(RegistroActivity.this, "Por favor, rellene todos los campos", Toast.LENGTH_SHORT).show();
-    } else if (!contraseña.equals(contraseña2)) {
-        Toast.makeText(RegistroActivity.this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
-    } else {
-        gestionRegistroUsuario(nombreUsuario, correo, contraseña, tipoUsuarioString);
-    }
-}
 
     //método para registrar un usuario en Firebase
     public void gestionRegistroUsuario(String nombreUsuario, String correo, String contraseña, String tipoUsuario) {

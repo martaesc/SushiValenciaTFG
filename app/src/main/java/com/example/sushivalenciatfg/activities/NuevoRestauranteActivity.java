@@ -49,9 +49,37 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
     // Declaración de los ActivityResultLauncher
     private ActivityResultLauncher<Intent> mGalleryResultLauncher;
     private ActivityResultLauncher<Intent> mCameraResultLauncher;
-
-
     Restaurante restaurante;
+
+
+    //Getters para las pruebas de NuevoRestauranteActivityInstrumentedTest
+    public EditText getEtNombreRestaurante() {
+        return etNombreRestaurante;
+    }
+
+    public EditText getEtDescripcionRestaurante() {
+        return etDescripcionRestaurante;
+    }
+
+    public EditText getEtHorarioRestaurante() {
+        return etHorarioRestaurante;
+    }
+
+    public EditText getEtTelefonoRestaurante() {
+        return etTelefonoRestaurante;
+    }
+
+    public EditText getEtDireccionRestaurante() {
+        return etDireccionRestaurante;
+    }
+
+    public ImageView getIvImagenRestaurante() {
+        return ivImagenRestaurante;
+    }
+
+    public EditText getEtLinkRestaurante() {
+        return etLinkRestaurante;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +122,13 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        Uri uri = result.getData().getData();
-                        ivImagenRestaurante.setImageURI(uri);
+                        Intent data = result.getData();
+                        if (data != null) {
+                            Uri uri = data.getData();
+                            ivImagenRestaurante.setImageURI(uri);
+                        } else {
+                            Toast.makeText(this, "Error al obtener la imagen de la galería", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
         );
@@ -104,9 +137,14 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        Bundle extras = result.getData().getExtras();
-                        Bitmap imageBitmap = (Bitmap) extras.get("data");
-                        ivImagenRestaurante.setImageBitmap(imageBitmap);
+                        Intent data = result.getData();
+                        if (data != null) {
+                            Bundle extras = data.getExtras();
+                            Bitmap imageBitmap = (Bitmap) extras.get("data");
+                            ivImagenRestaurante.setImageBitmap(imageBitmap);
+                        } else {
+                            Toast.makeText(this, "Error al obtener la imagen de la cámara", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
         );
@@ -141,6 +179,13 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         String telefono = etTelefonoRestaurante.getText().toString();
         String direccion = etDireccionRestaurante.getText().toString();
 
+
+        // Comprobar si los campos de texto están vacíos
+        if (nombreRestaurante.isEmpty() || descripcionRestaurante.isEmpty() || horario.isEmpty() || telefono.isEmpty() || direccion.isEmpty()) {
+            Toast.makeText(this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Comprobar si el ImageView tiene una imagen establecida
         if (ivImagenRestaurante.getDrawable() == null) {
             Toast.makeText(this, "Por favor, seleccione una imagen", Toast.LENGTH_SHORT).show();
@@ -151,11 +196,7 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         BitmapDrawable drawable = (BitmapDrawable) ivImagenRestaurante.getDrawable();
         Bitmap imagenRestaurante = drawable.getBitmap();
 
-        // Comprobar si los campos de texto están vacíos
-        if (nombreRestaurante.isEmpty() || descripcionRestaurante.isEmpty() || horario.isEmpty() || telefono.isEmpty() || direccion.isEmpty()) {
-            Toast.makeText(this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
-            return;
-        }
+
 
         // Comprobar si la descripción tiene más de 20 líneas
         if (descripcionRestaurante.split("\n").length > 20) {
@@ -305,6 +346,7 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         startActivity(intent);
 
     }
+
 
 
 }
