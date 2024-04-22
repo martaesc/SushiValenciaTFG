@@ -19,16 +19,23 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Esta es la clase RegistroActivity, que extiende AppCompatActivity.
+ * Se encarga de gestionar el registro de un nuevo usuario.
+ */
 public class RegistroActivity extends AppCompatActivity {
 
+    // Referencias a los elementos de la vista
     private TextInputLayout txtRegistroUsuario, txtRegistroCorreo, txtLoginContraseña, txtLoginContraseña2;
     private RadioGroup radioGroup;
-
     private MaterialButton btnRegistro;
+
+    // Referencias a FirebaseAuth y FirebaseFirestore
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
-    //setters útiles para las pruebas, ya que permiten inyectar instancias simuladas de FirebaseAuth y FirebaseFirestore en LoginActivity.
+
+    //setters útiles para las pruebas (permiten inyectar instancias simuladas de FirebaseAuth y FirebaseFirestore)
     public void setFirebaseAuth(FirebaseAuth mAuth) {
         this.mAuth = mAuth;
     }
@@ -37,12 +44,20 @@ public class RegistroActivity extends AppCompatActivity {
         this.db = db;
     }
 
+
+    /**
+     * Este método se llama cuando la actividad está iniciando.
+     * Inicializa la actividad y establece el onClickListener para el botón de registro.
+     *
+     * @param savedInstanceState Si la actividad se está reinicializando después de haber sido cerrada previamente
+     * entonces este Bundle contiene los datos que suministró más recientemente en onSaveInstanceState(Bundle).
+     * Nota: De lo contrario, es nulo.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registro);
 
-        //inicializar instancia de Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -54,7 +69,9 @@ public class RegistroActivity extends AppCompatActivity {
     }
 
 
-    //método obtener referencia a los elementos de la vista
+    /**
+     * Este método se encarga de obtener las referencias a los elementos de la vista.
+     */
     public void obtenerReferencias() {
         txtRegistroUsuario = findViewById(R.id.textInputLayoutNombre);
         txtRegistroCorreo = findViewById(R.id.textInputLayoutCorreo);
@@ -62,16 +79,19 @@ public class RegistroActivity extends AppCompatActivity {
         txtLoginContraseña2 = findViewById(R.id.textInputLayoutContraseña2);
         radioGroup = findViewById(R.id.radioGroupTipoUsuario);
         btnRegistro = findViewById(R.id.btnRegistro);
-
     }
 
+
+    /**
+     * Este método se encarga de registrar un nuevo usuario.
+     */
     public void registroUsuario() {
         String nombreUsuario = txtRegistroUsuario.getEditText().getText().toString();
         String correo = txtRegistroCorreo.getEditText().getText().toString();
         String contraseña = txtLoginContraseña.getEditText().getText().toString();
         String contraseña2 = txtLoginContraseña2.getEditText().getText().toString();
 
-        // Primero, verificar si los campos de texto están vacíos
+        // Primero, verificamos si los campos de texto están vacíos
         if (nombreUsuario.isEmpty() || correo.isEmpty() || contraseña.isEmpty() || contraseña2.isEmpty()) {
             Toast.makeText(RegistroActivity.this, "Por favor, rellene todos los campos", Toast.LENGTH_SHORT).show();
             return;
@@ -79,16 +99,15 @@ public class RegistroActivity extends AppCompatActivity {
 
         int usuarioSeleccionado = radioGroup.getCheckedRadioButtonId();
 
-        // Luego, verificar si se ha seleccionado un tipo de usuario
+        // Luego, verificamos si se ha seleccionado un tipo de usuario
         if (usuarioSeleccionado == -1) {
             Toast.makeText(RegistroActivity.this, "Debe seleccionar un tipo de usuario", Toast.LENGTH_SHORT).show();
             return;
         }
-
         RadioButton radioButton = findViewById(usuarioSeleccionado);
         String tipoUsuarioString = radioButton.getText().toString();
 
-        // Finalmente, verificar si las contraseñas coinciden
+        // Finalmente, verificamos si las contraseñas coinciden
         if (!contraseña.equals(contraseña2)) {
             Toast.makeText(RegistroActivity.this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
         } else {
@@ -96,7 +115,15 @@ public class RegistroActivity extends AppCompatActivity {
         }
     }
 
-    //método para registrar un usuario en Firebase
+
+    /**
+     * Este método se encarga de gestionar el registro de un nuevo usuario en Firebase.
+     *
+     * @param nombreUsuario El nombre de usuario ingresado por el usuario.
+     * @param correo El correo electrónico ingresado por el usuario.
+     * @param contraseña La contraseña ingresada por el usuario.
+     * @param tipoUsuario El tipo de usuario seleccionado por el usuario.
+     */
     public void gestionRegistroUsuario(String nombreUsuario, String correo, String contraseña, String tipoUsuario) {
         mAuth.createUserWithEmailAndPassword(correo, contraseña)
                 .addOnCompleteListener(this, task -> {
@@ -107,10 +134,10 @@ public class RegistroActivity extends AppCompatActivity {
                                 .add(user)
                                 .addOnSuccessListener(documentReference -> {
                                     Toast.makeText(RegistroActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
-                                    // Start LoginActivity
+
                                     Intent intent = new Intent(this, LoginActivity.class);
                                     startActivity(intent);
-                                    finish(); // Cerrar la actividad actual
+                                    finish(); // Cerramos la actividad actual
                                 })
                                 .addOnFailureListener(e -> Log.e("RegistroActivity", "Error al registrar en Firestore: " + e.getMessage()));
                     } else {
