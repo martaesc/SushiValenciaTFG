@@ -31,8 +31,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Esta es la clase NuevoRestauranteActivity, que extiende de AppCompatActivity. Se encarga de gestionar la creación de nuevos restaurante en la aplicación.
+ */
 public class NuevoRestauranteActivity extends AppCompatActivity {
 
+    // Referencias a los elementos de la interfaz de usuario
     private ImageView ivImagenRestaurante;
     private EditText etNombreRestaurante;
     private EditText etDescripcionRestaurante;
@@ -42,45 +46,50 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
     private EditText etDireccionRestaurante;
     private Button btnGuardarRestaurante;
     private Button btnVolerMenu;
-    private FirebaseFirestore db;
 
+    // Referencia a la base de datos Firestore y a la autenticación de Firebase
+    private FirebaseFirestore db;
     private FirebaseAuth mAuth;
 
-    // Declaración de los ActivityResultLauncher
+    // Launchers para las actividades de resultado de la galería y la cámara
     private ActivityResultLauncher<Intent> mGalleryResultLauncher;
     private ActivityResultLauncher<Intent> mCameraResultLauncher;
+
     Restaurante restaurante;
 
 
-    //Getters para las pruebas de NuevoRestauranteActivityInstrumentedTest
+    // Getters para las pruebas de instrumentación
     public EditText getEtNombreRestaurante() {
         return etNombreRestaurante;
     }
-
     public EditText getEtDescripcionRestaurante() {
         return etDescripcionRestaurante;
     }
-
     public EditText getEtHorarioRestaurante() {
         return etHorarioRestaurante;
     }
-
     public EditText getEtTelefonoRestaurante() {
         return etTelefonoRestaurante;
     }
-
     public EditText getEtDireccionRestaurante() {
         return etDireccionRestaurante;
     }
-
     public ImageView getIvImagenRestaurante() {
         return ivImagenRestaurante;
     }
-
     public EditText getEtLinkRestaurante() {
         return etLinkRestaurante;
     }
 
+
+    /**
+     * Este método se llama cuando la actividad está iniciando.
+     * Inicializa la actividad y establece los onClickListener para los botones.
+     *
+     * @param savedInstanceState Si la actividad se está reinicializando después de haber sido cerrada previamente
+     *                           entonces este Bundle contiene los datos que suministró más recientemente en onSaveInstanceState(Bundle).
+     *                           Nota: De lo contrario, es nulo.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,20 +99,19 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         obtenerReferencias();
-
-
         inicializarActivityResultLaunchers();
         abrirDialogoSeleccionImagen();
 
-        // Llamar al método para guardar un restaurante cuando se haga clic en el botón correspondiente
-        btnGuardarRestaurante.setOnClickListener(v -> comprobacionCamposYGuardar());
-
-        // Llamar al método para volver al menú principal cuando se haga clic en el botón correspondiente
+        btnGuardarRestaurante.setOnClickListener(v -> comprobacionDatosIngresados());
         btnVolerMenu.setOnClickListener(v -> volverMenu());
 
 
     }
 
+
+    /**
+     * Este método obtiene las referencias a los elementos de la interfaz de usuario.
+     */
     public void obtenerReferencias() {
         ivImagenRestaurante = findViewById(R.id.iv_imagenNuevoRestaurante);
         etNombreRestaurante = findViewById(R.id.et_nombreNuevoRestaurante);
@@ -116,8 +124,11 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         btnVolerMenu = findViewById(R.id.btnVolverMenu);
     }
 
+
+    /**
+     * Este método inicializa los launchers para las actividades de resultado de la galería y la cámara.
+     */
     public void inicializarActivityResultLaunchers() {
-        // Inicialización de los ActivityResultLauncher para la galería y la cámara
         mGalleryResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -150,7 +161,10 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         );
     }
 
-    // Método para abrir el diálogo de selección de imagen
+
+    /**
+     * Este método abre un diálogo para que el usuario seleccione una imagen desde la galería o la cámara.
+     */
     public void abrirDialogoSeleccionImagen() {
         ivImagenRestaurante.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(NuevoRestauranteActivity.this);
@@ -169,9 +183,14 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         });
     }
 
-    // Método para comprobar que todos los campos son correctos y guardar el restaurante en Firestore
-    public void comprobacionCamposYGuardar() {
 
+    // Para entender mejor el flujo de la creación de un nuevo restaurante, la lógica se ha dividido en varios métodos que se llaman en cascada:
+    // comprobacionDatosIngresados() -> subirImagenFirebaseStorage() -> obtenerURLImagenYAñadirAlRestaurante() -> nuevoRestaurante().
+
+    /**
+     *  Este método se encarga de validar los datos ingresados por el usuario para crear un nuevo restaurante.
+     */
+    public void comprobacionDatosIngresados() {
         String nombreRestaurante = etNombreRestaurante.getText().toString();
         String descripcionRestaurante = etDescripcionRestaurante.getText().toString();
         String linkRestaurante = etLinkRestaurante.getText().toString();
@@ -180,37 +199,35 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         String direccion = etDireccionRestaurante.getText().toString();
 
 
-        // Comprobar si los campos de texto están vacíos
+        // Comprobamos si los campos de texto están vacíos
         if (nombreRestaurante.isEmpty() || descripcionRestaurante.isEmpty() || horario.isEmpty() || telefono.isEmpty() || direccion.isEmpty()) {
             Toast.makeText(this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Comprobar si el ImageView tiene una imagen establecida
+        // Comprobamos si el ImageView tiene una imagen establecida
         if (ivImagenRestaurante.getDrawable() == null) {
             Toast.makeText(this, "Por favor, seleccione una imagen", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // Obtener la imagen seleccionada como un bitmap
+        // y si la tiene, obtenemos el objeto Drawble que la representa y lo convertimos a bitmap
         BitmapDrawable drawable = (BitmapDrawable) ivImagenRestaurante.getDrawable();
         Bitmap imagenRestaurante = drawable.getBitmap();
 
 
-
-        // Comprobar si la descripción tiene más de 20 líneas
+        // Comprobamos si la descripción tiene más de 20 líneas
         if (descripcionRestaurante.split("\n").length > 20) {
             Toast.makeText(this, "La descripción no puede tener más de 20 líneas", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Comprobar si el número de teléfono es válido
+        // Comprobamos si el número de teléfono es válido (número de 9 dígitos que empiece con un dígito entre 6 y 9, con o sin prefijo +34 o 0034)
         if (!telefono.matches("(\\+34|0034)?[6-9][0-9]{8}")) {
-            Toast.makeText(this, "Por favor, introduzca un número de teléfono válido", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Por favor, introduzca un número de teléfono español válido", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Comprobar si el enlace es válido (si no está vacío)
+        // Comprobamos si el enlace es válido (si no está vacío)
         if (!linkRestaurante.isEmpty() && !Patterns.WEB_URL.matcher(linkRestaurante).matches()) {
             Toast.makeText(this, "Por favor, introduzca un enlace válido", Toast.LENGTH_SHORT).show();
             return;
@@ -220,24 +237,27 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
             }
         }
 
-        // Si todas las comprobaciones son correctas, se sube la imagen a Firebase Storage, se obtiene la URL de la imagen, se le añade al restaurante y este se guarda en Firestore
+        // Si todas las comprobaciones son correctas, se sube la imagen a Firebase Storage
         subirImagenFirebaseStorage(imagenRestaurante, nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion);
     }
 
-    // Método para subir la imagen a Firebase Storage y obtener la URL
+
+    /**
+     * Este método se encarga de subir la imagen del restaurante a Firebase Storage
+     */
     public void subirImagenFirebaseStorage(Bitmap imagenRestaurante, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion) {
-        // Crear una referencia única para la imagen en Firebase Storage
+        // Creamos una referencia única para la imagen en Firebase Storage
         StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("imagenes_restaurante/" + UUID.randomUUID().toString() + ".jpg");
 
-        // Convertir la imagen a bytes
+        // Convertimos la imagen del restaurante (que es un objeto Bitmap) en un array de bytes
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         imagenRestaurante.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] datosImagen = baos.toByteArray();
 
-        // Subir la imagen a Firebase Storage
+        // y lo subimos a Firebase Storage
         storageRef.putBytes(datosImagen)
                 .addOnSuccessListener(taskSnapshot -> {
-                    // Imagen subida con éxito, obtener la URL de la imagen
+                    // si la imagen se sube con éxito, obtenemos su URL y se la añadimos al restaurante
                     obtenerURLImagenYAñadirAlRestaurante(storageRef, nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion);
                 })
                 .addOnFailureListener(exception -> {
@@ -246,11 +266,14 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
                 });
     }
 
-    // Método para obtener la URL de la imagen de Firebase Storage
+
+    /**
+     * Este método se encarga de la gestión de obtener la URL de la imagen que se acaba de subir a Firebase Storage.
+     */
     public void obtenerURLImagenYAñadirAlRestaurante(StorageReference storageRef, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion) {
         storageRef.getDownloadUrl()
                 .addOnSuccessListener(uri -> {
-                    // URL de la imagen obtenida con éxito, guardar el restaurante en Firestore
+                    // si obtenemos la URL de la imagen con éxito, creamos el nuevo restaurante con todos los datos y lo guardamos en Firestore
                     String urlImagen = uri.toString();
                     nuevoRestaurante(nombreRestaurante, descripcionRestaurante, linkRestaurante, horario, telefono, direccion, urlImagen);
                 })
@@ -262,18 +285,17 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
     }
 
 
-    // Método para guardar el restaurante en Firestore con la URL de la imagen
+    /**
+     * Este método se encarga de crear un nuevo restaurante en Firestore con los datos ingresados por el usuario.
+     */
     public void nuevoRestaurante(String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion, String urlImagen) {
-        // Obtener el ID del usuario que está creando el nuevo restaurante
+        // Obtenemos el ID del usuario actual
         String idUsuario = mAuth.getCurrentUser().getUid();
 
-        // Crear un nuevo objeto Restaurante con los valores recolectados
         restaurante = new Restaurante(nombreRestaurante, descripcionRestaurante, direccion, telefono, horario, linkRestaurante, urlImagen, idUsuario);
 
-        // Crear un nuevo objeto Map para guardar los campos del restaurante
+        // Creamos un nuevo objeto Map para guardar los datos del restaurante (solo si no son null para evitar problemas al guardar en Firestore)
         Map<String, Object> restauranteMap = new HashMap<>();
-
-        // Añadir cada campo del restaurante al Map solo si no es null para evitar problemas al guardar en Firestore
         if (nombreRestaurante != null) {
             restauranteMap.put("nombre", nombreRestaurante);
         }
@@ -289,13 +311,12 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         if (horario != null) {
             restauranteMap.put("horario", horario);
         }
-        // si linkRestaurante es null, se añade al Map con el valor "El restaurante no tiene web". De lo contrario, se añade con su valor actual.
+        // si linkRestaurante es null, se añade al Map con el valor "El restaurante no tiene web"
         if (linkRestaurante != null) {
             restauranteMap.put("linkRestaurante", linkRestaurante);
         } else {
             restauranteMap.put("linkRestaurante", "El restaurante no tiene web");
         }
-
         if (urlImagen != null) {
             restauranteMap.put("imagenRestaurante", urlImagen);
         }
@@ -303,21 +324,20 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
             restauranteMap.put("idUsuarioRestaurante", idUsuario);
         }
 
-        // Establecer la puntuación en 0 porque al crearlo el restaurante no tiene puntuaciones
+        // Establecemos la puntuación en 0 porque al crearlo el restaurante no tiene puntuaciones
         double puntuacion = 0.0;
         restauranteMap.put("puntuacion", puntuacion);
 
-
-        // Guardar el restaurante en Firestore
+        // Guardamos el nuevo restaurante en la colección "restaurantes" de Firestore
         db.collection("restaurantes")
                 .add(restauranteMap)
                 .addOnSuccessListener(documentReference -> {
-                    // Éxito al guardar el restaurante
-                    String idRestaurante = documentReference.getId(); // ID del restaurante
-                    documentReference.update("idRestaurante", idRestaurante); // Actualizar el campo idRestaurante en Firestore
+                    String idRestaurante = documentReference.getId();
+                    documentReference.update("idRestaurante", idRestaurante); // le damos al campo idRestaurante el valor del ID del documento
+
                     Toast.makeText(NuevoRestauranteActivity.this, "Restaurante guardado con éxito", Toast.LENGTH_SHORT).show();
                     limpiarCampos();
-                    // Navegar de nuevo a MainActivity
+                    // Redirigimos al usuario al menú principal
                     Intent intent = new Intent(NuevoRestauranteActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
@@ -329,6 +349,9 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Este método limpia los campos de la interfaz de usuario.
+     */
     public void limpiarCampos() {
         ivImagenRestaurante.setImageDrawable(null);
         etNombreRestaurante.setText("");
@@ -339,7 +362,10 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
         etDireccionRestaurante.setText("");
     }
 
-    // Método para volver al menú principal
+
+    /**
+     * Este método redirige al usuario al menú principal de la aplicación.
+     */
     public void volverMenu() {
 
         Intent intent = new Intent(this, MainActivity.class);
