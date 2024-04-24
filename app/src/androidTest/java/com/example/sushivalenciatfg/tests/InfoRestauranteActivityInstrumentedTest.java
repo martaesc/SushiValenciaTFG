@@ -162,7 +162,7 @@ public class InfoRestauranteActivityInstrumentedTest {
                 activity.getEtNombreRestaurante().setText("");
                 activity.getEtDescripcionRestaurante().setText("");
                 activity.getEtLinkRestaurante().setText("");
-                activity.comprobacionCamposYGuardar();
+                activity.comprobacionDatosIngresados();
             });
 
             onView(withText("No puede quedar ningún campo vacío")).inRoot(new ToastMatcher())
@@ -185,7 +185,7 @@ public class InfoRestauranteActivityInstrumentedTest {
 
                 Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
                 activity.getIvImagenRestaurante().setImageBitmap(bitmap);
-                activity.comprobacionCamposYGuardar();
+                activity.comprobacionDatosIngresados();
             });
 
             onView(withText("La descripción no puede tener más de 20 líneas")).inRoot(new ToastMatcher())
@@ -208,7 +208,7 @@ public class InfoRestauranteActivityInstrumentedTest {
 
                 Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
                 activity.getIvImagenRestaurante().setImageBitmap(bitmap);
-                activity.comprobacionCamposYGuardar();
+                activity.comprobacionDatosIngresados();
             });
 
             onView(withText("El enlace no es válido")).inRoot(new ToastMatcher())

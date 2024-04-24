@@ -143,7 +143,6 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
                     }
                 }
         );
-
         mCameraResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -184,7 +183,7 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
     }
 
 
-    // Para entender mejor el flujo de la creación de un nuevo restaurante, la lógica se ha dividido en varios métodos que se llaman en cascada:
+    // Para entender mejor el flujo de la creación de un nuevo restaurante, la lógica se dividió en varios métodos que se llaman en cascada:
     // comprobacionDatosIngresados() -> subirImagenFirebaseStorage() -> obtenerURLImagenYAñadirAlRestaurante() -> nuevoRestaurante().
 
     /**
@@ -243,7 +242,15 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
 
 
     /**
-     * Este método se encarga de subir la imagen del restaurante a Firebase Storage
+     * Este método se encarga de subir la imagen del restaurante a Firebase Storage.
+     *
+     * @param imagenRestaurante Bitmap de la imagen del restaurante a subir.
+     * @param nombreRestaurante Nombre del restaurante.
+     * @param descripcionRestaurante Descripción del restaurante.
+     * @param linkRestaurante Enlace del restaurante.
+     * @param horario Horario del restaurante.
+     * @param telefono Teléfono del restaurante.
+     * @param direccion Dirección del restaurante.
      */
     public void subirImagenFirebaseStorage(Bitmap imagenRestaurante, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion) {
         // Creamos una referencia única para la imagen en Firebase Storage
@@ -268,7 +275,15 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
 
 
     /**
-     * Este método se encarga de la gestión de obtener la URL de la imagen que se acaba de subir a Firebase Storage.
+     * Este método se encarga de obtener la URL de la imagen que se acaba de subir a Firebase Storage y añadir la imagen al restaurante.
+     *
+     * @param storageRef Referencia de almacenamiento de Firebase donde se encuentra la imagen.
+     * @param nombreRestaurante Nombre del restaurante.
+     * @param descripcionRestaurante Descripción del restaurante.
+     * @param linkRestaurante Enlace del restaurante.
+     * @param horario Horario del restaurante.
+     * @param telefono Teléfono del restaurante.
+     * @param direccion Dirección del restaurante.
      */
     public void obtenerURLImagenYAñadirAlRestaurante(StorageReference storageRef, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion) {
         storageRef.getDownloadUrl()
@@ -287,6 +302,14 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
 
     /**
      * Este método se encarga de crear un nuevo restaurante en Firestore con los datos ingresados por el usuario.
+     *
+     * @param nombreRestaurante Nombre del restaurante.
+     * @param descripcionRestaurante Descripción del restaurante.
+     * @param linkRestaurante Enlace del restaurante.
+     * @param horario Horario del restaurante.
+     * @param telefono Teléfono del restaurante.
+     * @param direccion Dirección del restaurante.
+     * @param urlImagen URL de la imagen del restaurante.
      */
     public void nuevoRestaurante(String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String horario, String telefono, String direccion, String urlImagen) {
         // Obtenemos el ID del usuario actual

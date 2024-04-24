@@ -24,7 +24,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.sushivalenciatfg.R;
-import com.example.sushivalenciatfg.models.Restaurante;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -37,36 +36,38 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Esta es la clase InfoRestauranteActivity, que extiende de AppCompatActivity.
+ * Esta clase se encarga de mostrar y editar la información de un restaurante específico.
+ */
 public class InfoRestauranteActivity extends AppCompatActivity {
 
+    // Referencias a los elementos de la interfaz de usuario
     private ImageView ivImagenRestaurante;
     private EditText etNombreRestaurante;
     private EditText etDescripcionRestaurante;
     private EditText etLinkRestaurante;
-
     private TextView tvPuntuacionRestaurante;
     private TextView tvRestauranteLink;
-
     private Button btnVolver;
     private Button btnComentarios;
     private Button btnMasInfo;
-
     private ImageButton btnEditar;
 
+    // Referencia a la base de datos Firestore, a la autenticación de Firebase y al usuario actual
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
 
-    private String restauranteId;
-
-    private boolean isEditing = false;
-
-
-    // Declaración de los ActivityResultLauncher
+    // Launchers para las actividades de resultado de la galería
     private ActivityResultLauncher<Intent> mGalleryResultLauncher;
     private ActivityResultLauncher<Intent> mCameraResultLauncher;
 
+    private String restauranteId;
+    private boolean isEditing;
 
+
+    // Getters y Setters para las pruebas de instrumentación
     public ImageView getIvImagenRestaurante() {
         return ivImagenRestaurante;
     }
@@ -96,16 +97,24 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * Este método se llama cuando la actividad está iniciando.
+     * Inicializa la actividad y establece los onClickListener para los botones.
+     *
+     * @param savedInstanceState Si la actividad se está reinicializando después de haber sido cerrada previamente
+     *                           entonces este Bundle contiene los datos que suministró más recientemente en onSaveInstanceState(Bundle).
+     *                           Nota: De lo contrario, es nulo.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info_restaurante);
 
+        isEditing = false;
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        //recoger el id del restaurante que se ha pasado desde el RestauranteAdapter
+        //recogemos el id del restaurante que se ha pasado desde el RestauranteAdapter (cuando se ha clickado en un restaurante)
         restauranteId = getIntent().getStringExtra("idRestaurante");
         if (restauranteId != null) {
             obtenerDatosRestaurante();
@@ -115,22 +124,21 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         }
 
         obtenerReferencias();
-
         obtenerDatosRestaurante();
-
         habilitarBotonEditar();
-
         inicializarActivityResultLaunchers();
 
         btnEditar.setOnClickListener(v -> edicion());
         tvRestauranteLink.setOnClickListener(v -> clickLinkRestaurante());
-
-
         btnVolver.setOnClickListener(v -> volverMenu());
         btnMasInfo.setOnClickListener(v -> irAMasInfo());
-        btnComentarios.setOnClickListener(v -> irAComentarios(v));
+        btnComentarios.setOnClickListener(v -> irAComentarios());
     }
 
+
+    /**
+     * Este método se encarga de obtener las referencias a los elementos de la interfaz de usuario.
+     */
     public void obtenerReferencias() {
         ivImagenRestaurante = findViewById(R.id.restauranteImg);
         etNombreRestaurante = findViewById(R.id.restauranteNombre);
@@ -138,44 +146,47 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         tvPuntuacionRestaurante = findViewById(R.id.restaurantePuntuacion);
         etLinkRestaurante = findViewById(R.id.restauranteLink);
         tvRestauranteLink = findViewById(R.id.tvRestauranteLink);
-
         btnVolver = findViewById(R.id.btnVolver);
         btnComentarios = findViewById(R.id.btnComentarios);
         btnMasInfo = findViewById(R.id.btnMasInfo);
-
         btnEditar = findViewById(R.id.imageButtonEditar);
     }
 
-    public void inicializarActivityResultLaunchers() {
-    // Inicialización de los ActivityResultLauncher para la galería y la cámara
-    mGalleryResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    Uri uri = result.getData().getData();
-                    if (uri != null) {
-                        ivImagenRestaurante.setImageURI(uri);
-                    }
-                }
-            }
-    );
 
-    mCameraResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    Bundle extras = result.getData().getExtras();
-                    if (extras != null) {
-                        Bitmap imageBitmap = (Bitmap) extras.get("data");
-                        if (imageBitmap != null) {
-                            ivImagenRestaurante.setImageBitmap(imageBitmap);
+    /**
+     * Este método se encarga de inicializar los ActivityResultLauncher para la galería y la cámara.
+     */
+    public void inicializarActivityResultLaunchers() {
+        mGalleryResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        if (uri != null) {
+                            ivImagenRestaurante.setImageURI(uri);
                         }
                     }
                 }
-            }
-    );
-}
+        );
+        mCameraResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Bundle extras = result.getData().getExtras();
+                        if (extras != null) {
+                            Bitmap imageBitmap = (Bitmap) extras.get("data");
+                            if (imageBitmap != null) {
+                                ivImagenRestaurante.setImageBitmap(imageBitmap);
+                            }
+                        }
+                    }
+                }
+        );
+    }
 
+    /**
+     * Este método se encarga de abrir un diálogo para que el usuario seleccione una imagen de la galería o la cámara.
+     */
     public void abrirDialogoSeleccionImagen() {
         AlertDialog.Builder builder = new AlertDialog.Builder(InfoRestauranteActivity.this);
         builder.setTitle("Elige una opción");
@@ -192,69 +203,76 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         builder.show();
     }
 
-   public void obtenerDatosRestaurante() {
-    if (restauranteId != null) {
-        db.collection("restaurantes").document(restauranteId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document != null && document.exists()) {
-                            String nombre = document.getString("nombre");
-                            String descripcion = document.getString("descripcion");
-                            Double puntuacionPromedio = document.getDouble("puntuacion");
-                            String link = document.getString("linkRestaurante");
-                            String imagenUrl = document.getString("imagenRestaurante");
 
-                            if (nombre != null) {
-                                etNombreRestaurante.setText(nombre);
-                            }
-                            if (descripcion != null) {
-                                etDescripcionRestaurante.setText(descripcion);
-                            }
-                            if (puntuacionPromedio != null) {
-                                tvPuntuacionRestaurante.setText(String.format("%.1f", puntuacionPromedio));
-                            }
-                            if (link != null) {
-                                tvRestauranteLink.setText(link);
-                            }
+    /**
+     * Este método se encarga de obtener los datos del restaurante de Firestore y mostrarlos en la interfaz de usuario.
+     */
+    public void obtenerDatosRestaurante() {
+        if (restauranteId != null) {
+            db.collection("restaurantes").document(restauranteId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            //si encontramos el restaurante en la bbdd, obtenemos sus datos y los mostramos en la interfaz
+                            if (document != null && document.exists()) {
+                                String nombre = document.getString("nombre");
+                                String descripcion = document.getString("descripcion");
+                                Double puntuacionPromedio = document.getDouble("puntuacion");
+                                String link = document.getString("linkRestaurante");
+                                String imagenUrl = document.getString("imagenRestaurante");
 
-                            // Para cargar la imagen desde una URL en un ImageView usamos Glide
-                            if (imagenUrl != null) {
-                                Glide.with(this)
-                                        .load(imagenUrl)
-                                        .into(ivImagenRestaurante);
+                                if (nombre != null) {
+                                    etNombreRestaurante.setText(nombre);
+                                }
+                                if (descripcion != null) {
+                                    etDescripcionRestaurante.setText(descripcion);
+                                }
+                                if (puntuacionPromedio != null) {
+                                    tvPuntuacionRestaurante.setText(String.format("%.1f", puntuacionPromedio));
+                                }
+                                if (link != null) {
+                                    tvRestauranteLink.setText(link);
+                                }
+
+                                // Para cargar la imagen desde una URL en un ImageView usamos la biblioteca Glide
+                                if (imagenUrl != null) {
+                                    Glide.with(this)
+                                            .load(imagenUrl)
+                                            .into(ivImagenRestaurante);
+                                }
+                            } else {
+                                Log.e("InfoRestauranteActivity", "No se encontró el restaurante");
                             }
                         } else {
-                            Log.e("InfoRestauranteActivity", "No se encontró el restaurante");
+                            Log.e("InfoRestauranteActivity", "Error al obtener restaurante", task.getException());
                         }
-                    } else {
-                        Log.e("InfoRestauranteActivity", "Error al obtener restaurante", task.getException());
-                    }
-                });
-    } else {
-        Log.e("InfoRestauranteActivity", "El id del restaurante es nulo");
+                    });
+        } else {
+            Log.e("InfoRestauranteActivity", "El id del restaurante es nulo");
+        }
     }
-}
 
+    /**
+     * Este método se encarga de habilitar el botón de editar en la pantalla si el usuario actual es el creador del restaurante.
+     */
     public void habilitarBotonEditar() {
         currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // ID de usuario actual
             String userId = currentUser.getUid();
 
-            // Buscar en la colección "restaurantes" un documento donde el campo "idUsuarioRestaurante" coincide con el ID del usuario
-            // y el ID del restaurante coincide con restauranteId
+            // Buscamos en la colección "restaurantes" un documento donde el campo "idUsuarioRestaurante" coincide con el ID del usuario actual
+            // y el campo idRestaurante coincide con el ID del restaurante actual
             db.collection("restaurantes")
                     .whereEqualTo("idUsuarioRestaurante", userId)
                     .whereEqualTo("idRestaurante", restauranteId)
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                            // Si el usuario es el creador del restaurante, mostrar el botón de editar
+                            // Si el usuario es el creador del restaurante, mostramos el botón de editar
                             btnEditar.setVisibility(View.VISIBLE);
                         } else {
-                            // Si el usuario no es el creador del restaurante, ocultar el botón de editar
+                            // Si el usuario no es el creador del restaurante, lo ocultamos
                             btnEditar.setVisibility(View.GONE);
                         }
                     });
@@ -263,108 +281,108 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Este método se encarga de habilitar la edición de los campos de texto y la selección de una imagen cuando el usuario hace clic en el botón de editar.
+     */
     public void habilitarEdicionEditText() {
-        // Habilitar la edición de los EditText
         etNombreRestaurante.setEnabled(true);
         etDescripcionRestaurante.setEnabled(true);
 
-        // Hacer que el TextView sea invisible y que el EditText sea visible
         tvRestauranteLink.setVisibility(View.GONE);
         etLinkRestaurante.setVisibility(View.VISIBLE);
 
-        // Copiar el texto del TextView a al EditText
         etLinkRestaurante.setText(tvRestauranteLink.getText().toString());
 
-
-        // Cambia el icono de edición al de "Guardar" para indicar que se pueden guardar los cambios
+        // Cambiamos el icono de edición por el de guardar
         btnEditar.setImageResource(R.drawable.icono_guardar);
 
-        // Habilitar la selección de una imagen
         ivImagenRestaurante.setOnClickListener(v -> abrirDialogoSeleccionImagen());
 
-        isEditing = true;
-    }
-
-    public void deshabilitarEdicionEditText() {
-        // Deshabilitar la edición de los EditText
-        etNombreRestaurante.setEnabled(false);
-        etDescripcionRestaurante.setEnabled(false);
-
-        // Hacer que el TextView sea visible y que el EditText sea invisible
-        tvRestauranteLink.setVisibility(View.GONE);
-        etLinkRestaurante.setVisibility(View.VISIBLE);
-
-        // Cambiar el icono del botón de editar de nuevo al icono de editar
-        btnEditar.setImageResource(R.drawable.icono_editar);
-
-        // Deshabilitar la selección de una imagen
-        ivImagenRestaurante.setOnClickListener(null);
-        etLinkRestaurante.setOnClickListener(null);
-
-        isEditing = false;
+        isEditing = true; // estamos en modo edición
     }
 
 
     /**
-     * Este método recoge los datos de los EditText, realiza varias comprobaciones para asegurarse de que los datos son válidos,
-     * y luego llama al método subirImagenFirebaseStorage().
+     * Este método se encarga de deshabilitar la edición de los campos de texto y la selección de una imagen cuando el usuario hace clic en el botón de guardar.
      */
-    public void comprobacionCamposYGuardar() {
-        // Recoger los datos de los EditText
+    public void deshabilitarEdicionEditText() {
+        etNombreRestaurante.setEnabled(false);
+        etDescripcionRestaurante.setEnabled(false);
+
+        tvRestauranteLink.setVisibility(View.GONE);
+        etLinkRestaurante.setVisibility(View.VISIBLE);
+
+        // volvemos a cambiar el icono de guardar por el de editar
+        btnEditar.setImageResource(R.drawable.icono_editar);
+
+        ivImagenRestaurante.setOnClickListener(null);
+        etLinkRestaurante.setOnClickListener(null);
+
+        isEditing = false; // ya no estamos en modo edición
+    }
+
+
+    /**
+     * Este método se encarga de comprobar si los datos ingresados por el usuario para editar el restaurante son correctos.
+     */
+    public void comprobacionDatosIngresados() {
         String nombre = etNombreRestaurante.getText().toString();
         String descripcion = etDescripcionRestaurante.getText().toString();
         String link = etLinkRestaurante.getText().toString();
 
-        // Comprobar si los campos de texto están vacíos
+        // Comprobamos si los campos de texto están vacíos
         if (nombre.isEmpty() || descripcion.isEmpty() || link.isEmpty()) {
             Toast.makeText(this, "No puede quedar ningún campo vacío", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Comprobar si el ImageView tiene una imagen establecida
+        // Comprobamos si el ImageView tiene una imagen establecida
         if (ivImagenRestaurante.getDrawable() == null) {
             Toast.makeText(this, "Por favor, seleccione una imagen", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // Obtener la imagen seleccionada como un bitmap
+        // y si la tiene, obtenemos el objeto Drawble que la representa y lo convertimos a Bitmap
         BitmapDrawable drawable = (BitmapDrawable) ivImagenRestaurante.getDrawable();
         Bitmap imagenRestaurante = drawable.getBitmap();
 
-        // Comprobar si la descripción tiene más de 20 líneas
+        // Comprobamos si la descripción tiene más de 20 líneas
         if (descripcion.split("\n").length > 20) {
             Toast.makeText(this, "La descripción no puede tener más de 20 líneas", Toast.LENGTH_SHORT).show();
             return;
         }
 
-
-        // Comprobar si el enlace es válido o es el texto "El restaurante no tiene web"
+        // Comprobamos que sea un enlace web válido o que sea el texto "El restaurante no tiene web"
         if (!Patterns.WEB_URL.matcher(link).matches() && !link.equals("El restaurante no tiene web")) {
             Toast.makeText(this, "El enlace no es válido", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Si todas las comprobaciones son correctas, se sube la imagen a Firebase Storage, se obtiene la URL de la imagen, se le añade al restaurante y este se guarda en Firestore
+        // Si todas las comprobaciones son correctas, se sube la imagen a Firebase Storage
         subirImagenFirebaseStorage(imagenRestaurante, nombre, descripcion, link);
     }
 
     /**
-     * Este método sube la imagen del restaurante a Firebase Storage. Una vez que la imagen se ha subido con éxito,
-     * llama al método obtenerURLImagenFirebaseStorage().
+     * Este método se encarga de subir la nueva imagen del restaurante a Firebase Storage.
+     *
+     * @param imagenRestaurante Bitmap de la imagen del restaurante a subir.
+     * @param nombreRestaurante Nombre del restaurante.
+     * @param descripcionRestaurante Descripción del restaurante.
+     * @param linkRestaurante Enlace del restaurante.
      */
     public void subirImagenFirebaseStorage(Bitmap imagenRestaurante, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante) {
-        // Crear una referencia única para la imagen en Firebase Storage
+        // Creamos una referencia única para la imagen en Firebase Storage
         StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("imagenes_restaurante/" + UUID.randomUUID().toString() + ".jpg");
 
-        // Convertir la imagen a bytes
+        // Convertimos la imagen del restaurante (que es un objeto Bitmap) en un array de bytes
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         imagenRestaurante.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] datosImagen = baos.toByteArray();
 
-        // Subir la imagen a Firebase Storage
+        // y lo subimos a  Firebase Storage
         storageRef.putBytes(datosImagen)
                 .addOnSuccessListener(taskSnapshot -> {
-                    // Imagen subida con éxito, obtener la URL de la imagen
+                    // si la imagen se sube con éxito, obtenemos su URL y se la añadimos al restaurante
                     obtenerURLImagenFirebaseStorage(storageRef, nombreRestaurante, descripcionRestaurante, linkRestaurante);
                 })
                 .addOnFailureListener(exception -> {
@@ -374,13 +392,17 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     }
 
     /**
-     * Este método obtiene la URL de la imagen que se acaba de subir a Firebase Storage.
-     * Una vez que se ha obtenido la URL de la imagen, llama al método actualizacionRestaurante().
+     * Este método se encarga de obtener la URL de la imagen que se acaba de subir a Firebase Storage y añadir la imagen al restaurante.
+     *
+     * @param storageRef Referencia de almacenamiento de Firebase donde se encuentra la imagen.
+     * @param nombreRestaurante Nombre del restaurante.
+     * @param descripcionRestaurante Descripción del restaurante.
+     * @param linkRestaurante Enlace del restaurante.
      */
     public void obtenerURLImagenFirebaseStorage(StorageReference storageRef, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante) {
         storageRef.getDownloadUrl()
                 .addOnSuccessListener(uri -> {
-                    // URL de la imagen obtenida con éxito, actualizar el restaurante en Firestore
+                    // si obtenemos la URL de la imagen con éxito, actualizamos el restaurante con los nuevos datos y lo guardamos en Firestore
                     String urlImagen = uri.toString();
                     actualizacionRestaurante(nombreRestaurante, descripcionRestaurante, linkRestaurante, urlImagen);
                 })
@@ -392,15 +414,17 @@ public class InfoRestauranteActivity extends AppCompatActivity {
 
 
     /**
-     * Este método actualiza los datos del restaurante en Firestore. Crea un nuevo Map con los nuevos datos del restaurante y
-     * luego actualiza el documento del restaurante en Firestore con estos datos.
+     * Este método se encarga de actualizar los datos del restaurante en Firestore con los datos ingresados por el usuario.
+     *
+     * @param nombreRestaurante Nombre del restaurante.
+     * @param descripcionRestaurante Descripción del restaurante.
+     * @param linkRestaurante Enlace del restaurante.
+     * @param urlImagen URL de la imagen del restaurante.
      */
     public void actualizacionRestaurante(String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String urlImagen) {
 
-        // Crear un nuevo objeto Map para guardar los campos del restaurante
+        // Creamos un nuevo objeto Map para guardar los datos del restaurante (solo si no son null para evitar problemas al guardar en Firestore)
         Map<String, Object> restauranteMap = new HashMap<>();
-
-        // Añadir cada campo del restaurante al Map solo si no es null para evitar problemas al guardar en Firestore
         if (nombreRestaurante != null) {
             restauranteMap.put("nombre", nombreRestaurante);
         }
@@ -414,7 +438,7 @@ public class InfoRestauranteActivity extends AppCompatActivity {
             restauranteMap.put("imagenRestaurante", urlImagen);
         }
 
-        // Actualizar el restaurante en Firestore
+        // Actualizamos el restaurante en Firestore
         db.collection("restaurantes").document(restauranteId)
                 .update(restauranteMap)
                 .addOnSuccessListener(aVoid -> {
@@ -428,23 +452,29 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Este método se encarga de manejar el proceso de edición de la información del restaurante.
+     */
     public void edicion() {
         if (!isEditing) {
             habilitarEdicionEditText();
         } else {
-            comprobacionCamposYGuardar();
+            comprobacionDatosIngresados();
             deshabilitarEdicionEditText();
 
         }
     }
 
-    // para evitar el ActivityNotFoundException al clickar sobre el textview cuando no es un enlace, se verifica si el texto del
-    // enlace es "El restaurante no tiene web". Si es así, muestra un mensaje al usuario. Si no, intenta abrir el enlace como antes.
+
+    /**
+     * Este método se encarga de manejar el evento de clic en el enlace del restaurante.
+     */
     public void clickLinkRestaurante() {
         String url = tvRestauranteLink.getText().toString();
+        // para evitar el ActivityNotFoundException al clickar sobre el textview cuando no es un enlace
         if (url.equals("El restaurante no tiene web")) {
             Toast.makeText(this, "Este restaurante no tiene página web", Toast.LENGTH_SHORT).show();
-            return; // para no continuar ejecutando el código restante si el enlace no es válido para abrirlo en un navegador
+            return;
         } else {
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse(url));
@@ -453,18 +483,29 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Este método se encarga de volver al menú principal de la aplicación.
+     */
     public void volverMenu() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
+
+    /**
+     * Este método se encarga de navegar a la pantalla de más información del restaurante.
+     */
     public void irAMasInfo() {
         Intent intent = new Intent(this, MasInfoActivity.class);
         intent.putExtra("idRestaurante", restauranteId);
         startActivity(intent);
     }
 
-    public void irAComentarios(View view) {
+
+    /**
+     * Este método se encarga de navegar a la pantalla de comentarios del restaurante.
+     */
+    public void irAComentarios() {
         Intent intent = new Intent(this, ComentariosActivity.class);
         intent.putExtra("idRestaurante", restauranteId);
         startActivity(intent);
