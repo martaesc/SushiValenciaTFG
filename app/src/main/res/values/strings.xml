@@ -4,8 +4,11 @@
     <string name="app_name">Sushi Valencia</string>
     <string name="ek_img_content">ExportKit Image</string>
     <string name="eslogan_inicio">Saborea Japón en Valencia: ¡Encuentra tu lugar perfecto!</string>
-    <string name="sign_up_string">Sign Up</string>
-    <string name="log_in_string">Inicio Sesión</string>
-    <string name="or_continue_with_ek2_string">Or continue with</string>
-    <string name="sign_in_string">Inicio Sesión</string>
+
+    <string-array name="filtros">
+        <item>Sin filtro</item>
+        <item>Orden alfabético</item>
+        <item>Por puntuación (orden descendente)</item>
+        <item>Con página web</item>
+    </string-array>
 </resources>

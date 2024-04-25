@@ -1,29 +1,40 @@
 package com.example.sushivalenciatfg.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.sushivalenciatfg.R;
 import com.example.sushivalenciatfg.adapters.RestauranteAdapter;
 import com.example.sushivalenciatfg.models.Restaurante;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import android.Manifest;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -38,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private SearchView searchView;
     private Button btnAñadirRestaurante;
     private RecyclerView recyclerView;
+    private Spinner spinnerFiltro;
 
     // Adaptador para el RecyclerView
     private RestauranteAdapter adapter;
@@ -49,6 +61,11 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
+
+    // Filtros
+    private boolean filtroAlfabetico;
+    private boolean filtroPuntuacion;
+    private boolean filtroWeb;
 
 
     //setters útiles para las pruebas (permiten inyectar instancias simuladas de FirebaseAuth, FirebaseFirestore y FirebaseUser)
@@ -80,11 +97,15 @@ public class MainActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
+        filtroAlfabetico = false;
+        filtroPuntuacion = false;
+        filtroWeb = false;
 
         obtenerReferencias();
         obtenerRestaurantes();
         visibilidadBotonAñadirRestaurante();
         configurarBusquedaEnSearchView();
+        configurarSpinnerFiltro();
 
         btnAñadirRestaurante.setOnClickListener(v -> añadirRestaurante(v));
         btnPerfil.setOnClickListener(v -> irPerfil(v));
@@ -101,6 +122,33 @@ public class MainActivity extends AppCompatActivity {
         searchView = findViewById(R.id.searchView);
         recyclerView = findViewById(R.id.lista_restaurantes);
         btnAñadirRestaurante = findViewById(R.id.btnAñadirRestaurante);
+        spinnerFiltro = findViewById(R.id.filtroDesplegableSpinner);
+    }
+
+
+    /**
+     * Este método se encarga de obtener todos los restaurantes de la base de datos Firestore.
+     */
+    public void obtenerRestaurantes() {
+        db.collection("restaurantes")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        //si la tarea se completó con éxito: obtenemos los restaurantes, los convertimos de documento a restaurante y los añadimos a la lista
+                        restaurantes = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Restaurante restaurante = document.toObject(Restaurante.class);
+                            restaurantes.add(restaurante);
+                        }
+                        // mostramos en el RecyclerView la lista de restaurantes utilizando el RestauranteAdapter para llenarlo
+                        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                        adapter = new RestauranteAdapter(restaurantes, MainActivity.this);
+                        recyclerView.setAdapter(adapter);
+                    } else {
+                        Log.d("MainActivity", "Error obteniendo restaurantes: ", task.getException());
+                        Toast.makeText(MainActivity.this, "Error obteniendo restaurantes", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 
@@ -121,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             }
-
             //se llama cuando el texto de la consulta de búsqueda cambia (los resultados de la búsqueda se actualizan en tiempo real a medida que el usuario escribe)
             @Override
             public boolean onQueryTextChange(String newText) {
@@ -161,28 +208,72 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * Este método se encarga de obtener todos los restaurantes de la base de datos Firestore.
+     * Este método se encarga de configurar el Spinner para que se puedan aplicar filtros a la lista de restaurantes.
      */
-    public void obtenerRestaurantes() {
-        db.collection("restaurantes")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        //si la tarea se completó con éxito: obtenemos los restaurantes, los convertimos de documento a restaurante y los añadimos a la lista
-                        restaurantes = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Restaurante restaurante = document.toObject(Restaurante.class);
-                            restaurantes.add(restaurante);
-                        }
-                        // mostramos en el RecyclerView la lista de restaurantes utilizando el RestauranteAdapter para llenarlo
-                        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                        adapter = new RestauranteAdapter(restaurantes, MainActivity.this);
-                        recyclerView.setAdapter(adapter);
-                    } else {
-                        Log.d("MainActivity", "Error obteniendo restaurantes: ", task.getException());
-                        Toast.makeText(MainActivity.this, "Error obteniendo restaurantes", Toast.LENGTH_SHORT).show();
-                    }
-                });
+    public void configurarSpinnerFiltro() {
+        spinnerFiltro.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            //se llama cuando un elemento del Spinner es seleccionado
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0: // Sin filtro
+                        filtroAlfabetico = false;
+                        filtroPuntuacion = false;
+                        filtroWeb = false;
+                        break;
+                    case 1: // Orden alfabético
+                        filtroAlfabetico = true;
+                        filtroPuntuacion = false;
+                        filtroWeb = false;
+                        break;
+                    case 2: // Por puntuación (orden descendente)
+                        filtroAlfabetico = false;
+                        filtroPuntuacion = true;
+                        filtroWeb = false;
+                        break;
+                    case 3: // Con página web
+                        filtroAlfabetico = false;
+                        filtroPuntuacion = false;
+                        filtroWeb = true;
+                        break;
+                }
+                // Solo aplica los filtros y actualiza el RecyclerView si los datos de los restaurantes ya se han cargado
+                if (restaurantes != null) {
+                    aplicarFiltrosYActualizarRecyclerView();
+                }
+            }
+            //se llama cuando no se ha seleccionado ningún elemento del Spinner
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // No hacer nada porque ya gestiono la selección sin filtro en el método onItemSelected
+            }
+        });
+    }
+
+
+    /**
+     * Este método se encarga de aplicar los filtros seleccionados en el Spinner y actualizar el RecyclerView con los restaurantes filtrados.
+     */
+    public void aplicarFiltrosYActualizarRecyclerView() {
+        List<Restaurante> restaurantesFiltrados = new ArrayList<>();
+        for (Restaurante restaurante : restaurantes) {
+            // si el filtro de página web está activado, solo se muestran los restaurantes que tienen una página web
+            if (!filtroWeb || (filtroWeb && !restaurante.getLinkRestaurante().equals("No tiene página web"))) {
+                restaurantesFiltrados.add(restaurante);
+            }
+        }
+        // Si el filtro alfabético está activado, ordena los restaurantes alfabéticamente
+        if (filtroAlfabetico) {
+            Collections.sort(restaurantesFiltrados, Comparator.comparing(Restaurante::getNombre));
+        }
+        // Si el filtro de puntuación está activado, ordena los restaurantes por puntuación de mayor a menor
+        if (filtroPuntuacion) {
+            Collections.sort(restaurantesFiltrados, (r1, r2) -> Double.compare(r2.getPuntuacion(), r1.getPuntuacion()));
+        }
+        // Actualizamos el RecyclerView con los restaurantes filtrados
+        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        adapter = new RestauranteAdapter(restaurantesFiltrados, MainActivity.this);
+        recyclerView.setAdapter(adapter);
     }
 
 

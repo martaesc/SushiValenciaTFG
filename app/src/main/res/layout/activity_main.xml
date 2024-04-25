@@ -47,23 +47,39 @@
 
     </LinearLayout>
 
-    <SearchView
-        android:id="@+id/searchView"
+    <LinearLayout
+        android:id="@+id/layoutBusqueda"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/search_view_bg"
-        android:iconifiedByDefault="false"
-        android:queryHint="Buscar restaurantes..."
-        app:layout_constraintTop_toBottomOf="@id/layoutProfile" />
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@id/layoutProfile">
+
+        <SearchView
+            android:id="@+id/searchView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/search_view_bg"
+            android:iconifiedByDefault="false"
+            android:queryHint="Buscar restaurantes..." />
+
+        <Spinner
+            android:id="@+id/filtroDesplegableSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/filtros"
+            android:background="@drawable/search_view_bg"/>
+    </LinearLayout>
 
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/searchView">
+        app:layout_constraintTop_toBottomOf="@id/layoutBusqueda">
 
         <LinearLayout
             android:layout_width="match_parent"
