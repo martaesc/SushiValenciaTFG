@@ -22,15 +22,11 @@ import com.example.sushivalenciatfg.R;
 import com.example.sushivalenciatfg.adapters.RestauranteAdapter;
 import com.example.sushivalenciatfg.models.Restaurante;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-import android.Manifest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -169,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             }
+
             //se llama cuando el texto de la consulta de búsqueda cambia (los resultados de la búsqueda se actualizan en tiempo real a medida que el usuario escribe)
             @Override
             public boolean onQueryTextChange(String newText) {
@@ -242,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
                     aplicarFiltrosYActualizarRecyclerView();
                 }
             }
+
             //se llama cuando no se ha seleccionado ningún elemento del Spinner
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -270,126 +268,132 @@ public class MainActivity extends AppCompatActivity {
         if (filtroPuntuacion) {
             Collections.sort(restaurantesFiltrados, (r1, r2) -> Double.compare(r2.getPuntuacion(), r1.getPuntuacion()));
         }
-        // Actualizamos el RecyclerView con los restaurantes filtrados
-        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-        adapter = new RestauranteAdapter(restaurantesFiltrados, MainActivity.this);
-        recyclerView.setAdapter(adapter);
-    }
 
-
-    /**
-     * Este método se encarga de controlar la visibilidad  del botón de añadir restaurante en la interfaz en función del tipo de usuario que ha iniciado sesión.
-     */
-    public void visibilidadBotonAñadirRestaurante() {
-        currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
-            // Buscamos en la colección "usuarios" un documento donde el campo "uid" coincide con el ID del usuario actual
-            db.collection("usuarios")
-                    .whereEqualTo("uid", userId)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                            // Obtenemos el tipo de usuario que es consultando el campo "tipoUsuario" del documento
-                            String tipoUsuario = task.getResult().getDocuments().get(0).getString("tipoUsuario");
-                            if ("Restaurante".equals(tipoUsuario)) {
-                                btnAñadirRestaurante.setVisibility(View.VISIBLE);
-                            } else {
-                                btnAñadirRestaurante.setVisibility(View.GONE);
-                            }
-                        } else {
-                            Log.d("MainActivity", "No se encontró un documento de usuario con el uid: " + userId);
-                        }
-                    }).addOnFailureListener(e -> {
-                        Log.e("MainActivity", "Error obteniendo el tipo de usuario", e);
-                    });
+        //si la lista de restaurantes filtrados está vacía mostramos un mensaje
+        if (restaurantesFiltrados.isEmpty()) {
+            Toast.makeText(MainActivity.this, "No se encontraron restaurantes que coincidan con el filtro", Toast.LENGTH_SHORT).show();
         } else {
-            Log.d("MainActivity", "El usuario actual es nulo");
+            // sino actualizamos el RecyclerView con los restaurantes filtrados
+            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+            adapter = new RestauranteAdapter(restaurantesFiltrados, MainActivity.this);
+            recyclerView.setAdapter(adapter);
         }
     }
 
 
-    /**
-     * Este método se encarga de eliminar un restaurante, tanto de la base de datos como de la interfaz.
-     *
-     * @param restauranteId El ID del restaurante a eliminar.
-     */
-    public void eliminarRestaurante(String restauranteId) {
-        currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
-            // Buscamos el restaurante en la colección "restaurantes" con el ID del restaurante a eliminar
-            db.collection("restaurantes")
-                    .document(restauranteId)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            //si el restaurante (documento) existe en la bbdd, comprobamos si el usuario actual es su creador
-                            if (document.exists()) {
-                                // comparando el ID del usuario actual con el campo "idUsuarioRestaurante" del documento
-                                String creadorId = document.getString("idUsuarioRestaurante");
-                                if (userId.equals(creadorId)) {
-                                    db.collection("restaurantes").document(restauranteId)
-                                            .delete()
-                                            .addOnSuccessListener(aVoid -> {
-                                                Log.d("MainActivity", "Restaurante eliminado con éxito");
-                                                Toast.makeText(MainActivity.this, "Restaurante eliminado con éxito", Toast.LENGTH_SHORT).show();
-                                                // Refrescar MainActivity
-                                                Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                                                startActivity(intent);
-                                                finish();
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                Log.e("MainActivity", "Error al eliminar restaurante", e);
-                                                Toast.makeText(MainActivity.this, "Error al eliminar restaurante", Toast.LENGTH_SHORT).show();
-                                            });
+        /**
+         * Este método se encarga de controlar la visibilidad  del botón de añadir restaurante en la interfaz en función del tipo de usuario que ha iniciado sesión.
+         */
+        public void visibilidadBotonAñadirRestaurante () {
+            currentUser = mAuth.getCurrentUser();
+            if (currentUser != null) {
+                String userId = currentUser.getUid();
+                // Buscamos en la colección "usuarios" un documento donde el campo "uid" coincide con el ID del usuario actual
+                db.collection("usuarios")
+                        .whereEqualTo("uid", userId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                                // Obtenemos el tipo de usuario que es consultando el campo "tipoUsuario" del documento
+                                String tipoUsuario = task.getResult().getDocuments().get(0).getString("tipoUsuario");
+                                if ("Restaurante".equals(tipoUsuario)) {
+                                    btnAñadirRestaurante.setVisibility(View.VISIBLE);
                                 } else {
-                                    Log.d("MainActivity", "El usuario no tiene permiso para eliminar este restaurante");
-                                    Toast.makeText(MainActivity.this, "No tienes permiso para eliminar este restaurante", Toast.LENGTH_SHORT).show();
+                                    btnAñadirRestaurante.setVisibility(View.GONE);
                                 }
                             } else {
-                                Log.e("MainActivity", "No se encontró el restaurante");
+                                Log.d("MainActivity", "No se encontró un documento de usuario con el uid: " + userId);
                             }
-                        } else {
-                            Log.e("MainActivity", "Error al obtener restaurante", task.getException());
-                        }
-                    });
-        } else {
-            Log.e("MainActivity", "El usuario actual es nulo");
+                        }).addOnFailureListener(e -> {
+                            Log.e("MainActivity", "Error obteniendo el tipo de usuario", e);
+                        });
+            } else {
+                Log.d("MainActivity", "El usuario actual es nulo");
+            }
         }
+
+
+        /**
+         * Este método se encarga de eliminar un restaurante, tanto de la base de datos como de la interfaz.
+         *
+         * @param restauranteId El ID del restaurante a eliminar.
+         */
+        public void eliminarRestaurante (String restauranteId){
+            currentUser = mAuth.getCurrentUser();
+            if (currentUser != null) {
+                String userId = currentUser.getUid();
+                // Buscamos el restaurante en la colección "restaurantes" con el ID del restaurante a eliminar
+                db.collection("restaurantes")
+                        .document(restauranteId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                //si el restaurante (documento) existe en la bbdd, comprobamos si el usuario actual es su creador
+                                if (document.exists()) {
+                                    // comparando el ID del usuario actual con el campo "idUsuarioRestaurante" del documento
+                                    String creadorId = document.getString("idUsuarioRestaurante");
+                                    if (userId.equals(creadorId)) {
+                                        db.collection("restaurantes").document(restauranteId)
+                                                .delete()
+                                                .addOnSuccessListener(aVoid -> {
+                                                    Log.d("MainActivity", "Restaurante eliminado con éxito");
+                                                    Toast.makeText(MainActivity.this, "Restaurante eliminado con éxito", Toast.LENGTH_SHORT).show();
+                                                    // Refrescar MainActivity
+                                                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                                                    startActivity(intent);
+                                                    finish();
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    Log.e("MainActivity", "Error al eliminar restaurante", e);
+                                                    Toast.makeText(MainActivity.this, "Error al eliminar restaurante", Toast.LENGTH_SHORT).show();
+                                                });
+                                    } else {
+                                        Log.d("MainActivity", "El usuario no tiene permiso para eliminar este restaurante");
+                                        Toast.makeText(MainActivity.this, "No tienes permiso para eliminar este restaurante", Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    Log.e("MainActivity", "No se encontró el restaurante");
+                                }
+                            } else {
+                                Log.e("MainActivity", "Error al obtener restaurante", task.getException());
+                            }
+                        });
+            } else {
+                Log.e("MainActivity", "El usuario actual es nulo");
+            }
+        }
+
+
+        /**
+         * Este método se encarga de abrir la pantalla para añadir un nuevo restaurante.
+         *
+         * @param view La vista que fue clickeada.
+         */
+        public void añadirRestaurante (View view){
+            Intent intent = new Intent(this, NuevoRestauranteActivity.class);
+            startActivity(intent);
+        }
+
+
+        /**
+         * Este método se encarga de ir a la pantalla del perfil del usuario.
+         *
+         * @param view La vista que fue clickeada.
+         */
+        public void irPerfil (View view){
+            Intent intent = new Intent(this, PerfilActivity.class);
+            startActivity(intent);
+        }
+
+
+        /**
+         * Este método se encarga de salir de la aplicación.
+         *
+         * @param view La vista que fue clickeada.
+         */
+        public void salir (View view){
+            finishAffinity();
+        }
+
     }
-
-
-    /**
-     * Este método se encarga de abrir la pantalla para añadir un nuevo restaurante.
-     *
-     * @param view La vista que fue clickeada.
-     */
-    public void añadirRestaurante(View view) {
-        Intent intent = new Intent(this, NuevoRestauranteActivity.class);
-        startActivity(intent);
-    }
-
-
-    /**
-     * Este método se encarga de ir a la pantalla del perfil del usuario.
-     *
-     * @param view La vista que fue clickeada.
-     */
-    public void irPerfil(View view) {
-        Intent intent = new Intent(this, PerfilActivity.class);
-        startActivity(intent);
-    }
-
-
-    /**
-     * Este método se encarga de salir de la aplicación.
-     *
-     * @param view La vista que fue clickeada.
-     */
-    public void salir(View view) {
-        finishAffinity();
-    }
-
-}
