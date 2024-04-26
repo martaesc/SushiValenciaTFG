@@ -99,7 +99,7 @@ public class MasInfoActivityInstrumentedTest {
                 activity.getEtTelefono().setText("");
                 activity.getEtHorario().setText("");
                 activity.getEtDireccion().setText("");
-                activity.comprobacionCamposYGuardar();
+                activity.comprobacionCamposYActuaizar();
             });
 
             onView(withText("No puede quedar ningún campo vacío")).inRoot(new ToastMatcher())
@@ -119,7 +119,7 @@ public class MasInfoActivityInstrumentedTest {
                 activity.getEtTelefono().setText("123456");
                 activity.getEtHorario().setText("Horario de prueba");
                 activity.getEtDireccion().setText("Dirección de prueba");
-                activity.comprobacionCamposYGuardar();
+                activity.comprobacionCamposYActuaizar();
             });
 
             onView(withText("Por favor, introduzca un número de teléfono válido")).inRoot(new ToastMatcher())

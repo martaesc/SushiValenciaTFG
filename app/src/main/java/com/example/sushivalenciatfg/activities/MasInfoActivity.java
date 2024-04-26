@@ -3,21 +3,15 @@ package com.example.sushivalenciatfg.activities;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.sushivalenciatfg.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,30 +21,33 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Esta es la clase MasInfoActivity, que extiende de AppCompatActivity.
+ * Esta clase se encarga de mostrar y editar la información adicional de un restaurante específico.
+ */
 public class MasInfoActivity extends AppCompatActivity {
 
+    // Referencias a los elementos de la interfaz de usuario
     private EditText etTelefono;
     private EditText etHorario;
     private EditText etDireccion;
-
     private TextView tvTelefono;
     private TextView tvHorario;
     private TextView tvDireccion;
-
     private Button btnEditar;
     private Button btnVolver;
     private Button btnVolverMenuPrincipal;
 
+    // Referencia a la base de datos Firestore, a la autenticación de Firebase y al usuario actual
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
-
     private FirebaseUser currentUser;
 
     private String restauranteId;
+    private boolean isEditing;
 
-    private boolean isEditing = false;
 
-
+    // Getters y setters útiles para las pruebas instrumentadas
     public EditText getEtTelefono() {
         return etTelefono;
     }
@@ -88,6 +85,14 @@ public class MasInfoActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Este método se llama cuando la actividad está iniciando.
+     * Inicializa la actividad y establece los onClickListener para los botones.
+     *
+     * @param savedInstanceState Si la actividad se está reinicializando después de haber sido cerrada previamente
+     *                           entonces este Bundle contiene los datos que suministró más recientemente en onSaveInstanceState(Bundle).
+     *                           Nota: De lo contrario, es nulo.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +100,7 @@ public class MasInfoActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        isEditing = false;
 
         //recoger el id del restaurante que se ha pasado desde InfoRestauranteActivity
         restauranteId = getIntent().getStringExtra("idRestaurante");
@@ -105,9 +111,7 @@ public class MasInfoActivity extends AppCompatActivity {
             finish();
         }
 
-
         obtenerReferencias();
-
         habilitarBotonEditar();
 
         btnEditar.setOnClickListener(v -> edicion());
@@ -117,22 +121,26 @@ public class MasInfoActivity extends AppCompatActivity {
         btnVolverMenuPrincipal.setOnClickListener(v -> volverMenuPrincipal());
     }
 
+
+    /**
+     * Este método se encarga de obtener las referencias a los elementos de la vista.
+     */
     public void obtenerReferencias() {
         etTelefono = findViewById(R.id.etTelefono);
         etHorario = findViewById(R.id.etHorario);
         etDireccion = findViewById(R.id.etDireccion);
-
         tvTelefono = findViewById(R.id.tvTelefono);
         tvHorario = findViewById(R.id.tvHorario);
         tvDireccion = findViewById(R.id.tvDireccion);
-
-
         btnEditar = findViewById(R.id.btnEditarInfo);
         btnVolver = findViewById(R.id.btnVolverInfoActivity);
         btnVolverMenuPrincipal = findViewById(R.id.btnVolverMenuPrincipal);
     }
 
 
+    /**
+     * Este método se encarga de obtener los datos del restaurante de  Firestore y mostrarlos en la vista.
+     */
     public void obtenerDatosRestaurante() {
         db.collection("restaurantes").document(restauranteId)
                 .get()
@@ -156,38 +164,43 @@ public class MasInfoActivity extends AppCompatActivity {
                 });
     }
 
-    public void habilitarBotonEditar() {
-    currentUser = mAuth.getCurrentUser();
-    if (currentUser != null) {
-        // ID de usuario actual
-        String userId = currentUser.getUid();
-        // Buscar en la colección "restaurantes" un documento donde el campo "idUsuarioRestaurante" coincide con el ID del usuario
-        // y el ID del restaurante coincide con restauranteId
-        db.collection("restaurantes")
-                .whereEqualTo("idUsuarioRestaurante", userId)
-                .whereEqualTo("idRestaurante", restauranteId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        // Si el usuario es el creador del restaurante, mostrar el botón de editar
-                        btnEditar.setVisibility(View.VISIBLE);
-                    } else {
-                        // Si el usuario no es el creador del restaurante, ocultar el botón de editar
-                        btnEditar.setVisibility(View.GONE);
-                    }
-                });
-    } else {
-        Log.d("MasInfoActivity", "El usuario actual es nulo");
-    }
-}
 
+    /**
+     * Este método se encarga de habilitar el botón de edición si el usuario actual es el creador del restaurante que se quiere editar.
+     */
+    public void habilitarBotonEditar() {
+        currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            // Buscamos en la colección "restaurantes" un documento donde el campo "idUsuarioRestaurante" coincida con el ID del usuario actual
+            // y el campo idRestaurante con el ID del restaurante actual
+            db.collection("restaurantes")
+                    .whereEqualTo("idUsuarioRestaurante", userId)
+                    .whereEqualTo("idRestaurante", restauranteId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            btnEditar.setVisibility(View.VISIBLE);
+                        } else {
+                            btnEditar.setVisibility(View.GONE);
+                        }
+                    });
+        } else {
+            Log.e("MasInfoActivity", "El usuario actual es nulo");
+        }
+    }
+
+
+    /**
+     * Este método se encarga de habilitar la edición de los campos de texto.
+     */
     public void habilitarEdicionEditText() {
-        // Copiar el texto de los TextView a los EditText
+        // Copiamos el texto de los TextView a los EditText
         etTelefono.setText(tvTelefono.getText().toString());
         etHorario.setText(tvHorario.getText().toString());
         etDireccion.setText(tvDireccion.getText().toString());
 
-        // Hacer que el TextView sea invisible y que el EditText sea visible
+        // Hacemos que los TextView sean invisibles y que los EditText sean visibles
         tvTelefono.setVisibility(View.GONE);
         etTelefono.setVisibility(View.VISIBLE);
         tvHorario.setVisibility(View.GONE);
@@ -195,14 +208,20 @@ public class MasInfoActivity extends AppCompatActivity {
         tvDireccion.setVisibility(View.GONE);
         etDireccion.setVisibility(View.VISIBLE);
 
-        // Cambiar el texto del botón a "Guardar" mientras estamos en modo edición
+        // Cambiamos el texto del botón a "Guardar" mientras estamos en modo edición
         btnEditar.setText("Guardar");
 
         isEditing = true;
+
+
     }
 
+
+    /**
+     * Este método se encarga de deshabilitar la edición de los campos de texto.
+     */
     public void deshabilitarEdicionEditText() {
-        // Hacer que el EditText sea invisible y que el TextView sea visible
+        // Hacemos que los EditText sean invisibles y que los TextView sean visibles
         etTelefono.setVisibility(View.GONE);
         tvTelefono.setVisibility(View.VISIBLE);
         etHorario.setVisibility(View.GONE);
@@ -210,43 +229,51 @@ public class MasInfoActivity extends AppCompatActivity {
         etDireccion.setVisibility(View.GONE);
         tvDireccion.setVisibility(View.VISIBLE);
 
-        isEditing = false;
-
-        // Cambiar el texto del botón a "Editar" después de guardar
+        // Cambiamos el texto del botón a "Editar" después de guardar
         btnEditar.setText("Editar");
+
+        isEditing = false;
     }
 
-    public void comprobacionCamposYGuardar() {
-        // Recoger los datos de los EditText
+
+    /**
+     * Este método se encarga de comprobar si los campos de texto están vacíos y si el número de teléfono es válido.
+     * Si todo está correcto, actualiza el restaurante en Firestore.
+     */
+    public void comprobacionCamposYActuaizar() {
         String telefono = etTelefono.getText().toString();
         String horario = etHorario.getText().toString();
         String direccion = etDireccion.getText().toString();
 
 
-
-        // Comprobar si los campos de texto están vacíos
+        // Comprobamos si los campos de texto están vacíos
         if (telefono.isEmpty() || horario.isEmpty() || direccion.isEmpty()) {
             Toast.makeText(this, "No puede quedar ningún campo vacío", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Comprobar si el número de teléfono es válido
+        // Comprobamos si el número de teléfono es válido (número de 9 dígitos que empiece con un dígito entre 6 y 9, con o sin prefijo +34 o 0034)
         if (!telefono.matches("(\\+34|0034)?[6-9][0-9]{8}")) {
             Toast.makeText(this, "Por favor, introduzca un número de teléfono válido", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Actualizar el restaurante en Firestore
         actualizacionRestaurante(telefono, horario, direccion);
 
     }
 
+
+    /**
+     * Este método se encarga de la lógica para actualizar los datos del restaurante en Firestore.
+     *
+     * @param telefono  El nuevo número de teléfono del restaurante.
+     * @param horario   El nuevo horario del restaurante.
+     * @param direccion La nueva dirección del restaurante.
+     */
     public void actualizacionRestaurante(String telefono, String horario, String direccion) {
 
-        // Crear un Map para guardar los campos del restaurante
+        // Creamos un Map para guardar los datos del restaurante (solo si no son null para evitar problemas al guardar en Firestore)
         Map<String, Object> restauranteMap = new HashMap<>();
-
-        // Añadir cada campo del restaurante al Map solo si no es null para evitar problemas al guardar en Firestore
         if (telefono != null) {
             restauranteMap.put("telefono", telefono);
         }
@@ -257,7 +284,7 @@ public class MasInfoActivity extends AppCompatActivity {
             restauranteMap.put("direccion", direccion);
         }
 
-        // Actualizar el restaurante en Firestore
+        // Actualizamos el restaurante en Firestore
         db.collection("restaurantes").document(restauranteId)
                 .update(restauranteMap)
                 .addOnSuccessListener(aVoid -> {
@@ -266,61 +293,77 @@ public class MasInfoActivity extends AppCompatActivity {
                     obtenerDatosRestaurante();
                 })
                 .addOnFailureListener(e -> {
-                    // Error al actualizar el restaurante
-                    Log.e("Firestore","Error al actualizar el restaurante: " + e.getMessage());
+                    Log.e("Firestore", "Error al actualizar el restaurante: " + e.getMessage());
                     Toast.makeText(this, "Error al actualizar el restaurante", Toast.LENGTH_SHORT).show();
                 });
     }
 
+
+    /**
+     * Este método se encarga de manejar el proceso de edición de la información del restaurante.
+     */
     public void edicion() {
         if (!isEditing) {
             habilitarEdicionEditText();
         } else {
-            comprobacionCamposYGuardar();
+            comprobacionCamposYActuaizar();
             deshabilitarEdicionEditText();
         }
     }
 
+
+    /**
+     * Este método se encarga de abrir la aplicación de llamadas del dispositivo para iniciar una llamada telefónica al
+     * número de teléfono del restaurante.
+     */
     public void llamarTelefono() {
-    String telefono = etTelefono.getText().toString();
+        String telefono = etTelefono.getText().toString();
+        // Intent implícito para abrir la aplicación de llamadas con el número de teléfono del restaurante
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + telefono));
 
-    Intent intent = new Intent(Intent.ACTION_DIAL); // Intent implicito para abrir la aplicación de llamadas
-    intent.setData(Uri.parse("tel:" + telefono)); // Agregamos el número de teléfono al Intent
-
-    // Comprobar si hay una actividad que pueda manejar el Intent
-    if (intent.resolveActivity(getPackageManager()) != null) {
-        startActivity(intent);
-    } else {
-        Toast.makeText(this, "No se encontró una aplicación de marcado de teléfono", Toast.LENGTH_SHORT).show();
+        // Comprobamos si hay alguna aplicación en el dispositivo que pueda manejar el Intent
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "No se encontró una aplicación de marcado de teléfono", Toast.LENGTH_SHORT).show();
+        }
     }
-}
 
-   public void abrirMapa() {
-    String direccion = tvDireccion.getText().toString(); // Obtener la dirección del TextView
-    // Crear un Intent implicito para abrir Google Maps con la dirección del restaurante
-    Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + direccion);
-    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-    mapIntent.setPackage("com.google.android.apps.maps"); // Especificar que se abra con Google Maps
 
-    // Comprobar si hay una actividad que pueda manejar el Intent
-    if (mapIntent.resolveActivity(getPackageManager()) != null) {
-        startActivity(mapIntent);
-    } else {
-        Toast.makeText(this, "No se encontró una aplicación de mapas", Toast.LENGTH_SHORT).show();
+    /**
+     * Este método se encarga de abrir la aplicación de mapas del dispositivo para mostrar la dirección del restaurante.
+     */
+    public void abrirMapa() {
+        String direccion = tvDireccion.getText().toString();
+        Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + direccion);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+
+        // Comprobamos si hay alguna aplicación en el dispositivo que pueda manejar el Intent
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+        } else {
+            Toast.makeText(this, "No se encontró ninguna aplicación de mapas en el dispositivo", Toast.LENGTH_SHORT).show();
+        }
     }
-}
 
+
+    /**
+     * Este método se encarga de volver a la actividad InfoRestauranteActivity.
+     */
     public void volver() {
         Intent intent = new Intent(this, InfoRestauranteActivity.class);
         intent.putExtra("idRestaurante", restauranteId);
         startActivity(intent);
     }
 
+
+    /**
+     * Este método se encarga de volver al menú principal de la aplicación (MainActivity).
+     */
     public void volverMenuPrincipal() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
-
-
 
 }
