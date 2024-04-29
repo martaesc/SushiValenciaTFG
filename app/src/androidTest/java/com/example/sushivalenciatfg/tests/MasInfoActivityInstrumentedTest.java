@@ -29,12 +29,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Esta es la clase MasInfoActivityInstrumentedTest, que contiene pruebas instrumentadas para la actividad MasInfoActivity.
+ */
 @RunWith(AndroidJUnit4.class)
 public class MasInfoActivityInstrumentedTest {
-
     @Rule
     public ActivityScenarioRule<MasInfoActivity> activityRule = new ActivityScenarioRule<>(MasInfoActivity.class);
-
 
     /**
      * Prueba para comprobar que al pulsar el botón de editar, se habilitan los campos de edición y se cambia el texto del botón a "Guardar"

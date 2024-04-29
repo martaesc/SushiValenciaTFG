@@ -36,27 +36,26 @@ import static org.mockito.Mockito.when;
 
 import androidx.test.espresso.intent.Intents;
 
-
-
+/**
+ * Esta es la clase LoginActivityInstrumentedTest, que contiene pruebas instrumentadas para la actividad LoginActivity.
+ */
 @RunWith(AndroidJUnit4.class)
 public class LoginActivityInstrumentedTest {
     @Mock
     private FirebaseAuth mockAuth;
     @Mock
     private FirebaseFirestore mockFirestore;
-
     @Rule
     public ActivityScenarioRule<LoginActivity> activityRule = new ActivityScenarioRule<>(LoginActivity.class);
-
     @Mock
     private CollectionReference mockCollectionReference;
-
     @Mock
     private Query mockQuery;
-
     private AutoCloseable closeable;
 
-
+    /**
+     * Método que se ejecuta antes de cada prueba. Inicializa los objetos simulados y configura su comportamiento.
+     */
     @Before
     public void setUp() {
         closeable = MockitoAnnotations.openMocks(this);
@@ -75,7 +74,7 @@ public class LoginActivityInstrumentedTest {
      */
     @Test
     public void clickEnBotonLogin_conCamposVacios_deberiaMostrarToast() {
-        // Simular campos vacíos
+        // Simulamos campos vacíos
         activityRule.getScenario().onActivity(activity -> {
             activity.getTxtLoginNombreOCorreo().getEditText().setText("");
             activity.getTxtLoginContrasena().getEditText().setText("");
@@ -83,11 +82,11 @@ public class LoginActivityInstrumentedTest {
 
         onView(withId(R.id.btnLogin)).perform(click());
 
-        // Verificar que se muestra el Toast correcto
+        // Verificamos que se muestra el Toast correcto
         onView(withText("Por favor, rellene todos los campos")).inRoot(new ToastMatcher())
                 .check(matches(isDisplayed()));
 
-        // Verificar que no se intenta iniciar sesión con FirebaseAuth
+        // Verificamos que no se intenta iniciar sesión con FirebaseAuth
         verify(mockAuth, never()).signInWithEmailAndPassword(anyString(), anyString());
     }
 
@@ -97,19 +96,19 @@ public class LoginActivityInstrumentedTest {
      */
     @Test
     public void clickEnEnlaceOlvidarContrasena_conCampoVacio_deberiaMostrarToast() {
-        // Simular campo de nombre de usuario vacío
+        // Simulamos campo de nombre de usuario vacío
         activityRule.getScenario().onActivity(activity -> {
             activity.getTxtLoginNombreOCorreo().getEditText().setText("");
         });
 
         onView(withId(R.id.textViewBtnRecuperarContrasena)).perform(click());
 
-        // Verificar que se muestra el Toast correcto
+        // Verificamos que se muestra el Toast correcto
         onView(withText("Por favor, ingrese su nombre de usuario o correo electrónico en el primer campo"))
                 .inRoot(new ToastMatcher())
                 .check(matches(isDisplayed()));
 
-        // Verificar que no se intenta enviar un correo electrónico de restablecimiento de contraseña
+        // y que no se intenta enviar un correo electrónico de restablecimiento de contraseña
         verify(mockAuth, never()).sendPasswordResetEmail(anyString());
     }
 
@@ -119,15 +118,13 @@ public class LoginActivityInstrumentedTest {
      */
     @Test
     public void clickEnEnlaceRegistro_deberiaLlamarAIrARegistro() {
-        // Inicializar Intents
         Intents.init();
 
         onView(withId(R.id.textViewBtnRegistro)).perform(click());
 
-        // Verificar que se ha iniciado una intención para ir a RegistroActivity
+        // Verificamos que se ha iniciado una intención para ir a RegistroActivity
         intended(hasComponent(RegistroActivity.class.getName()));
 
-        // Limpiar Intents
         Intents.release();
     }
 

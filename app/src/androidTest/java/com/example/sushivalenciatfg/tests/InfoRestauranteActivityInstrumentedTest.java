@@ -32,15 +32,21 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Esta es la clase InfoRestauranteActivityInstrumentedTest, que contiene pruebas instrumentadas para la actividad InfoRestauranteActivity.
+ */
 @RunWith(AndroidJUnit4.class)
 public class InfoRestauranteActivityInstrumentedTest {
 
+    /**
+     * Regla que proporciona una forma de lanzar una actividad antes de cada prueba. En este caso, se lanza la actividad InfoRestauranteActivity.
+     */
     @Rule
     public ActivityScenarioRule<InfoRestauranteActivity> activityRule = new ActivityScenarioRule<>(InfoRestauranteActivity.class);
 
 
     /**
-     * Prueba para comprobar que al no estar en modo edición y pulsar sobre el botón de editar, se habilitan los campos
+     * Prueba para comprobar que al no estar en modo edición y pulsar sobre el botón de editar, se habilitan los campos.
      */
     @Test
     public void edicion_conIsEditingFalse_deberiaHabilitarCampos() {
@@ -59,7 +65,7 @@ public class InfoRestauranteActivityInstrumentedTest {
     }
 
     /**
-     * Prueba para comprobar que al estar en modo edición y pulsar sobre el botón de guardar, se deshabilitan los campos
+     * Prueba para comprobar que al estar en modo edición y pulsar sobre el botón de guardar, se deshabilitan los campos.
      */
     @Test
     public void edicion_conIsEditingTrue_deberiaDeshabilitarCampos() {
@@ -78,7 +84,7 @@ public class InfoRestauranteActivityInstrumentedTest {
     }
 
     /**
-     * Prueba para comprobar que al estar en modo edición y pulsar sobre image view de la imagen, se muestra el diálogo
+     * Prueba para comprobar que al estar en modo edición y pulsar sobre image view de la imagen, se muestra el diálogo.
      */
     @Test
     public void abrirDialogoSeleccionImagen_conModoEdicion_deberiaMostrarDialogo() {
@@ -95,7 +101,7 @@ public class InfoRestauranteActivityInstrumentedTest {
 
 
     /**
-     * Prueba para comprobar que al no estar en modo edición y pulsar sobre image view de la imagen, no se muestra el diálogo
+     * Prueba para comprobar que al no estar en modo edición y pulsar sobre image view de la imagen, no se muestra el diálogo.
      */
     @Test
     public void conModoNoEdicion_noDeberiaMostrarDialogoSeleccionImagen() {
@@ -111,7 +117,7 @@ public class InfoRestauranteActivityInstrumentedTest {
 
 
     /**
-     * Prueba para comprobar que al elegir la opción de galería en el diálogo, se inicia el intent de galería
+     * Prueba para comprobar que al elegir la opción de galería en el diálogo, se inicia el intent de galería.
      */
     @Test
     public void abrirDialogoSeleccionImagen_conOpcionGaleria_deberiaIniciarIntentGaleria() {
@@ -131,7 +137,7 @@ public class InfoRestauranteActivityInstrumentedTest {
 
 
     /**
-     * Prueba para comprobar que al elegir la opción de cámara en el diálogo, se inicia el intent de cámara
+     * Prueba para comprobar que al elegir la opción de cámara en el diálogo, se inicia el intent de cámara.
      */
     @Test
     public void abrirDialogoSeleccionImagen_conOpcionCamara_deberiaIniciarIntentCamara() {
@@ -152,7 +158,7 @@ public class InfoRestauranteActivityInstrumentedTest {
 
 
     /**
-     * Prueba para comprobar que al pulsar sobre el botón de guardar con campos vacíos, se muestra un toast
+     * Prueba para comprobar que al pulsar sobre el botón de guardar con campos vacíos, se muestra un toast.
      */
     @Test
     public void comprobacionCamposYGuardar_conCamposVacios_deberiaMostrarToast() {
@@ -172,7 +178,7 @@ public class InfoRestauranteActivityInstrumentedTest {
 
 
     /**
-     * Prueba para comprobar que al introducir una descripción con más de 20 líneas, se muestra un toast
+     * Prueba para comprobar que al introducir una descripción con más de 20 líneas, se muestra un toast.
      */
     @Test
     public void comprobacionCamposYGuardar_conDescripcionMasDe20Lineas_deberiaMostrarToast() {

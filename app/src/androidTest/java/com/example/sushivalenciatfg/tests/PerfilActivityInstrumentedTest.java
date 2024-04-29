@@ -43,20 +43,22 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+/**
+ * Esta es la clase PerfilActivityInstrumentedTest, que contiene pruebas instrumentadas para la actividad PerfilActivity.
+ */
 @RunWith(AndroidJUnit4.class)
 public class PerfilActivityInstrumentedTest {
-
     @Rule
     public ActivityScenarioRule<PerfilActivity> activityRule = new ActivityScenarioRule<>(PerfilActivity.class);
-
     @Mock
     private FirebaseUser mockUser;
-
     @Mock
     private FirebaseAuth mockAuth;
-
     private AutoCloseable closeable;
 
+    /**
+     * Método que se ejecuta antes de cada prueba. Se utiliza para inicializar los objetos simulados y configurar su comportamiento.
+     */
     @Before
     public void setUp() {
         closeable = MockitoAnnotations.openMocks(this);
@@ -230,6 +232,10 @@ public class PerfilActivityInstrumentedTest {
         Intents.release();
     }
 
+
+    /**
+     * Método que se ejecuta después de cada prueba. Se utiliza para limpiar los recursos utilizados durante la prueba.
+     */
     @After
     public void tearDown() throws Exception {
         closeable.close();

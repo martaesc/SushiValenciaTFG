@@ -32,17 +32,20 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Esta es la clase NuevoRestauranteActivityInstrumentedTest, que contiene pruebas instrumentadas para la actividad NuevoRestauranteActivity.
+ */
 @RunWith(AndroidJUnit4.class)
 public class NuevoRestauranteActivityInstrumentedTest {
-
-
     @Rule
     public ActivityScenarioRule<NuevoRestauranteActivity> activityRule = new ActivityScenarioRule<>(NuevoRestauranteActivity.class);
 
 
+    /**
+     * Prueba que verifica que al hacer clic en el ImageView, se abre un diálogo.
+     */
     @Test
     public void clickEnImageView_deberiaAbrirDialogo() {
-        // Hacer clic en el ImageView
         onView(withId(R.id.iv_imagenNuevoRestaurante)).perform(click());
 
         // Verificar que se muestra el diálogo
@@ -103,10 +106,8 @@ public class NuevoRestauranteActivityInstrumentedTest {
             activity.getEtDireccionRestaurante().setText("");
         });
 
-        // Hacer clic en el botón de guardar restaurante
         onView(withId(R.id.btnGuardarNuevoRestaurante)).perform(click());
 
-        // Verificar que se muestra el Toast correcto
         onView(withText("Por favor, complete todos los campos")).inRoot(new ToastMatcher())
                 .check(matches(isDisplayed()));
     }
@@ -183,7 +184,7 @@ public class NuevoRestauranteActivityInstrumentedTest {
 
     @Test
     public void comprobacionCamposYGuardar_conEnlaceNoValido_deberiaMostrarToast() {
-        // Simular un enlace no válido
+        // Simulamos un enlace no válido
         activityRule.getScenario().onActivity(activity -> {
             activity.getEtNombreRestaurante().setText("Nombre de prueba");
             activity.getEtDescripcionRestaurante().setText("Descripción de prueba");
@@ -192,16 +193,14 @@ public class NuevoRestauranteActivityInstrumentedTest {
             activity.getEtDireccionRestaurante().setText("Dirección de prueba");
             activity.getEtLinkRestaurante().setText("Enlace no válido");
 
-            // Crear un Bitmap vacío
+            // Creamos un Bitmap vacío
             Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-            // Establecer el Bitmap en el ImageView
+            // Establecemos el Bitmap en el ImageView
             activity.getIvImagenRestaurante().setImageBitmap(bitmap);
         });
 
-        // Hacer clic en el botón de guardar restaurante
         onView(withId(R.id.btnGuardarNuevoRestaurante)).perform(click());
 
-        // Verificar que se muestra el Toast correcto
         onView(withText("Por favor, introduzca un enlace válido")).inRoot(new ToastMatcher())
                 .check(matches(isDisplayed()));
     }

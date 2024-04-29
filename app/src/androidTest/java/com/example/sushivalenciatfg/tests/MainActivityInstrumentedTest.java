@@ -44,22 +44,25 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Esta es la clase MainActivityInstrumentedTest, que contiene pruebas instrumentadas para la actividad MainActivity.
+ */
 @RunWith(AndroidJUnit4.class)
 public class MainActivityInstrumentedTest {
-
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
-
     @Mock
     private FirebaseAuth mockAuth;
     @Mock
     private FirebaseFirestore mockFirestore;
     @Mock
     private FirebaseUser mockUser;
-
     private AutoCloseable closeable;
 
 
+    /**
+     * Método que se ejecuta antes de cada prueba. Se utiliza para inicializar los objetos simulados y configurar su comportamiento.
+     */
     @Before
     public void setUp() {
         closeable = MockitoAnnotations.openMocks(this);
@@ -114,10 +117,10 @@ public class MainActivityInstrumentedTest {
         // CountDownLatch para esperar a que se obtenga el estado de la actividad
         CountDownLatch latch = new CountDownLatch(1);
 
-        // Obtener el estado de la actividad en un nuevo hilo
+        // Obtenemos el estado de la actividad en un nuevo hilo
         new Thread(() -> {
             state.set(activityRule.getScenario().getState());
-            latch.countDown(); // Decrementar el contador del latch
+            latch.countDown(); // Decrementar el contador del latch para indicar que se ha obtenido el estado de la actividad
         }).start();
 
         // Esperamos a que se obtenga el estado de la actividad
@@ -132,6 +135,9 @@ public class MainActivityInstrumentedTest {
     }
 
 
+    /**
+     * Método que se ejecuta después de cada prueba. Se utiliza para limpiar los recursos utilizados durante la prueba.
+     */
     @After
     public void tearDown() throws Exception {
         closeable.close();

@@ -26,19 +26,24 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+/**
+ * Esta es la clase RegistroActivityInstrumentedTest, que contiene pruebas instrumentadas para la actividad RegistroActivity.
+ */
 @RunWith(AndroidJUnit4.class)
 public class RegistroActivityInstrumentedTest {
 
     @Rule
     public ActivityScenarioRule<RegistroActivity> activityRule = new ActivityScenarioRule<>(RegistroActivity.class);
-
     @Mock
     private FirebaseAuth mockAuth;
     @Mock
     private FirebaseFirestore mockFirestore;
-
     private AutoCloseable closeable;
 
+
+    /**
+     * Este método se ejecuta antes de cada prueba. Se utiliza para inicializar los objetos simulados y configurar su comportamiento.
+     */
     @Before
     public void setUp() {
         closeable = MockitoAnnotations.openMocks(this);
@@ -75,7 +80,6 @@ public class RegistroActivityInstrumentedTest {
 
         onView(withId(R.id.btnRegistro)).perform(click());
 
-        // Verificar que se muestra el Toast correcto
         onView(withText("Debe seleccionar un tipo de usuario")).inRoot(new ToastMatcher())
                 .check(matches(isDisplayed()));
     }
@@ -95,12 +99,14 @@ public class RegistroActivityInstrumentedTest {
 
         onView(withId(R.id.btnRegistro)).perform(click());
 
-        // Verificar que se muestra el Toast correcto
         onView(withText("Las contraseñas no coinciden")).inRoot(new ToastMatcher())
                 .check(matches(isDisplayed()));
     }
 
 
+    /**
+     * Este método se ejecuta después de cada prueba. Se utiliza para limpiar los recursos utilizados durante la prueba.
+     */
     @After
     public void tearDown() throws Exception {
         closeable.close();
