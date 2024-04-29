@@ -133,7 +133,7 @@ public class RestauranteAdapter extends RecyclerView.Adapter<RestauranteAdapter.
         public RestauranteViewHolder(@NonNull View itemView) {
             // llamamos al constructor de la clase padre (RecyclerView.ViewHolder)
             super(itemView);
-            // inicializamos las vistas del ViewHolder a partir de sus IDs en el archivo de layout (item_view.xml)
+            // inicializamos las vistas del ViewHolder a partir de los IDs en el archivo de layout (item_view.xml)
             tvNombre = itemView.findViewById(R.id.tv_nombreRestaurante);
             ratingBar = itemView.findViewById(R.id.rb_puntuacion);
             tvDescripcion = itemView.findViewById(R.id.tv_descripcion);
