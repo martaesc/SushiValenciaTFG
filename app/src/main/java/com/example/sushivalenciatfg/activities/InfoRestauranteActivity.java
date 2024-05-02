@@ -234,7 +234,6 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                                 if (link != null) {
                                     tvRestauranteLink.setText(link);
                                 }
-
                                 // Para cargar la imagen desde una URL en un ImageView usamos la biblioteca Glide
                                 if (imagenUrl != null) {
                                     Glide.with(this)
@@ -286,12 +285,15 @@ public class InfoRestauranteActivity extends AppCompatActivity {
      * Este método se encarga de habilitar la edición de los campos de texto y la selección de una imagen cuando el usuario hace clic en el botón de editar.
      */
     public void habilitarEdicionEditText() {
+        // Habilitamos la edición de los EditText
         etNombreRestaurante.setEnabled(true);
         etDescripcionRestaurante.setEnabled(true);
 
+        // Cambiamos la visibilidad de los TextView y EditText del enlace del restaurante
         tvRestauranteLink.setVisibility(View.GONE);
         etLinkRestaurante.setVisibility(View.VISIBLE);
 
+        // copiamos el texto del TextView al EditText
         etLinkRestaurante.setText(tvRestauranteLink.getText().toString());
 
         // Cambiamos el icono de edición por el de guardar
@@ -310,14 +312,14 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         etNombreRestaurante.setEnabled(false);
         etDescripcionRestaurante.setEnabled(false);
 
-        tvRestauranteLink.setVisibility(View.GONE);
-        etLinkRestaurante.setVisibility(View.VISIBLE);
+        tvRestauranteLink.setVisibility(View.VISIBLE);
+        etLinkRestaurante.setVisibility(View.GONE);
 
         // volvemos a cambiar el icono de guardar por el de editar
         btnEditar.setImageResource(R.drawable.icono_editar);
 
+        // deshabilitamos la selección de imagen al hacer clic en el ImageView
         ivImagenRestaurante.setOnClickListener(null);
-        etLinkRestaurante.setOnClickListener(null);
 
         isEditing = false; // ya no estamos en modo edición
     }
@@ -332,7 +334,7 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         String link = etLinkRestaurante.getText().toString();
 
         // Comprobamos si los campos de texto están vacíos
-        if (nombre.isEmpty() || descripcion.isEmpty() || link.isEmpty()) {
+        if (nombre.isEmpty() || descripcion.isEmpty()) {
             Toast.makeText(this, "No puede quedar ningún campo vacío", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -352,10 +354,15 @@ public class InfoRestauranteActivity extends AppCompatActivity {
             return;
         }
 
-        // Comprobamos que sea un enlace web válido o que sea el texto "El restaurante no tiene web"
-        if (!Patterns.WEB_URL.matcher(link).matches() && !link.equals("El restaurante no tiene web")) {
-            Toast.makeText(this, "El enlace no es válido", Toast.LENGTH_SHORT).show();
+        // comprobamos que, si el campo del link no está vacío, sea una URL válido o el texto "El restaurante no tiene web" (se añade esta última condición para
+        // evitar problemas al guardar los nuevos datos en el caso de que el campo del enlace se deje como estaba originalmente y contuviera dicho texto en lugar de una URL)
+        if ((!link.isEmpty() && (!Patterns.WEB_URL.matcher(link).matches() && !link.equals("El restaurante no tiene web")))) {
+            Toast.makeText(this, "Por favor, introduzca un enlace válido", Toast.LENGTH_SHORT).show();
             return;
+        } else {
+            if (link.isEmpty()) {
+                link = null;
+            }
         }
 
         // Si todas las comprobaciones son correctas, se sube la imagen a Firebase Storage
@@ -365,10 +372,10 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     /**
      * Este método se encarga de subir la nueva imagen del restaurante a Firebase Storage.
      *
-     * @param imagenRestaurante Bitmap de la imagen del restaurante a subir.
-     * @param nombreRestaurante Nombre del restaurante.
+     * @param imagenRestaurante      Bitmap de la imagen del restaurante a subir.
+     * @param nombreRestaurante      Nombre del restaurante.
      * @param descripcionRestaurante Descripción del restaurante.
-     * @param linkRestaurante Enlace del restaurante.
+     * @param linkRestaurante        Enlace del restaurante.
      */
     public void subirImagenFirebaseStorage(Bitmap imagenRestaurante, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante) {
         // Creamos una referencia única para la imagen en Firebase Storage
@@ -394,10 +401,10 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     /**
      * Este método se encarga de obtener la URL de la imagen que se acaba de subir a Firebase Storage y añadir la imagen al restaurante.
      *
-     * @param storageRef Referencia de almacenamiento de Firebase donde se encuentra la imagen.
-     * @param nombreRestaurante Nombre del restaurante.
+     * @param storageRef             Referencia de almacenamiento de Firebase donde se encuentra la imagen.
+     * @param nombreRestaurante      Nombre del restaurante.
      * @param descripcionRestaurante Descripción del restaurante.
-     * @param linkRestaurante Enlace del restaurante.
+     * @param linkRestaurante        Enlace del restaurante.
      */
     public void obtenerURLImagenFirebaseStorage(StorageReference storageRef, String nombreRestaurante, String descripcionRestaurante, String linkRestaurante) {
         storageRef.getDownloadUrl()
@@ -416,10 +423,10 @@ public class InfoRestauranteActivity extends AppCompatActivity {
     /**
      * Este método se encarga de actualizar los datos del restaurante en Firestore con los datos ingresados por el usuario.
      *
-     * @param nombreRestaurante Nombre del restaurante.
+     * @param nombreRestaurante      Nombre del restaurante.
      * @param descripcionRestaurante Descripción del restaurante.
-     * @param linkRestaurante Enlace del restaurante.
-     * @param urlImagen URL de la imagen del restaurante.
+     * @param linkRestaurante        Enlace del restaurante.
+     * @param urlImagen              URL de la imagen del restaurante.
      */
     public void actualizacionRestaurante(String nombreRestaurante, String descripcionRestaurante, String linkRestaurante, String urlImagen) {
 
@@ -431,8 +438,11 @@ public class InfoRestauranteActivity extends AppCompatActivity {
         if (descripcionRestaurante != null) {
             restauranteMap.put("descripcion", descripcionRestaurante);
         }
+        // si linkRestaurante es null, se añade al Map con el valor "El restaurante no tiene web"
         if (linkRestaurante != null) {
             restauranteMap.put("linkRestaurante", linkRestaurante);
+        } else {
+            restauranteMap.put("linkRestaurante", "El restaurante no tiene web");
         }
         if (urlImagen != null) {
             restauranteMap.put("imagenRestaurante", urlImagen);
