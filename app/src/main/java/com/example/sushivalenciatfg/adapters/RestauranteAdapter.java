@@ -81,7 +81,9 @@ public class RestauranteAdapter extends RecyclerView.Adapter<RestauranteAdapter.
                 .load(imageUrl)
                 .into(holder.ivImagen);
 
-        // listener para el evento de pulsar durante unos segundos sobre un item (restaurante) del RecyclerView para eliminarlo
+
+        // Cada vez que se necesita mostrar un elemento, se configuran los siguientes listeners para que actúen en función de los datos de ese elemento en particular:
+        // Listener para el evento de pulsar durante unos segundos sobre un item (restaurante) del RecyclerView para eliminarlo
         holder.itemView.setOnLongClickListener(v -> {
             new AlertDialog.Builder(v.getContext())
                     .setTitle("Eliminar Restaurante")
@@ -93,8 +95,7 @@ public class RestauranteAdapter extends RecyclerView.Adapter<RestauranteAdapter.
                     .show();
             return true;
         });
-
-        // listener para el evento de pulsar sobre un item (restaurante) del RecyclerView para pasar a la pantalla de información del restaurante
+        // Listener para el evento de pulsar sobre un item (restaurante) del RecyclerView para pasar a la pantalla de información del restaurante
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, InfoRestauranteActivity.class);
             intent.putExtra("idRestaurante", restaurante.getIdRestaurante());

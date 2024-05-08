@@ -89,6 +89,7 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
         }
 
 
+        // Cada vez que se necesita mostrar un elemento, se configuran los siguientes listeners para que actúen en función de los datos de ese elemento en particular:
         // listener para el evento de pulsar durante unos segundos sobre el item (comentario) del RecyclerView para eliminarlo
         holder.itemView.setOnLongClickListener(v -> {
             new AlertDialog.Builder(v.getContext())
@@ -101,7 +102,6 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
                     .show();
             return true;
         });
-
         //listener para el evento de pulsar sobre el item (comentario) para responderlo
         holder.itemView.setOnClickListener(v -> {
             new AlertDialog.Builder(v.getContext())
@@ -116,6 +116,7 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
                     .setNegativeButton("Cancelar", null)
                     .show();
         });
+
 
         // Si el comentario tiene respuestas, se cargan en el RecyclerView de respuestas que se encuentra dentro del item de comentario
         if (comentario.getRespuestasRestaurante() != null) {

@@ -270,9 +270,6 @@ public class InfoRestauranteActivity extends AppCompatActivity {
                         if (task.isSuccessful() && !task.getResult().isEmpty()) {
                             // Si el usuario es el creador del restaurante, mostramos el botón de editar
                             btnEditar.setVisibility(View.VISIBLE);
-                        } else {
-                            // Si el usuario no es el creador del restaurante, lo ocultamos
-                            btnEditar.setVisibility(View.GONE);
                         }
                     });
         } else {

@@ -63,6 +63,7 @@ public class ComentariosActivity extends AppCompatActivity {
     private double puntuacionPromedio;
 
 
+
     /**
      * Este método se llama cuando la actividad está iniciando.
      * Inicializa la actividad y establece los onClickListener para los botones.
@@ -111,11 +112,12 @@ public class ComentariosActivity extends AppCompatActivity {
         btnVolverMenu = findViewById(R.id.btnVolverAlMenuPrincipal);
     }
 
+
     /**
      * Este método se encarga de controlar la visibilidad de algunos de los componentes de la interfaz de usuario en función del tipo de usuario.
      */
     public void visibilidadComponentesInterfaz() {
-        // Ocultamos por defecto algunos componentes (para evitar el problema de que tarden unos segundos en desaparecer al entrar a la pantalla)
+        // Ocultamos por defecto algunos componentes
         subtitulo.setVisibility(View.GONE);
         punuacion.setVisibility(View.GONE);
         textoComentario.setVisibility(View.GONE);
@@ -186,6 +188,7 @@ public class ComentariosActivity extends AppCompatActivity {
                 });
     }
 
+
     /**
      * Este método se encarga de obtener los datos de un usuario específico desde la base de datos Firestore.
      *
@@ -228,10 +231,11 @@ public class ComentariosActivity extends AppCompatActivity {
                 });
     }
 
+
     /**
      * Este método se encarga de guardar la valoración de un restaurante en Firestore, mostrarla en la interfaz de usuario y actualizar la puntuación promedio del restaurante.
      */
-    private void publicarValoracion() {
+    public void publicarValoracion() {
         String textoComentario = this.textoComentario.getEditText().getText().toString();
         float calificacionFloat = punuacion.getRating();
         int calificacion = (int) calificacionFloat;
@@ -311,8 +315,9 @@ public class ComentariosActivity extends AppCompatActivity {
                 });
     }
 
+
     /**
-     * Este método se encarga de la lógica de obtener un comentario específico de la base de datos Firestore.
+     * Este método contiene la lógica para obtener un comentario específico de la base de datos Firestore.
      *
      * @param comentarioId El ID del comentario a obtener.
      * @param onSuccessListener El listener que se llama cuando se obtiene el objeto `Comentario` con éxito.
@@ -384,7 +389,7 @@ public class ComentariosActivity extends AppCompatActivity {
 
 
     /**
-     * Este método se encarga de la lógica de eliminar un comentario del array de comentarios de un restaurante específico en Firestore.
+     * Este método contiene la lógica para eliminar un comentario del array de comentarios de un restaurante específico en Firestore.
      *
      * @param comentarioId El ID del comentario a eliminar.
      */
@@ -478,8 +483,9 @@ public class ComentariosActivity extends AppCompatActivity {
                 });
     }
 
+
     /**
-     * Este método se encarga de la lógica de eliminar una respuesta existente de la base de datos Firestore.
+     * Este método contiene la lógica para eliminar una respuesta existente de la base de datos Firestore.
      *
      * @param respuestaId El ID de la respuesta a eliminar.
      */
@@ -515,35 +521,37 @@ public class ComentariosActivity extends AppCompatActivity {
                 });
     }
 
+
     /**
-     * Este método se encarga de la lógica de eliminar una respuesta del array de respuestas de un comentario específico en Firestore.
+     * Este método contiene la lógica para eliminar una respuesta del array de respuestas de un comentario específico en Firestore.
      *
      * @param comentarioId El ID del comentario al que pertenece la respuesta.
      * @param respuesta La respuesta a eliminar del array de respuestas.
-     * @return La tarea que se completa cuando se ha eliminado la respuesta del array de respuestas.
+     * @return La tarea que representa la operación de eliminación de la respuesta del array de respuestas..
      */
     public Task<Void> eliminarRespuestaDelArray(String comentarioId, Respuesta respuesta) {
         TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
-        // Obtenemos el documento del comentario al que pertenece la respuesta
+        // Obtenemos una referencia al documento del comentario al que pertenece la respuesta que se va a eliminar
         DocumentReference comentarioRef = db.collection("comentarios").document(comentarioId);
-        // transacción para actualizar el array de respuestas de manera atómica (firestore no deja eliminar un objeto directamente de un array, hay que sobreescribir el array entero)
+        // iniciamos una transacción para actualizar el array de respuestas de manera atómica (firestore no deja eliminar un objeto directamente de un array, hay que sobreescribir el array entero)
         db.runTransaction(transaction -> {
+                     // obtenemos el documento del comentario y lo convertimos en un objeto Comentario
                     DocumentSnapshot snapshot = transaction.get(comentarioRef);
                     Comentario comentario = snapshot.toObject(Comentario.class);
-                    // si el comentario existe y tiene una lista de respuestas, busco la respuesta que quiero eliminar y la elimino
+                    // si el comentario no es nulo y tiene una lista de respuestas, buscamos la respuesta a eliminar
                     if (comentario != null && comentario.getRespuestasRestaurante() != null) {
                         List<Respuesta> respuestas = comentario.getRespuestasRestaurante();
                         int index = -1;
                         for (int i = 0; i < respuestas.size(); i++) {
-                            // si encuentro la respuesta en la lista, me guardo su índice para pasarselo a remove()
+                            // si encuentramos la respuesta en la lista, guardamos su índice para pasárselo a la función remove()
                             if (respuestas.get(i).getIdRespuesta().equals(respuesta.getIdRespuesta())) {
                                 index = i;
                                 break;
                             }
                         }
                         if (index != -1) {
+                            // finalmente, eliminamos la respuesta de la lista y actualizamos el documento del comentario con la lista de respuestas actualizada (sin la respuesta eliminada)
                             respuestas.remove(index);
-                            // Actualizo el documento de comentarios con la lista de respuestas actualizada
                             transaction.set(comentarioRef, comentario);
                         }
                     }
@@ -551,7 +559,7 @@ public class ComentariosActivity extends AppCompatActivity {
                 })
                 .addOnSuccessListener(result -> {
                     Log.d("ComentariosActivity", "Respuesta eliminada del array con éxito");
-                    taskCompletionSource.setResult(null); // Marcamosla tarea como completada
+                    taskCompletionSource.setResult(null); // Marcamos la tarea como completada
                 })
                 .addOnFailureListener(e -> {
                     Log.e("ComentariosActivity", "Error eliminando respuesta del array", e);

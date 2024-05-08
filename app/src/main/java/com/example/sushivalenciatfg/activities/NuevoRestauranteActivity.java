@@ -53,9 +53,10 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
 
-    // Launchers para las actividades de resultado de la galería y la cámara
+    // Launchers para las actividades de resultado de la galería, la cámara
     private ActivityResultLauncher<Intent> mGalleryResultLauncher;
     private ActivityResultLauncher<Intent> mCameraResultLauncher;
+
 
     Restaurante restaurante;
 
@@ -227,8 +228,8 @@ public class NuevoRestauranteActivity extends AppCompatActivity {
             return;
         }
 
-        // Comprobamos si el número de teléfono es válido (número de 9 dígitos que empiece con un dígito entre 6 y 9, con o sin prefijo +34 o 0034)
-        if (!telefono.matches("(\\+34|0034)?[6-9][0-9]{8}")) {
+        // Comprobamos si el número de teléfono es válido (número de 9 dígitos que empiece con un dígito entre 6 y 9, con o sin prefijo +34 o 0034 e ignorando los espacios)
+        if (!telefono.replaceAll("\\s", "").matches("(\\+34|0034)?[6-9][0-9]{8}")) {
             Toast.makeText(this, "Por favor, introduzca un número de teléfono español válido", Toast.LENGTH_SHORT).show();
             return;
         }

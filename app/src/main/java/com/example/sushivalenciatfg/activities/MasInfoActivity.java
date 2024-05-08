@@ -181,8 +181,6 @@ public class MasInfoActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful() && !task.getResult().isEmpty()) {
                             btnEditar.setVisibility(View.VISIBLE);
-                        } else {
-                            btnEditar.setVisibility(View.GONE);
                         }
                     });
         } else {
@@ -253,8 +251,8 @@ public class MasInfoActivity extends AppCompatActivity {
         }
 
         // Comprobamos si el número de teléfono es válido (número de 9 dígitos que empiece con un dígito entre 6 y 9, con o sin prefijo +34 o 0034)
-        if (!telefono.matches("(\\+34|0034)?[6-9][0-9]{8}")) {
-            Toast.makeText(this, "Por favor, introduzca un número de teléfono válido", Toast.LENGTH_SHORT).show();
+        if (!telefono.replaceAll("\\s", "").matches("(\\+34|0034)?[6-9][0-9]{8}")) {
+            Toast.makeText(this, "Por favor, introduzca un número de teléfono español válido", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -332,7 +330,7 @@ public class MasInfoActivity extends AppCompatActivity {
 
 
     /**
-     * Este método se encarga de abrir la aplicación de mapas del dispositivo para mostrar la dirección del restaurante.
+     * Este método se encarga de abrir la aplicación de mapas del dispositivo para mostrar la ubicación del restaurante.
      */
     public void abrirMapa() {
         String direccion = tvDireccion.getText().toString();

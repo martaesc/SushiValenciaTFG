@@ -205,7 +205,8 @@
             android:fontFamily="@font/arima_madurai"
             android:text="Editar"
             android:textColor="@color/white"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:visibility="gone"/>
 
 
         <LinearLayout

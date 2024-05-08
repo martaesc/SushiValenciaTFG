@@ -35,7 +35,7 @@
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/iv_imagenNuevoRestaurante"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="251dp"
                 android:layout_marginTop="20dp"
                 android:scaleType="centerCrop"
                 app:shapeAppearanceOverlay="@style/CustomShapeAppearance"

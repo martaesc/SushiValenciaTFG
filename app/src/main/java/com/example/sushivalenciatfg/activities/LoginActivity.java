@@ -1,7 +1,9 @@
 package com.example.sushivalenciatfg.activities;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -33,20 +35,22 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseFirestore db;
 
 
-
     //setters útiles para las pruebas (permiten inyectar instancias simuladas de FirebaseAuth y FirebaseFirestore)
     public void setFirebaseAuth(FirebaseAuth mAuth) {
 
         this.mAuth = mAuth;
     }
+
     public void setFirestore(FirebaseFirestore db) {
 
         this.db = db;
     }
+
     public TextInputLayout getTxtLoginNombreOCorreo() {
 
         return txtLoginNombreOCorreo;
     }
+
     public TextInputLayout getTxtLoginContrasena() {
 
         return txtLoginContrasena;
@@ -58,8 +62,8 @@ public class LoginActivity extends AppCompatActivity {
      * Inicializa la actividad y establece los onClickListener para los botones.
      *
      * @param savedInstanceState Si la actividad se está reinicializando después de haber sido cerrada previamente
-     * entonces este Bundle contiene los datos que suministró más recientemente en onSaveInstanceState(Bundle).
-     * Nota: De lo contrario, es nulo.
+     *                           entonces este Bundle contiene los datos que suministró más recientemente en onSaveInstanceState(Bundle).
+     *                           Nota: De lo contrario, es nulo.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
      * Este método se encarga de gestionar el inicio de sesión del usuario.
      *
      * @param nombreUsuarioOEmail El nombre de usuario o correo electrónico ingresado por el usuario.
-     * @param contrasena La contraseña ingresada por el usuario.
+     * @param contrasena          La contraseña ingresada por el usuario.
      */
     public void gestionInicioSesion(String nombreUsuarioOEmail, String contrasena) {
         db.collection("usuarios")
@@ -140,7 +144,7 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * Este método se encarga de iniciar sesión con Firebase.
      *
-     * @param email El correo electrónico del usuario.
+     * @param email    El correo electrónico del usuario.
      * @param password La contraseña del usuario.
      */
     public void signInWithFirebase(String email, String password) {
@@ -152,11 +156,9 @@ public class LoginActivity extends AppCompatActivity {
                         Intent intent = new Intent(this, MainActivity.class);
                         startActivity(intent);
                         finish();
-                    } else {
-                        if (task.getException() instanceof FirebaseAuthInvalidUserException) {
-                            Toast.makeText(LoginActivity.this, "No existe una cuenta con este nombre de usuario/correo electrónico", Toast.LENGTH_LONG).show();
-                        } else if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                            Toast.makeText(LoginActivity.this, "Nombre de usuario/correo electrónico o contraseña incorrectos", Toast.LENGTH_LONG).show();
+                    } else { // no especificamos si es el correo electrónico o la contraseña, en línea con las mejores prácticas de seguridad
+                        if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                            Toast.makeText(LoginActivity.this, "Las credenciales proporcionadas son incorrectas. Por favor, inténtalo de nuevo.", Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(LoginActivity.this, "Error al iniciar sesión: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
@@ -197,16 +199,24 @@ public class LoginActivity extends AppCompatActivity {
      *
      * @param email El correo electrónico del usuario.
      */
-    public void gestionCorreoCambioContrasena(String email) {
-        mAuth.sendPasswordResetEmail(email)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(LoginActivity.this, "Correo para cambiar la contraseña enviado. Por favor, revise su bandeja de entrada.", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(LoginActivity.this, "Error al enviar el correo para cambiar la contraseña", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
+ public void gestionCorreoCambioContrasena(String email) {
+     // creamos un diálogo de progreso para mostrar al usuario mientras se está enviando el correo de cambio de contraseña (por si el proceso tardara un poco)
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setView(R.layout.layout_dialogo_progreso);
+    final AlertDialog dialog = builder.create();
+
+    dialog.show();
+
+    mAuth.sendPasswordResetEmail(email)
+            .addOnCompleteListener(task -> {
+                dialog.dismiss();
+                if (task.isSuccessful()) {
+                    Toast.makeText(LoginActivity.this, "Correo para cambiar la contraseña enviado. Por favor, revise su bandeja de entrada.", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(LoginActivity.this, "Error al enviar el correo para cambiar la contraseña. Por favor, revise los datos introducidos.", Toast.LENGTH_LONG).show();
+                }
+            });
+}
 
 
     /**

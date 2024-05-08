@@ -59,7 +59,7 @@
                     android:drawableStart="@drawable/estrella"
                     android:fontFamily="@font/arima_madurai"
                     android:gravity="center_vertical"
-                    android:text="5.2"
+                    android:text="0.0"
                     android:textColor="@color/green"
                     android:textSize="18sp"
                     android:textStyle="bold"/>
@@ -71,7 +71,8 @@
                     android:layout_marginStart="10dp"
                     android:layout_marginRight="5dp"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/icono_editar" />
+                    android:src="@drawable/icono_editar"
+                    android:visibility="gone"/>
 
 
             </LinearLayout>
