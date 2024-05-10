@@ -526,6 +526,9 @@ public class ComentariosActivity extends AppCompatActivity {
 
     /**
      * Este método se encarga de eliminar una respuesta del array de respuestas de un comentario específico en Firestore.
+     *
+     * @param comentarioId El ID del comentario al que pertenece la respuesta.
+     * @param respuesta La respuesta a eliminar del array de respuestas.
      */
     public void eliminarRespuestaDelArray(String comentarioId, Respuesta respuesta) {
         // Obtenemos una referencia al documento del comentario al que pertenece la respuesta que se va a eliminar
