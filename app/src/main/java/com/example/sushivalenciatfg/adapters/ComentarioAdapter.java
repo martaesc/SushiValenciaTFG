@@ -2,6 +2,8 @@ package com.example.sushivalenciatfg.adapters;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +39,7 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
      * Este es el constructor de la clase ComentarioAdapter.
      *
      * @param listaComentarios La lista de comentarios a mostrar.
-     * @param context El contexto donde se utiliza este adaptador.
+     * @param context          El contexto donde se utiliza este adaptador.
      */
     public ComentarioAdapter(List<Comentario> listaComentarios, Context context) {
         this.listaComentarios = listaComentarios;
@@ -48,7 +50,7 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
     /**
      * Este método se utiliza para inflar (crear) una nueva vista para cada elemento en el RecyclerView.
      *
-     * @param parent El ViewGroup en el que se añadirá la nueva vista después de que esté vinculada a una posición de adaptador.
+     * @param parent   El ViewGroup en el que se añadirá la nueva vista después de que esté vinculada a una posición de adaptador.
      * @param viewType El tipo de vista de la nueva vista.
      * @return Un nuevo ViewHolder que contiene una vista para el tipo de vista dado.
      */
@@ -63,7 +65,7 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
     /**
      * Este método se utiliza para vincular los datos de un comentario específico a un elemento del RecyclerView (un ViewHolder).
      *
-     * @param holder El ViewHolder que debe actualizarse para representar el contenido del elemento en la posición dada en el conjunto de datos.
+     * @param holder   El ViewHolder que debe actualizarse para representar el contenido del elemento en la posición dada en el conjunto de datos.
      * @param position La posición del elemento en el conjunto de datos del adaptador.
      */
     @Override
@@ -80,7 +82,7 @@ public class ComentarioAdapter extends RecyclerView.Adapter<ComentarioAdapter.Co
         holder.tvFecha.setText(fechaFormateada);
 
         // Si el usuario tiene una foto, la cargamos; de lo contrario, dejamos la foto por defecto
-        if (comentario.getfotoPerfil() != null) {
+        if (comentario.getfotoPerfil() != null && !comentario.getfotoPerfil().isEmpty()) {
             Glide.with(holder.iv_fotoPerfil.getContext())
                     .load(comentario.getfotoPerfil())
                     .into(holder.iv_fotoPerfil);

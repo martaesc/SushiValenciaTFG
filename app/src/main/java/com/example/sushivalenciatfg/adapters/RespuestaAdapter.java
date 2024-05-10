@@ -40,7 +40,7 @@ public class RespuestaAdapter extends RecyclerView.Adapter<RespuestaAdapter.Resp
     /**
      * Este método se utiliza para inflar (crear) una nueva vista para cada elemento en el RecyclerView.
      *
-     * @param parent El ViewGroup en el que se añadirá la nueva vista después de que esté vinculada a una posición de adaptador.
+     * @param parent   El ViewGroup en el que se añadirá la nueva vista después de que esté vinculada a una posición de adaptador.
      * @param viewType El tipo de vista de la nueva vista.
      * @return Un nuevo ViewHolder que contiene una vista para el tipo de vista dado.
      */
@@ -55,7 +55,7 @@ public class RespuestaAdapter extends RecyclerView.Adapter<RespuestaAdapter.Resp
     /**
      * Este método se utiliza para vincular los datos de una respuesta específica a un elemento del RecyclerView (un ViewHolder).
      *
-     * @param holder El ViewHolder que debe actualizarse para representar el contenido del elemento en la posición dada en el conjunto de datos.
+     * @param holder   El ViewHolder que debe actualizarse para representar el contenido del elemento en la posición dada en el conjunto de datos.
      * @param position La posición del elemento en el conjunto de datos del adaptador.
      */
     @Override
@@ -71,7 +71,7 @@ public class RespuestaAdapter extends RecyclerView.Adapter<RespuestaAdapter.Resp
         holder.fechaRespuesta.setText(fechaFormateada);
 
         // Si el usuario tiene una foto, la cargamos; de lo contrario, dejamos la foto por defecto
-        if (respuesta.getfotoPerfilRestaurante() != null) {
+        if (respuesta.getfotoPerfilRestaurante() != null && !respuesta.getfotoPerfilRestaurante().isEmpty()) {
             Glide.with(holder.iv_fotoPerfilRestaurante.getContext())
                     .load(respuesta.getfotoPerfilRestaurante())
                     .into(holder.iv_fotoPerfilRestaurante);
