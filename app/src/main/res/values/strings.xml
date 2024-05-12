@@ -11,4 +11,9 @@
         <item>Por puntuación (orden descendente)</item>
         <item>Con página web</item>
     </string-array>
+
+    <string-array name="tipos_usuario">
+        <item>Cliente</item>
+        <item>Restaurante</item>
+    </string-array>
 </resources>

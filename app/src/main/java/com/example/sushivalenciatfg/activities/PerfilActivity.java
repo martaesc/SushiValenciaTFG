@@ -2,7 +2,6 @@ package com.example.sushivalenciatfg.activities;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,7 +13,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,11 +28,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -47,10 +50,10 @@ public class PerfilActivity extends AppCompatActivity {
     private TextInputLayout lyNombreUsuario;
     private TextInputLayout lyEmail;
     private TextView tvcontrasena;
-    private TextInputLayout lyTipoUsuario;
     private CircleImageView ivfotoPerfil;
     private Button btnGuardarCambios;
     private Button btnVolver;
+    private Spinner spinnerTipoUsuario;
 
     // Referencias a FirebaseAuth, FirebaseFirestore y FirebaseUser
     private FirebaseFirestore db;
@@ -79,8 +82,8 @@ public class PerfilActivity extends AppCompatActivity {
         return lyEmail;
     }
 
-    public TextInputLayout getLyTipoUsuario() {
-        return lyTipoUsuario;
+    public Spinner getSpinnerTipoUsuario() {
+        return spinnerTipoUsuario;
     }
 
 
@@ -100,10 +103,13 @@ public class PerfilActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        inicializarActivityResultLaunchers();
         obtenerReferencias();
+        inicializarActivityResultLaunchers();
+        inicializarSpinnerTipoUsuario();
+
         obtenerDatosUsuario();
         abrirDialogoSeleccionImagen();
+
 
         btnGuardarCambios.setOnClickListener(v -> actualizarDatosUsuario());
         tvcontrasena.setOnClickListener(v -> enviarCorreoCambioContrasena());
@@ -118,10 +124,10 @@ public class PerfilActivity extends AppCompatActivity {
         lyNombreUsuario = findViewById(R.id.usernameInputLayout);
         lyEmail = findViewById(R.id.emailInputLayout);
         tvcontrasena = findViewById(R.id.tvContrasena);
-        lyTipoUsuario = findViewById(R.id.userTypeInputLayout);
         ivfotoPerfil = findViewById(R.id.ivPhotoProfile);
         btnGuardarCambios = findViewById(R.id.saveButton);
         btnVolver = findViewById(R.id.backButton);
+        spinnerTipoUsuario = findViewById(R.id.userTypeSpinner);
     }
 
 
@@ -162,6 +168,21 @@ public class PerfilActivity extends AppCompatActivity {
 
 
     /**
+     * Este método se encarga de inicializar el Spinner para seleccionar el tipo de usuario.
+     */
+    public void inicializarSpinnerTipoUsuario() {
+        // Creamos un ArrayAdapter usando el array de strings que hemos predefinido(res/values/strings.xml) y un layout de spinner proporcionado por Android (vista de los ítem)
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.tipos_usuario, android.R.layout.simple_spinner_item);
+
+        // especificamos el layout a usar cuando la lista de opciones se despliega (layout proporcionado por Android)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinnerTipoUsuario.setAdapter(adapter);
+    }
+
+
+    /**
      * Este método se encarga de abrir el diálogo de selección de imagen.
      */
     public void abrirDialogoSeleccionImagen() {
@@ -184,7 +205,7 @@ public class PerfilActivity extends AppCompatActivity {
 
 
     /**
-     * Este método se encarga de obtener los datos del usuario actual.
+     * Este método se encarga de obtener los datos del usuario actual de la base de datos.
      */
     public void obtenerDatosUsuario() {
         currentUser = mAuth.getCurrentUser();
@@ -200,18 +221,29 @@ public class PerfilActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
                                 String nombreUsuario = document.getString("nombreUsuario");
-                                Log.d("Firestore", "Nombre de usuario obtenido: " + nombreUsuario);
                                 lyNombreUsuario.getEditText().setText(nombreUsuario);
+
                                 String tipoUsuario = document.getString("tipoUsuario");
-                                lyTipoUsuario.getEditText().setText(tipoUsuario);
+                                // Obtenemos el array de tipos de usuario que hemos predefinido y buscamos el indice que coincide con el tipo de usuario devuelto por  Firestore
+                                String[] arrayTiposUsuario = getResources().getStringArray(R.array.tipos_usuario);
+                                for (int i = 0; i < arrayTiposUsuario.length; i++) {
+                                    if (arrayTiposUsuario[i].equals(tipoUsuario)) {
+                                        //  establecemmos ese índice como la selección del Spinner (mostrará el tipo de usuario actual del usuario)
+                                        spinnerTipoUsuario.setSelection(i);
+                                        break;
+                                    }
+                                }
 
                                 // Comprobamos si el usuario tiene una imagen de perfil
                                 if (document.contains("fotoPerfil") && !document.getString("fotoPerfil").isEmpty()) {
                                     String urlImagen = document.getString("fotoPerfil");
-                                    // Cargamos la imagen en el CircleImageView usando Glide
-                                    Glide.with(this)
-                                            .load(urlImagen)
-                                            .into(ivfotoPerfil);
+                                    // Comprobamos si la actividad aún está en ejecución antes de cargar la imagen
+                                    if (!isFinishing()) {
+                                        // Cargamos la imagen en el CircleImageView usando Glide
+                                        Glide.with(this)
+                                                .load(urlImagen)
+                                                .into(ivfotoPerfil);
+                                    }
                                 } else {
                                     // sino establecemos la imagen por defecto
                                     ivfotoPerfil.setImageResource(R.drawable.foto_perfil_defecto);
@@ -228,15 +260,15 @@ public class PerfilActivity extends AppCompatActivity {
 
 
     /**
-     * Este método se encarga de actualizar los datos del usuario.
+     * Este método  se utiliza para actualizar la información de un usuario, con o sin imagen, al pulsar el botón de guardar.
      */
     public void actualizarDatosUsuario() {
         String nombreUsuario = lyNombreUsuario.getEditText().getText().toString();
         String correo = lyEmail.getEditText().getText().toString();
-        String tipoUsuario = lyTipoUsuario.getEditText().getText().toString();
+        String tipoUsuario = spinnerTipoUsuario.getSelectedItem().toString();
 
-        // Comprobar si los campos están vacíos
-        if (nombreUsuario.isEmpty() || correo.isEmpty() || tipoUsuario.isEmpty()) {
+        // Comprobar si los campos de texto están vacíos
+        if (nombreUsuario.isEmpty() || correo.isEmpty()) {
             Toast.makeText(this, "No puede quedar ningún campo vacío", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -277,8 +309,8 @@ public class PerfilActivity extends AppCompatActivity {
      * Este método se encarga de actualizar el usuario con una imagen.
      *
      * @param nombreUsuario El nombre de usuario ingresado por el usuario.
-     * @param correo El correo electrónico ingresado por el usuario.
-     * @param tipoUsuario El tipo de usuario seleccionado por el usuario.
+     * @param correo        El correo electrónico ingresado por el usuario.
+     * @param tipoUsuario   El tipo de usuario seleccionado por el usuario.
      */
     public void actualizarUsuarioConImagen(String nombreUsuario, String correo, String tipoUsuario) {
         // Convertimos la imagen en un Bitmap para poder comprimirla
@@ -297,6 +329,10 @@ public class PerfilActivity extends AppCompatActivity {
                         .addOnSuccessListener(uri -> {
                             String urlImagen = uri.toString();
                             actualizarUsuarioEnFirestore(nombreUsuario, correo, tipoUsuario, urlImagen);
+
+                            // Actualizamos la foto de perfil en los comentarios que haya hecho el usuario
+                            actualizarFotoPerfilComentarios(currentUser.getUid(), urlImagen);
+
                         })
                         .addOnFailureListener(exception -> {
                             Log.e("Firebase Storage", "Error al obtener la URL de la imagen: " + exception.getMessage());
@@ -308,14 +344,36 @@ public class PerfilActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Este método se encarga de actualizar la foto de perfil en los comentarios que haya hecho el usuario.
+     *
+     * @param idUsuario    El ID del usuario.
+     * @param nuevaUrlFoto La nueva URL de la imagen de perfil.
+     */
+    public void actualizarFotoPerfilComentarios(String idUsuario, String nuevaUrlFoto) {
+        // Buscamos todos los comentarios que el usuario ha hecho
+        db.collection("comentarios")
+                .whereEqualTo("idUsuario", idUsuario)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            // y actualizamos la foto de perfil en cada comentario
+                            db.collection("comentarios").document(document.getId())
+                                    .update("fotoPerfil", nuevaUrlFoto);
+                        }
+                    }
+                });
+    }
+
 
     /**
      * Este método se encarga de actualizar el usuario en Firestore.
      *
      * @param nombreUsuario El nombre de usuario ingresado por el usuario.
-     * @param correo El correo electrónico ingresado por el usuario.
-     * @param tipoUsuario El tipo de usuario seleccionado por el usuario.
-     * @param urlImagen La URL de la imagen del usuario.
+     * @param correo        El correo electrónico ingresado por el usuario.
+     * @param tipoUsuario   El tipo de usuario seleccionado por el usuario.
+     * @param urlImagen     La URL de la imagen del usuario.
      */
     public void actualizarUsuarioEnFirestore(String nombreUsuario, String correo, String tipoUsuario, String urlImagen) {
         //creamos un map con los datos del usuario a actualizar en Firestore
@@ -344,6 +402,10 @@ public class PerfilActivity extends AppCompatActivity {
                                     // Refrescamos los datos del usuario en la interfaz
                                     obtenerDatosUsuario();
 
+                                    // Actualizamos el nombre de usuario en los comentarios que haya hecho el usuario
+                                    actualizarNombreUsuarioComentarios(currentUser.getUid(), nombreUsuario);
+
+
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.e("Firestore", "Error al actualizar el usuario: " + e.getMessage());
@@ -351,6 +413,29 @@ public class PerfilActivity extends AppCompatActivity {
                                 });
                     } else {
                         Log.e("Firestore", "No se encontró un documento con el UID del usuario actual");
+                    }
+                });
+    }
+
+
+    /**
+     * Este método se encarga de actualizar el nombre de usuario en los comentarios que haya hecho el usuario.
+     *
+     * @param idUsuario          El ID del usuario.
+     * @param nuevoNombreUsuario El nuevo nombre de usuario.
+     */
+    public void actualizarNombreUsuarioComentarios(String idUsuario, String nuevoNombreUsuario) {
+        // Buscamos todos los comentarios que el usuario ha hecho
+        db.collection("comentarios")
+                .whereEqualTo("idUsuario", idUsuario)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            // y actualizamos el nombre de usuario en cada comentario
+                            db.collection("comentarios").document(document.getId())
+                                    .update("nombreUsuario", nuevoNombreUsuario);
+                        }
                     }
                 });
     }

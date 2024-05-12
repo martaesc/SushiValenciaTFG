@@ -399,8 +399,7 @@ public class ComentariosActivity extends AppCompatActivity {
      * Este método elimina un comentario del array de comentarios de un restaurante específico en Firestore.
      *
      * @param restauranteId El ID del restaurante al que pertenece el comentario.
-     * @param comentarioId El ID del comentario a eliminar.
-     *
+     * @param comentarioId  El ID del comentario a eliminar.
      */
     public Task<Void> eliminarComentarioDelArray(String restauranteId, String comentarioId) {
         return db.collection("restaurantes").document(restauranteId)
@@ -528,7 +527,7 @@ public class ComentariosActivity extends AppCompatActivity {
      * Este método se encarga de eliminar una respuesta del array de respuestas de un comentario específico en Firestore.
      *
      * @param comentarioId El ID del comentario al que pertenece la respuesta.
-     * @param respuesta La respuesta a eliminar del array de respuestas.
+     * @param respuesta    La respuesta a eliminar del array de respuestas.
      */
     public void eliminarRespuestaDelArray(String comentarioId, Respuesta respuesta) {
         // Obtenemos una referencia al documento del comentario al que pertenece la respuesta que se va a eliminar
@@ -543,7 +542,6 @@ public class ComentariosActivity extends AppCompatActivity {
                     Log.e("ComentariosActivity", "Error eliminando respuesta del array", e);
                 });
     }
-
 
     /**
      * Este método se encarga de la lógica de actualizar la puntuación promedio de un restaurante en la base de datos Firestore.

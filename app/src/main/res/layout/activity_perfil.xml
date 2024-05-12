@@ -122,6 +122,17 @@
                 android:layout_marginRight="10dp"
                 android:orientation="vertical">
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/arima_madurai"
+                    android:layout_marginLeft="8dp"
+                    android:text="Tipo de Usuario"
+                    android:textColor="@color/red"
+                    android:textSize="13dp"
+                    android:textStyle="bold"/>
+
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/userTypeInputLayout"
                     android:layout_width="match_parent"
@@ -129,16 +140,13 @@
                     android:layout_gravity="center"
                     android:fontFamily="@font/arima_madurai"
                     android:hint="Tipo de Usuario"
-
                     android:textColorHint="@color/red">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/userTypeEditText"
+                    <Spinner
+                        android:id="@+id/userTypeSpinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/arima_madurai"
-                        android:text="Cliente"
-                        android:textStyle="bold" />
+                        android:fontFamily="@font/arima_madurai"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 

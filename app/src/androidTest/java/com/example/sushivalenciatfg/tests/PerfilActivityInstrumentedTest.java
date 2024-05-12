@@ -131,7 +131,6 @@ public class PerfilActivityInstrumentedTest {
         activityRule.getScenario().onActivity(activity -> {
             activity.getLyNombreUsuario().getEditText().setText("");
             activity.getLyEmail().getEditText().setText("");
-            activity.getLyTipoUsuario().getEditText().setText("");
         });
 
         onView(withId(R.id.saveButton)).perform(click());
