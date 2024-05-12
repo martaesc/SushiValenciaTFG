@@ -78,6 +78,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
     runtimeOnly 'org.mockito:mockito-android:5.11.0'
     androidTestImplementation 'org.mockito:mockito-android:5.11.0'
 

@@ -2,17 +2,22 @@ package com.example.sushivalenciatfg.tests;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertTrue;
 
 
 import androidx.lifecycle.Lifecycle;
 
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -105,33 +110,33 @@ public class MainActivityInstrumentedTest {
     }
 
     /**
-     * Prueba que verifica que se cierra la actividad al hacer clic en el botón de salir.
+     * Prueba que salta un diálogo al hacer clic en el botón de salir.
      */
     @Test
-    public void clickEnBotonSalir_deberiaCerrarLaActividad() {
+    public void salir_deberiaMostrarDialogo() {
+        // hacemos clic en el botón de salir
         onView(withId(R.id.btnSalir)).perform(click());
 
-        //objeto AtomicReference para almacenar el estado de la actividad
-        AtomicReference<Lifecycle.State> state = new AtomicReference<>();
+        // Verificamos que el título y el mensaje del diálogo se muestran correctamente
+        onView(withText("Confirmar acción")).check(matches(isDisplayed()));
+        onView(withText("¿Qué quieres hacer?")).check(matches(isDisplayed()));
+    }
 
-        // CountDownLatch para esperar a que se obtenga el estado de la actividad
-        CountDownLatch latch = new CountDownLatch(1);
+    /**
+     * Prueba que verifica que se cierra la actividad al hacer clic en la opción "Salir de la aplicación" del diálogo.
+     */
+    @Test
+    public void salir_deberiaCerrarLaActividad() {
+        // hacemos clic en el botón de salir
+        onView(withId(R.id.btnSalir)).perform(click());
 
-        // Obtenemos el estado de la actividad en un nuevo hilo
-        new Thread(() -> {
-            state.set(activityRule.getScenario().getState());
-            latch.countDown(); // Decrementar el contador del latch para indicar que se ha obtenido el estado de la actividad
-        }).start();
+        //  hacemos clic en la opción "Salir de la aplicación"
+        onView(withText("Salir de la aplicación")).perform(click());
 
-        // Esperamos a que se obtenga el estado de la actividad
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // Verificamos que la actividad ya no está en primer plano
-        assertThat(state.get(), is(Lifecycle.State.DESTROYED));
+        // Verificamos que la actividad se ha cerrado
+        activityRule.getScenario().onActivity(activity -> {
+            assertTrue(activity.isFinishing());
+        });
     }
 
 

@@ -29,11 +29,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.example.sushivalenciatfg.R;
 import com.example.sushivalenciatfg.activities.LoginActivity;
 import com.example.sushivalenciatfg.activities.MainActivity;
-import com.example.sushivalenciatfg.activities.NuevoRestauranteActivity;
 import com.example.sushivalenciatfg.activities.PerfilActivity;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import static androidx.test.espresso.Espresso.onData;
+import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
+
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 
 import org.junit.After;
 import org.junit.Before;
@@ -120,6 +127,22 @@ public class PerfilActivityInstrumentedTest {
         intended(hasAction(Intent.ACTION_PICK));
 
         Intents.release();
+    }
+
+
+    /**
+     * Prueba para verificar que al hacer clic en el Spinner de tipo de usuario se despliegan los elementos correctos.
+     */
+    @Test
+    public void spinnerTipoUsuario_deberiaMostrarItemsCorrectos() {
+        // clic en él para desplegarlo
+        onView(withId(R.id.userTypeSpinner)).perform(click());
+
+        // buscamos un elemento en el Spinner y hacemos clic en él para seleccionarlo
+        onData(allOf(is(instanceOf(String.class)), is("Cliente"))).perform(click());
+
+        // Verificamos que el Spinner ahora muestra el elemento seleccionado
+        onView(withId(R.id.userTypeSpinner)).check(matches(withSpinnerText(containsString("Cliente"))));
     }
 
 

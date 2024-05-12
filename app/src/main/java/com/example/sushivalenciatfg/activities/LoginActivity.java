@@ -199,24 +199,24 @@ public class LoginActivity extends AppCompatActivity {
      *
      * @param email El correo electrónico del usuario.
      */
- public void gestionCorreoCambioContrasena(String email) {
-     // creamos un diálogo de progreso para mostrar al usuario mientras se está enviando el correo de cambio de contraseña (por si el proceso tardara un poco)
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setView(R.layout.layout_dialogo_progreso);
-    final AlertDialog dialog = builder.create();
+    public void gestionCorreoCambioContrasena(String email) {
+        // creamos un diálogo de progreso para mostrar al usuario mientras se está enviando el correo de cambio de contraseña (por si el proceso tardara un poco)
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(R.layout.layout_dialogo_progreso);
+        final AlertDialog dialog = builder.create();
 
-    dialog.show();
+        dialog.show();
 
-    mAuth.sendPasswordResetEmail(email)
-            .addOnCompleteListener(task -> {
-                dialog.dismiss();
-                if (task.isSuccessful()) {
-                    Toast.makeText(LoginActivity.this, "Correo para cambiar la contraseña enviado. Por favor, revise su bandeja de entrada.", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(LoginActivity.this, "Error al enviar el correo para cambiar la contraseña. Por favor, revise los datos introducidos.", Toast.LENGTH_LONG).show();
-                }
-            });
-}
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    dialog.dismiss();
+                    if (task.isSuccessful()) {
+                        Toast.makeText(LoginActivity.this, "Correo para cambiar la contraseña enviado. Por favor, revise su bandeja de entrada.", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Error al enviar el correo para cambiar la contraseña. Por favor, revise los datos introducidos.", Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
 
 
     /**
