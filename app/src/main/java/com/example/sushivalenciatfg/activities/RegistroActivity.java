@@ -50,8 +50,8 @@ public class RegistroActivity extends AppCompatActivity {
      * Inicializa la actividad y establece el onClickListener para el botón de registro.
      *
      * @param savedInstanceState Si la actividad se está reinicializando después de haber sido cerrada previamente
-     * entonces este Bundle contiene los datos que suministró más recientemente en onSaveInstanceState(Bundle).
-     * Nota: De lo contrario, es nulo.
+     *                           entonces este Bundle contiene los datos que suministró más recientemente en onSaveInstanceState(Bundle).
+     *                           Nota: De lo contrario, es nulo.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,22 +111,33 @@ public class RegistroActivity extends AppCompatActivity {
         if (!contraseña.equals(contraseña2)) {
             Toast.makeText(RegistroActivity.this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
         } else {
-            gestionRegistroUsuario(nombreUsuario, correo, contraseña, tipoUsuarioString);
+            // Verificamos si el nombre de usuario ya está en uso
+            db.collection("usuarios")
+                    .whereEqualTo("nombreUsuario", nombreUsuario)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            Toast.makeText(RegistroActivity.this, "El nombre de usuario ya está en uso. Por favor, introduzca uno diferente.", Toast.LENGTH_LONG).show();
+                        } else {
+                            gestionRegistroUsuario(nombreUsuario, correo, contraseña, tipoUsuarioString);
+                        }
+                    });
         }
     }
-
 
     /**
      * Este método se encarga de gestionar el registro de un nuevo usuario en Firebase.
      *
      * @param nombreUsuario El nombre de usuario ingresado por el usuario.
-     * @param correo El correo electrónico ingresado por el usuario.
-     * @param contraseña La contraseña ingresada por el usuario.
-     * @param tipoUsuario El tipo de usuario seleccionado por el usuario.
+     * @param correo        El correo electrónico ingresado por el usuario.
+     * @param contraseña    La contraseña ingresada por el usuario.
+     * @param tipoUsuario   El tipo de usuario seleccionado por el usuario.
      */
     public void gestionRegistroUsuario(String nombreUsuario, String correo, String contraseña, String tipoUsuario) {
+        // llamamos al metodo createUserWithEmailAndPassword de FirebaseAuth para registrar al usuario
         mAuth.createUserWithEmailAndPassword(correo, contraseña)
                 .addOnCompleteListener(this, task -> {
+                    // si el registro se completa con éxito, guardamos los datos del usuario en la colección "usuarios" de Firestore
                     if (task.isSuccessful()) {
                         String idUsuario = mAuth.getCurrentUser().getUid();
                         Usuario user = new Usuario(idUsuario, nombreUsuario, correo, tipoUsuario);

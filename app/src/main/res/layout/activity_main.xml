@@ -70,7 +70,7 @@
             android:id="@+id/filtroDesplegableSpinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:entries="@array/filtros"
+            android:entries="@array/filtro_restaurrantes"
             android:layout_margin="8dp"
             android:background="@drawable/search_view_bg" />
     </LinearLayout>

@@ -8,8 +8,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.RatingBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +31,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,6 +53,7 @@ public class ComentariosActivity extends AppCompatActivity {
     private RecyclerView rvComentarios;
     private Button btnVolver;
     private Button btnVolverMenu;
+    private Spinner spinnerFiltro;
 
     // Referencia a la base de datos Firestore, a la autenticación de Firebase y al usuario actual
     private FirebaseFirestore db;
@@ -91,6 +96,7 @@ public class ComentariosActivity extends AppCompatActivity {
 
         obtenerReferencias();
         visibilidadComponentesInterfaz();
+        configurarSpinnerFiltro();
 
         btnPublicar.setOnClickListener(v -> publicarValoracion());
         btnVolver.setOnClickListener(v -> volverAInfoRestaurante());
@@ -109,6 +115,7 @@ public class ComentariosActivity extends AppCompatActivity {
         rvComentarios = findViewById(R.id.recyclerViewComentarios);
         btnVolver = findViewById(R.id.btnVolverAInfoActivity);
         btnVolverMenu = findViewById(R.id.btnVolverAlMenuPrincipal);
+        spinnerFiltro = findViewById(R.id.filtroDesplegableSpinnerComentarios);
     }
 
 
@@ -173,7 +180,6 @@ public class ComentariosActivity extends AppCompatActivity {
         btnPublicar.setVisibility(View.VISIBLE);
     }
 
-
     /**
      * Este método se encarga de cargar las valoraciones de un restaurante específico en la interfaz de usuario desde la base de datos Firestore.
      */
@@ -201,6 +207,66 @@ public class ComentariosActivity extends AppCompatActivity {
 
 
     /**
+     * Este método se encarga de configurar el Spinner para que se puedan aplicar filtros a la lista de comentarios.
+     */
+    public void configurarSpinnerFiltro() {
+        spinnerFiltro.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            //se llama cuando un elemento del Spinner es seleccionado
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String order = spinnerFiltro.getSelectedItem().toString();
+                ordenarComentariosPorFecha(order);
+            }
+
+            //se llama cuando no se ha seleccionado ningún elemento del Spinner
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // No hacer nada porque por defecto está seleccionado el elemento de más recientes
+            }
+        });
+    }
+
+
+    /**
+     * Este método se encarga de ordenar los comentarios de un restaurante por fecha de publicación.
+     *
+     * @param orden El orden en el que se van a mostrar los comentarios (más recientes o más antiguos).
+     */
+    public void ordenarComentariosPorFecha(String orden) {
+        Task<QuerySnapshot> query;
+        // dependiendo del orden seleccionado en el Spinner, se ordenan los comentarios de una manera u otra
+        if (orden.equals("Más recientes")) {
+            query = db.collection("comentarios")
+                    .whereEqualTo("idRestaurante", restauranteId)
+                    .orderBy("fecha", Query.Direction.DESCENDING)
+                    .get();
+        } else {
+            query = db.collection("comentarios")
+                    .whereEqualTo("idRestaurante", restauranteId)
+                    .orderBy("fecha", Query.Direction.ASCENDING)
+                    .get();
+        }
+        // Si la consulta fue exitosa, creamos una nueva lista de comentarios con los en el orden que nos ha devuelto la consulta
+        query.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                listaComentarios = new ArrayList<>();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Comentario comentario = document.toObject(Comentario.class);
+                    listaComentarios.add(comentario);
+                }
+                // mostrar los comentarios en el RecyclerView
+                rvComentarios.setLayoutManager(new LinearLayoutManager(this));
+                comentarioAdapter = new ComentarioAdapter(listaComentarios, this);
+                rvComentarios.setAdapter(comentarioAdapter);
+            } else {
+                Log.e("ComentariosActivity", "Error obteniendo valoraciones: ", task.getException());
+                Toast.makeText(this, "Error ordenando valoraciones", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    /**
      * Este método se encarga de obtener los datos de un usuario específico desde la base de datos Firestore.
      *
      * @param usuarioId         El ID del usuario a obtener.
@@ -218,7 +284,6 @@ public class ComentariosActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("ComentariosActivity", "Error obteniendo datos del usuario", e);
-                    Toast.makeText(this, "Error obteniendo datos del usuario", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -238,7 +303,6 @@ public class ComentariosActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("ComentariosActivity", "Error obteniendo datos del restaurante", e);
-                    Toast.makeText(this, "Error obteniendo datos del restaurante", Toast.LENGTH_SHORT).show();
                 });
     }
 

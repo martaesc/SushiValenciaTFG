@@ -5,11 +5,16 @@
     <string name="ek_img_content">ExportKit Image</string>
     <string name="eslogan_inicio">Saborea Japón en Valencia: ¡Encuentra tu lugar perfecto!</string>
 
-    <string-array name="filtros">
+    <string-array name="filtro_restaurrantes">
         <item>Sin filtro</item>
         <item>Orden alfabético</item>
         <item>Por puntuación (orden descendente)</item>
         <item>Con página web</item>
+    </string-array>
+
+    <string-array name="filtro_comentarios">
+        <item>Más recientes</item>
+        <item>Más antiguos</item>
     </string-array>
 
     <string-array name="tipos_usuario">

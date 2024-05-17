@@ -95,6 +95,15 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:text="Echa un vistazo al resto de valoraciones" />
+            <Spinner
+                android:id="@+id/filtroDesplegableSpinnerComentarios"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/filtro_comentarios"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="end"
+                android:layout_marginRight="25dp"
+                android:background="@drawable/search_view_bg" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewComentarios"
