@@ -2,13 +2,10 @@ package com.example.sushivalenciatfg.activities;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -30,7 +27,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -44,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton btnPerfil;
     private ImageButton btnSalir;
     private SearchView searchView;
-    private Button btnAñadirRestaurante;
+    private Button btnAnadirRestaurante;
     private RecyclerView recyclerView;
     private Spinner spinnerFiltro;
 
@@ -100,11 +96,11 @@ public class MainActivity extends AppCompatActivity {
 
         obtenerReferencias();
         obtenerRestaurantes();
-        visibilidadBotonAñadirRestaurante();
+        visibilidadBotonAnadirRestaurante();
         configurarBusquedaEnSearchView();
         configurarSpinnerFiltro();
 
-        btnAñadirRestaurante.setOnClickListener(v -> añadirRestaurante(v));
+        btnAnadirRestaurante.setOnClickListener(v -> anadirRestaurante(v));
         btnPerfil.setOnClickListener(v -> irPerfil(v));
         btnSalir.setOnClickListener(v -> salir(v));
     }
@@ -118,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         btnSalir = findViewById(R.id.btnSalir);
         searchView = findViewById(R.id.searchView);
         recyclerView = findViewById(R.id.lista_restaurantes);
-        btnAñadirRestaurante = findViewById(R.id.btnAñadirRestaurante);
+        btnAnadirRestaurante = findViewById(R.id.btnAñadirRestaurante);
         spinnerFiltro = findViewById(R.id.filtroDesplegableSpinner);
     }
 
@@ -283,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Este método se encarga de controlar la visibilidad  del botón de añadir restaurante en la interfaz en función del tipo de usuario que ha iniciado sesión.
      */
-    public void visibilidadBotonAñadirRestaurante() {
+    public void visibilidadBotonAnadirRestaurante() {
         currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
@@ -296,9 +292,9 @@ public class MainActivity extends AppCompatActivity {
                             // Obtenemos el tipo de usuario que es consultando el campo "tipoUsuario" del documento
                             String tipoUsuario = task.getResult().getDocuments().get(0).getString("tipoUsuario");
                             if ("Restaurante".equals(tipoUsuario)) {
-                                btnAñadirRestaurante.setVisibility(View.VISIBLE);
+                                btnAnadirRestaurante.setVisibility(View.VISIBLE);
                             } else {
-                                btnAñadirRestaurante.setVisibility(View.GONE);
+                                btnAnadirRestaurante.setVisibility(View.GONE);
                             }
                         } else {
                             Log.d("MainActivity", "No se encontró un documento de usuario con el uid: " + userId);
@@ -369,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param view La vista que fue clickeada.
      */
-    public void añadirRestaurante(View view) {
+    public void anadirRestaurante(View view) {
         Intent intent = new Intent(this, NuevoRestauranteActivity.class);
         startActivity(intent);
     }

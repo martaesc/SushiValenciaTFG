@@ -10,11 +10,10 @@ import com.google.android.material.button.MaterialButton;
 
 /**
  * Esta es la clase InicioActivity, que extiende AppCompatActivity.
- * Representa la actividad inicial de la aplicación.
+ * Representa la pantalla inicial de la aplicación.
  */
 public class InicioActivity extends AppCompatActivity {
 
-    //botón que inicia la actividad
     private MaterialButton btnEmpezar;
 
 

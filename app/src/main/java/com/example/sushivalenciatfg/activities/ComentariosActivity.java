@@ -478,38 +478,43 @@ public class ComentariosActivity extends AppCompatActivity {
      * @param textoRespuesta El texto de la respuesta.
      */
     public void responderComentario(String comentarioId, String textoRespuesta) {
-        String idUsuarioActual = mAuth.getCurrentUser().getUid();
-        Date fechaRespuesta = new Date();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String idUsuarioActual = currentUser.getUid();
+            Date fechaRespuesta = new Date();
 
-        //obtenemos el documento del comentario al que se va a responder
-        obtenerComentario(comentarioId, comentario -> {
-            //y el documento del restaurante al que pertenece el comentario
-            obtenerRestaurante(comentario.getIdRestaurante(), restaurante -> {
-                // si el usuario actual no es el propietario del restaurante, no puede responder al comentario
-                if (!idUsuarioActual.equals(restaurante.getIdUsuarioRestaurante())) {
-                    Toast.makeText(this, "No tienes permisos para responder a este comentario", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+            //obtenemos el documento del comentario al que se va a responder
+            obtenerComentario(comentarioId, comentario -> {
+                //y el documento del restaurante al que pertenece el comentario
+                obtenerRestaurante(comentario.getIdRestaurante(), restaurante -> {
+                    // si el usuario actual no es el propietario del restaurante, no puede responder al comentario
+                    if (!idUsuarioActual.equals(restaurante.getIdUsuarioRestaurante())) {
+                        Toast.makeText(this, "No tienes permisos para responder a este comentario", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                // Si sí que es el propietario del reataurante, obtenemos el nombre de usuario y la imagen
-                obtenerUsuario(idUsuarioActual, documentSnapshot -> {
-                    String fotoPerfilRestaurante = documentSnapshot.getString("fotoPerfil");
-                    String nombreUsuario = documentSnapshot.getString("nombreUsuario");
-                    Respuesta nuevaRespuesta = new Respuesta(nombreUsuario, textoRespuesta, fechaRespuesta, fotoPerfilRestaurante, idUsuarioActual, comentarioId);
-                    // Añadimos la nueva respuesta a la lista de respuestas del comentario
-                    comentario.getRespuestasRestaurante().add(nuevaRespuesta);
+                    // Si sí que es el propietario del reataurante, obtenemos el nombre de usuario y la imagen
+                    obtenerUsuario(idUsuarioActual, documentSnapshot -> {
+                        String fotoPerfilRestaurante = documentSnapshot.getString("fotoPerfil");
+                        String nombreUsuario = documentSnapshot.getString("nombreUsuario");
+                        Respuesta nuevaRespuesta = new Respuesta(nombreUsuario, textoRespuesta, fechaRespuesta, fotoPerfilRestaurante, idUsuarioActual, comentarioId);
+                        // Añadimos la nueva respuesta a la lista de respuestas del comentario
+                        comentario.getRespuestasRestaurante().add(nuevaRespuesta);
 
-                    // Notificamos al adaptador del RecyclerView que se ha añadido una nueva respuesta para que se actualice la interfaz
-                    comentarioAdapter.notifyDataSetChanged();
+                        // Notificamos al adaptador del RecyclerView que se ha añadido una nueva respuesta para que se actualice la interfaz
+                        comentarioAdapter.notifyDataSetChanged();
 
-                    // Guardamos la nueva respuesta en Firestore
-                    guardarRespuestaEnFirestore(nuevaRespuesta, comentarioId, aVoid -> {
-                        Toast.makeText(this, "¡Respuesta publicada con éxito!", Toast.LENGTH_SHORT).show();
-                        cargarValoraciones();
+                        // Guardamos la nueva respuesta en Firestore
+                        guardarRespuestaEnFirestore(nuevaRespuesta, comentarioId, aVoid -> {
+                            Toast.makeText(this, "¡Respuesta publicada con éxito!", Toast.LENGTH_SHORT).show();
+                            cargarValoraciones();
+                        });
                     });
                 });
             });
-        });
+        } else {
+            Log.e("responderComentario", "El usuario actual es nulo");
+        }
     }
 
 
