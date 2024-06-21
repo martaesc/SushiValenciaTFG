@@ -5,6 +5,7 @@ IES Eduardo Primo Marqués
 Curso 2023/24  
 
 ![Captura de pantalla 2024-05-22 231814](https://github.com/martaesc/SushiValenciaTFG/assets/116181131/3b7e7a1e-6763-4c83-953d-1aa1f3e7df85)
+![image](https://github.com/martaesc/SushiValenciaTFG/assets/116181131/2a194e63-76b2-4d58-94d6-5eba1d3ce6bb)
 ![image](https://github.com/martaesc/SushiValenciaTFG/assets/116181131/607afca2-a9d3-46a0-b58b-f2c1864614c5)
 ![image](https://github.com/martaesc/SushiValenciaTFG/assets/116181131/9e5aa168-318d-4f0f-a578-144da2d65760)
 ![image](https://github.com/martaesc/SushiValenciaTFG/assets/116181131/9a7c2f4c-4533-4c4c-a421-fcda47127ecc)
