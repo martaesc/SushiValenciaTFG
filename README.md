@@ -3,8 +3,6 @@
 
 SushiValencia es una aplicación intuitiva diseñada para descubrir y explorar una amplia variedad de restaurantes de sushi en la ciudad de Valencia. La aplicación, desarrollada con Firebase y Android Studio, permite a los usuarios registrarse, iniciar sesión, explorar restaurantes y agregar nuevos establecimientos a la plataforma. Con un enfoque en la experiencia del usuario y funcionalidades robustas, SushiValencia busca satisfacer las necesidades tanto de los aficionados a la comida japonesa como de los propietarios de restaurantes.
 
-Este proyecto documenta todo el proceso de desarrollo de la aplicación, desde la concepción de la idea hasta la implementación final.
-
 
 ![Captura de pantalla 2024-05-22 231814](https://github.com/martaesc/SushiValenciaTFG/assets/116181131/3b7e7a1e-6763-4c83-953d-1aa1f3e7df85)
 ![image](https://github.com/martaesc/SushiValenciaTFG/assets/116181131/2a194e63-76b2-4d58-94d6-5eba1d3ce6bb)
